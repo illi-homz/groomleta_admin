@@ -7,7 +7,7 @@
 						alt="Vuetify Logo"
 						class="shrink mr-2"
 						contain
-						:src="logoIcon"
+						:src="require('../assets/logo.svg')"
 						transition="scale-transition"
 					/>
 				</div>
@@ -25,7 +25,12 @@
 				</router-link>
 			</nav>
 			<div class="d-flex align-center pointer" @click="logout">
-				<v-img alt="logout" class="shrink mr-2" contain :src="logoutIcon" />
+				<v-img
+					alt="logout"
+					class="shrink mr-2"
+					contain
+					:src="require('../assets/svg/logout.svg')"
+				/>
 				<span>Выйти</span>
 			</div>
 		</v-app-bar>
@@ -34,6 +39,8 @@
 </template>
 
 <script lang="ts">
+import {mapActions} from 'vuex'
+
 export default {
 	name: 'MainLayout',
 	data: () => ({
@@ -45,8 +52,15 @@ export default {
 		logoutIcon: require('../assets/svg/logout.svg'),
 	}),
 	methods: {
-		logout() {
-			console.log('logout');
+		...mapActions([
+			'LOGOUT'
+		]),
+		async logout() {
+			const {status} = await this.LOGOUT()
+
+			if (status === 'success') {
+				this.$router.push('/login')
+			}
 		},
 	},
 };

@@ -34,16 +34,22 @@ const router = new VueRouter({
 	routes,
 });
 
-router.beforeEach((to, from, next) => {
-	const token = store.getters.TOKEN;
+router.beforeEach(async (to, from, next) => {
+	const isAuth = await store.dispatch('CHECK_USER')
+
 	const { path: fromPath } = from;
-	const { matched: toMatched, meta } = to;
+	const { matched: toMatched, meta, path: toPath } = to;
 
 	const requiresAuth = toMatched.some(record => record.meta.requiresAuth);
 
-	if (requiresAuth && !token) {
+	if (requiresAuth && !isAuth) {
 		fromPath !== '/login' && router.push('/login');
 		return;
+	}
+
+	if (isAuth && toPath === '/login') {
+		router.push('/')
+		return
 	}
 
 	document.title = meta?.title || 'Админ панель Groomleta';

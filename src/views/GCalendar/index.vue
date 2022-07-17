@@ -1,6 +1,6 @@
 <template>
 <div class="g-calendar">
-	<h1>Calendar</h1>
+	<h1>Calendar page</h1>
 </div>
 </template>
 
@@ -9,8 +9,5 @@ import './styles.scss';
 
 export default {	
 	name: 'GCalendar',
-	// created() {
-	// 	document.title = 'Календарь'
-	// },
 }
 </script>
