@@ -34,7 +34,7 @@
 				<span>Выйти</span>
 			</div>
 		</v-app-bar>
-		<slot></slot>
+		<slot />
 	</div>
 </template>
 

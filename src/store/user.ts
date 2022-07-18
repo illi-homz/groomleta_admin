@@ -18,17 +18,32 @@ export default {
 		// },
 	},
 	actions: {
-		LOGIN({ commit }: { commit: Function }, data: LoginData) {
-			const token = API.user.login(data);
-			localStorage.setItem('token', token)
+		async LOGIN({ commit }: { commit: Function }, data: LoginData) {
+			try {
+				const token = await API.user.login(data);
 
-			return {
-				status: 'success',
-				ok: true,
-			};
+				console.log('token', token)
+
+				if (!token) {
+					throw new Error('token is null')
+				}
+
+				localStorage.setItem('token', token);
+
+				return {
+					status: 'success',
+					ok: true,
+				};
+			} catch (e) {
+				console.log('action LOGIN exeption:', e);
+				return {
+					status: 'error',
+					ok: false,
+				};
+			}
 		},
 		LOGOUT({ commit }: { commit: Function }) {
-			localStorage.removeItem('token')
+			localStorage.removeItem('token');
 
 			return {
 				status: 'success',
@@ -36,8 +51,8 @@ export default {
 			};
 		},
 		CHECK_USER({ commit }: { commit: Function }) {
-			const token = localStorage.getItem('token')
-			return !!token
+			const token = localStorage.getItem('token');
+			return !!token;
 		},
 	},
 	getters: {

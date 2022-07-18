@@ -1,0 +1,25 @@
+.v-input {
+}
+
+
+.v-input .v-messages {
+	&__message {
+		padding-left: 22px !important;
+		line-height: 14px;
+
+		&::before {
+			// content: url(require('~@/assets/svg/input-error.svg'));
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 15px;
+			height: 13px;
+			background: url('~@/assets/svg/input-error.svg') center / contain no-repeat;
+		}
+	}
+
+}
+
+// input-error

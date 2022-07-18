@@ -24,7 +24,7 @@ const routes: Array<RouteConfig> = [
 			requiresAuth: false,
 			layout: 'empty',
 		},
-		component: Views.GLogIn,
+		component: Views.GLogin,
 	},
 ];
 
