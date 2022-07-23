@@ -1,5 +1,6 @@
 import { LoginData } from '@/models/user';
 import API from '@/api/index';
+import Vue from 'vue';
 
 interface UserState {
 	// token: string | null;
@@ -20,22 +21,24 @@ export default {
 	actions: {
 		async LOGIN({ commit }: { commit: Function }, data: LoginData) {
 			try {
-				const token = await API.user.login(data);
-
-				console.log('token', token)
+				const {tokenAuth} = (await API.user.login(data)) || {};
+				const {token} = tokenAuth || {}
 
 				if (!token) {
+					console.log('Vue.$cookies.remove')
+					const res = Vue.$cookies.remove('JWT')
+					console.log('res', res)
 					throw new Error('token is null')
 				}
 
-				localStorage.setItem('token', token);
+				Vue.$cookies.set('JWT', token)
 
 				return {
 					status: 'success',
 					ok: true,
 				};
 			} catch (e) {
-				console.log('action LOGIN exeption:', e);
+				console.error('action LOGIN exeption:', e);
 				return {
 					status: 'error',
 					ok: false,
@@ -43,7 +46,7 @@ export default {
 			}
 		},
 		LOGOUT({ commit }: { commit: Function }) {
-			localStorage.removeItem('token');
+			Vue.$cookies.remove('JWT')
 
 			return {
 				status: 'success',
@@ -51,7 +54,7 @@ export default {
 			};
 		},
 		CHECK_USER({ commit }: { commit: Function }) {
-			const token = localStorage.getItem('token');
+			const token = Vue.$cookies.get('JWT');
 			return !!token;
 		},
 	},
