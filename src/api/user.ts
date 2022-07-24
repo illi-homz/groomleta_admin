@@ -1,4 +1,5 @@
 import { LoginData } from '@/models/user';
+import { fetcherGQL } from '.';
 const API_URL = process.env.VUE_APP_API_URL;
 
 const loginQuery = ({
@@ -25,37 +26,18 @@ const loginQuery = ({
 class User {
 	static login(data: LoginData) {
 		const { login: username, password } = data;
-		console.log('username, password', username, password)
 
-		try {
-			return fetch(API_URL + '/graphql/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					query: loginQuery({
-						username,
-						password,
-					}),
+		if (!username && !password) throw new Error('User data not found');
+
+		return fetcherGQL({
+			key: 'User.login',
+			query: {
+				query: loginQuery({
+					username,
+					password,
 				}),
-			})
-				.then(response => {
-					if (!response?.ok) {
-						throw new Error(response.statusText);
-					}
-					// console.log('response', response);
-
-					return response.json();
-				})
-				.then(json => {
-					console.log('json.data', json.data)
-					return json.data
-				});
-		} catch (e) {
-			console.warn('User.login exeption:', e);
-			return null;
-		}
+			},
+		});
 	}
 }
 

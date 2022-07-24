@@ -3,20 +3,12 @@ import API from '@/api/index';
 import Vue from 'vue';
 
 interface UserState {
-	// token: string | null;
 }
 
 export default {
 	state: (): UserState => ({
-		// token: null,
 	}),
 	mutations: {
-		// clearToken(state: UserState): void {
-		// 	state.token = null;
-		// },
-		// setToken(state: UserState, token: string): void {
-		// 	state.token = token;
-		// },
 	},
 	actions: {
 		async LOGIN({ commit }: { commit: Function }, data: LoginData) {
@@ -24,10 +16,12 @@ export default {
 				const {tokenAuth} = (await API.user.login(data)) || {};
 				const {token} = tokenAuth || {}
 
-				if (!token) {
-					console.log('Vue.$cookies.remove')
-					const res = Vue.$cookies.remove('JWT')
-					console.log('res', res)
+				console.log('token', token)
+
+				if (true) {
+				// if (!token) {
+					Vue.$cookies.set('JWT', token)
+					// const res = Vue.$cookies.remove('JWT')
 					throw new Error('token is null')
 				}
 
@@ -55,10 +49,9 @@ export default {
 		},
 		CHECK_USER({ commit }: { commit: Function }) {
 			const token = Vue.$cookies.get('JWT');
-			return !!token;
+			return token;
 		},
 	},
 	getters: {
-		// TOKEN: (s: UserState) => s.token,
 	},
 };
