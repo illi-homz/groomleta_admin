@@ -1,15 +1,60 @@
 import { LoginData } from '@/models/user';
 import { fetcherGQL } from '.';
-const API_URL = process.env.VUE_APP_API_URL;
 
-const loginQuery = ({
-	username,
-	password,
-}: {
-	username: string;
-	password: string;
-}) => {
-	return `
+class User {
+	static login(data: LoginData) {
+		const { username, password } = data;
+
+		if (!username && !password) throw 'User data not found';
+
+		return fetcherGQL({
+			key: 'User.login',
+			query: {
+				query: getAccessTokenMutation({
+					username,
+					password,
+				}),
+			},
+		});
+	}
+
+	static validateToken(token: string) {
+		if (!token) return null
+
+		return fetcherGQL({
+			key: 'User.validateToken',
+			query: {
+				query: validateRefreshTokenMutation(token),
+			},
+		});
+	}
+
+	static updateRefreshToken(token: string) {
+		if (!token) return null
+
+		return fetcherGQL({
+			key: 'User.getRefreshToken',
+			query: {
+				query: updateRefreshTokenMutation(token),
+			},
+		});
+	}
+
+	static revokeRefreshToken(token: string) {
+		if (!token) return null
+
+		return fetcherGQL({
+			key: 'User.logout',
+			query: {
+				query: revokeRefreshTokenMutation(token),
+			},
+		});
+	}
+}
+
+export default User;
+
+const getAccessTokenMutation = ({ username, password }: LoginData) => `
 	mutation {
 		tokenAuth(
 			username: "${username}",
@@ -19,26 +64,36 @@ const loginQuery = ({
 			token
 			payload
 			refreshExpiresIn
+			refreshToken
 		}
-	}`;
-};
+}`;
 
-class User {
-	static login(data: LoginData) {
-		const { login: username, password } = data;
-
-		if (!username && !password) throw new Error('User data not found');
-
-		return fetcherGQL({
-			key: 'User.login',
-			query: {
-				query: loginQuery({
-					username,
-					password,
-				}),
-			},
-		});
+const updateRefreshTokenMutation = (token: string) => `
+	mutation {
+		refreshToken(
+			refreshToken: "${token}",
+		) {
+			token
+			payload
+			refreshExpiresIn
+			refreshToken
+		}
 	}
-}
+`
 
-export default User;
+const revokeRefreshTokenMutation = (token: string) => `
+	mutation {
+		revokeToken(
+			refreshToken: "${token}",
+		)
+		{
+			revoked
+		}
+}`;
+
+const validateRefreshTokenMutation = (token: string) => `
+	mutation {
+		verifyToken(token: "${token}") {
+			payload
+		}
+}`;

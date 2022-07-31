@@ -9,10 +9,10 @@
 		<div class="text-h4 text-center">Вход</div>
 		<div class="flex-grow-1">
 			<v-text-field
-				ref="login"
-				v-model="login"
+				ref="username"
+				v-model="username"
 				label="Логин"
-				:rules="[() => !!login || 'Введите логин']"
+				:rules="[() => !!username || 'Введите логин']"
 				color="rgba(36, 49, 56, 0.38)"
 			/>
 			<v-text-field
@@ -27,8 +27,8 @@
 				color="rgba(36, 49, 56, 0.38)"
 			/>
 		</div>
-		<v-btn x-large color="#FFC11C" @click="onLogin">Войти</v-btn>
-		<v-btn x-large color="#FFC11C" @click="getServices">Сервисы</v-btn>
+		<v-btn x-large color="#FFC11C" dark @click="onLogin">Войти</v-btn>
+		<v-btn x-large color="#FFC11C" dark @click="getServices">Сервисы</v-btn>
 	</v-card>
 </template>
 
@@ -40,25 +40,28 @@ import { mapActions } from 'vuex';
 export default {
 	name: 'GLogin',
 	data: () => ({
-		login: '',
+		username: '',
 		password: '',
 	}),
 	computed: {
 		form() {
 			return {
-				login: this.login,
+				username: this.username,
 				password: this.password,
 			};
 		},
 	},
+	mounted() {
+		this.CHECK_TOKEN();
+	},
 	methods: {
-		...mapActions(['LOGIN', 'GET_SERVICES']),
+		...mapActions(['LOGIN', 'GET_SERVICES', 'CHECK_TOKEN']),
 		async onLogin() {
-			const formHasErrors = validator.call(this, this.form)
+			const formHasErrors = validator.call(this, this.form);
 			if (formHasErrors) return;
 
 			const response = await this.LOGIN({
-				login: this.login,
+				username: this.username,
 				password: this.password,
 			});
 
@@ -69,8 +72,8 @@ export default {
 			}
 		},
 		getServices() {
-			this.GET_SERVICES()
-		}
+			this.GET_SERVICES();
+		},
 	},
 };
 </script>

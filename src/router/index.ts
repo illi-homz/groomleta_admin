@@ -17,6 +17,66 @@ const routes: Array<RouteConfig> = [
 		component: Views.GCalendar,
 	},
 	{
+		path: '/stock',
+		name: 'g-stock',
+		meta: {
+			title: 'Склад',
+			requiresAuth: true,
+			layout: 'main',
+		},
+		component: Views.GStock,
+	},
+	{
+		path: '/orders',
+		name: 'g-orders',
+		meta: {
+			title: 'Заказы',
+			requiresAuth: true,
+			layout: 'main',
+		},
+		component: Views.GOrders,
+	},
+	{
+		path: '/clients',
+		name: 'g-clients',
+		meta: {
+			title: 'Клиенты',
+			requiresAuth: true,
+			layout: 'main',
+		},
+		component: Views.GClients,
+	},
+	{
+		path: '/feedbacks',
+		name: 'g-feedbacks',
+		meta: {
+			title: 'Отзывы',
+			requiresAuth: true,
+			layout: 'main',
+		},
+		component: Views.GFeedbacks,
+	},
+	{
+		path: '/groomers',
+		name: 'g-groomers',
+		meta: {
+			title: 'Грумеры',
+			requiresAuth: true,
+			layout: 'main',
+		},
+		component: Views.GGroomers,
+	},
+	{
+		path: '/groomer-detail/:id',
+		name: 'g-groomerdetail',
+		meta: {
+			title: 'Персональная страница мастера',
+			requiresAuth: true,
+			layout: 'main',
+		},
+		component: Views.GGroomerDetail,
+	},
+	{
 		path: '/login',
 		name: 'g-login',
 		meta: {

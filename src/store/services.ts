@@ -1,25 +1,30 @@
-import Services from '@/api/services'
-import Vue from 'vue';
+import API from '@/api/index';
+import { errorResponse, successResponse } from '.';
 
 export default {
-	state: () => ({
+	state: (): any => ({
+		services: [],
 	}),
 	mutations: {
+		SET_SERVICES(state: any, services: Object[]) {
+			state.services = services
+		}
 	},
 	actions: {
 		async GET_SERVICES({ commit }: { commit: Function }) {
-			const token = Vue.$cookies.get('JWT')
-			if (!token) throw new Error('Token exist')
+			try {
+				const services = await API.services.getServices();
 
-			const services = await Services.getServices(token)
-			console.log('services', services)
-
-			return {
-				status: 'success',
-				ok: true,
-			};
+				commit('SET_SERVICES', services)
+				
+				return {...successResponse, data: services};
+			} catch (e) {
+				console.log('GET_SERVICES exeption:', e)
+				return errorResponse;
+			}
 		},
 	},
 	getters: {
+		SERVICES: (s: any) => s.services,
 	},
 };

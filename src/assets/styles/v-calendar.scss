@@ -1,0 +1,8 @@
+.v-calendar {
+	& &-weekly__head-weekday {
+		border-width: 1px;
+		border-style: solid;
+		border-color: transparent;
+		border-bottom-color: #e0e0e0;
+	}
+}

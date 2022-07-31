@@ -10,13 +10,7 @@ module.exports = {
 		'ts-nocheck': 0,
 		'vue/html-indent': 0,
 		'vue/singleline-html-element-content-newline': 0,
-		'vue/max-attributes-per-line': ["error", {
-			"singleline": {
-				"max": 5
-			  },      
-			  "multiline": {
-				"max": 1
-			  }
-		}],
+		'vue/no-v-text-v-html-on-component': 0,
+		'vue/max-attributes-per-line': 0,
 	},
 };
