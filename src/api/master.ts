@@ -5,7 +5,20 @@ class Master {
 		return fetcherGQL({
 			key: 'Master.fetchAllMasters',
 			query: {
-				query: all_groomers,
+				query: `
+					query {
+						allGroomers {
+							id
+							username
+							lastname
+							avatar
+							education
+							phone
+							post
+							createDate
+						}
+					}
+				`,
 			},
 		});
 	}
@@ -16,38 +29,23 @@ class Master {
 		return fetcherGQL({
 			key: 'Master.fetchMasterById',
 			query: {
-				query: grooberById(id),
+				query: `
+					query {
+						grooberById(id: "${id}") {
+							id
+							username
+							lastname
+							avatar
+							education
+							phone
+							post
+							createDate
+						}
+					}
+				`,
 			},
 		});
 	}
 }
 
 export default Master;
-
-const grooberById = (id: string | number) => `
-query {
-	grooberById(id: "${id}") {
-		id
-		username
-		lastname
-		avatar
-		education
-		phone
-		post
-		createDate
-	}
-}`;
-
-const all_groomers = `
-query {
-	allGroomers {
-		id
-		username
-		lastname
-		avatar
-		education
-		phone
-		post
-		createDate
-	}
-}`;

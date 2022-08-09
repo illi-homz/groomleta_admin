@@ -6,3 +6,25 @@
 		border-bottom-color: #e0e0e0;
 	}
 }
+
+.v-calendar-weekly__day,
+.v-calendar-weekly__head-weekday {
+	&:nth-child(7),
+	&:nth-child(8) {
+		background-color: #FFC11C20;
+	}
+}
+
+.v-calendar-weekly__day {
+	&.v-present {
+		.v-btn__content {
+			color: #fff;
+		}
+	}
+}
+
+.v-toolbar {
+	&__title {
+		overflow: visible;
+	}
+}

@@ -2,18 +2,20 @@
 import User from './user';
 import Master from './master';
 import Services from './services';
+import Events from './events';
 import Vue from 'vue';
 const API_URL = process.env.VUE_APP_API_URL;
 
 export const fetcherGQL = ({
 	key = '',
-	query = {},
+	query,
+	mutation
 }: {
 	key: string,
-	query: Object,
+	query?: Object,
+	mutation?: Object,
 }) => {
 	const token = Vue.$cookies.get('JWT');
-	if (!token) throw new Error('Token exist');
 	
 	try {
 		return fetch(API_URL + '/graphql/', {
@@ -22,7 +24,7 @@ export const fetcherGQL = ({
 				'Content-Type': 'application/json',
 				Authorization: `JWT ${token || ''}`,
 			},
-			body: JSON.stringify(query),
+			body: JSON.stringify(query || mutation || {}),
 		})
 			.then(response => {
 				if (!response?.ok) {
@@ -39,7 +41,7 @@ export const fetcherGQL = ({
 			})
 	} catch (e) {
 		console.warn(`${key} exeption:`, e);
-		return null;
+		return new Promise(resolve => resolve(null));
 	}
 };
 
@@ -47,4 +49,5 @@ export default {
 	user: User,
 	master: Master,
 	services: Services,
+	events: Events,
 };

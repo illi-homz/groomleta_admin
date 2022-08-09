@@ -20,10 +20,22 @@
 		<v-row class="flex-grow-1">
 			<v-col>
 				<v-data-table
-					:items-per-page="20"
+					:items-per-page="15"
 					:headers="headers"
 					:items="currentGroomersList"
 					:search="search"
+					no-data-text="Ничего найти не получилось"
+					no-results-text="Ничего найти не получилось"
+					loading-text="Загрузка"
+					:footer-props="{
+						itemsPerPageText: 'Мастеров на странице',
+						itemsPerPageAllText: 'Все',
+						showCurrentPage: true,
+						showFirstLastPage: true,
+						pageText: `${currentPage} из ${pageCount}`
+					}"
+					@pagination="setCurrentPage"
+					@page-count="setPageCount"
 				>
 					<template v-slot:item="{ item }">
 						<tr @click="gotoDetail(item)" class="pointer">
@@ -59,6 +71,8 @@ const MEDIAFILES = process.env.VUE_APP_MEDIAFILES;
 export default {
 	name: 'GGroomers',
 	data: () => ({
+		currentPage: 0,
+		pageCount: 0,
 		searchStr: '',
 		search: '',
 		headers: [
@@ -71,16 +85,6 @@ export default {
 			{ text: 'Имя Фамилия', value: 'name' },
 			{ text: 'Телефон', value: 'phone' },
 			{ text: 'Стаж', value: 'experience' },
-		],
-		desserts: [
-			{
-				name: 'Frozen Yogurt',
-				calories: 159,
-				fat: 6.0,
-				carbs: 24,
-				protein: 4.0,
-				iron: '1%',
-			},
 		],
 	}),
 	computed: {
@@ -100,10 +104,16 @@ export default {
 		},
 	},
 	mounted() {
-		this.getAllGroomers();
+		// this.getAllGroomers();
 	},
 	methods: {
 		...mapActions(['GET_ALL_GROOMERS']),
+		setPageCount(v) {
+			this.pageCount = v
+		},
+		setCurrentPage({page}) {
+			this.currentPage = page
+		},
 		async getAllGroomers() {
 			const response = await this.GET_ALL_GROOMERS();
 		},

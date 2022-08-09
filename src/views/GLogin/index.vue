@@ -28,7 +28,6 @@
 			/>
 		</div>
 		<v-btn x-large color="#FFC11C" dark @click="onLogin">Войти</v-btn>
-		<v-btn x-large color="#FFC11C" dark @click="getServices">Сервисы</v-btn>
 	</v-card>
 </template>
 
@@ -55,7 +54,7 @@ export default {
 		this.CHECK_TOKEN();
 	},
 	methods: {
-		...mapActions(['LOGIN', 'GET_SERVICES', 'CHECK_TOKEN']),
+		...mapActions(['LOGIN', 'CHECK_TOKEN']),
 		async onLogin() {
 			const formHasErrors = validator.call(this, this.form);
 			if (formHasErrors) return;
@@ -70,9 +69,6 @@ export default {
 			if (response.status === 'success') {
 				this.$router.push('/');
 			}
-		},
-		getServices() {
-			this.GET_SERVICES();
 		},
 	},
 };

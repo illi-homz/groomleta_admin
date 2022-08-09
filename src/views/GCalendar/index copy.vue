@@ -110,7 +110,7 @@
 						:event-ripple="false"
 						@click:more="viewDay"
 						@click:date="viewDay"
-						@click:day="showCreateEventForm"
+						@click:day="createEvent"
 						@click:event="showEvent"
 						@mousedown:event="startDrag"
 						@mousemove:time="mouseMove"
@@ -131,14 +131,77 @@
 							></div>
 						</template>
 					</v-calendar>
-					<GCalendarEventMenu
-						:selectedEvent="selectedEvent"
+					<v-menu
+						v-if="selectedEvent"
 						v-model="selectedOpen"
-						:selectedElement="selectedElement"
-						:servicesList="SERVICES"
-						@setEvent="setEvent"
-						@saveEvent="saveEvent"
-					/>
+						:close-on-content-click="false"
+						:activator="selectedElement"
+						offset-y
+					>
+						<v-card color="grey lighten-4" min-width="350px" flat>
+							<v-toolbar :color="selectedEvent.color" dark>
+								<!-- <v-toolbar-title>
+									{{selectedEvent.name}}
+								</v-toolbar-title> -->
+								<v-toolbar-title>
+									<v-text-field
+										label="Название события"
+										v-model="selectedEvent.name"
+										filled
+										dense
+										outlined
+										color="#FFC11C"
+										hide-details
+									></v-text-field>
+								</v-toolbar-title>
+								<v-spacer></v-spacer>
+								<v-btn icon>
+									<v-icon>mdi-pencil</v-icon>
+								</v-btn>
+								<v-btn icon @click="closeEvent">
+									<v-icon>mdi-close</v-icon>
+								</v-btn>
+							</v-toolbar>
+							<v-card-text>
+								<span v-html="selectedEvent.details"></span>
+								<div>
+									<div class="text-h6">Услуги:</div>
+									<v-list-item
+										v-for="service in selectedEvent.services"
+										:key="service.id"
+										dense
+									>
+										<v-list-item-content class="py-2">
+											<v-list-item-title>{{
+												service.title
+											}}</v-list-item-title>
+										</v-list-item-content>
+									</v-list-item>
+								</div>
+								<div v-if="selectedEvent.master">
+									<span class="text-h6">Мастер:</span>
+									<span class="ml-2">{{
+										selectedEvent.master.username
+									}}</span>
+								</div>
+								<div v-if="selectedEvent.client">
+									<span class="text-h6">Клиент:</span>
+									<span class="ml-2">{{
+										selectedEvent.client.username
+									}}</span>
+								</div>
+							</v-card-text>
+							<v-card-actions>
+								<v-btn
+									text
+									color="secondary"
+									@click="closeEvent"
+								>
+									Отмена
+								</v-btn>
+							</v-card-actions>
+						</v-card>
+					</v-menu>
 				</v-sheet>
 			</v-col>
 		</v-row>
@@ -148,7 +211,7 @@
 			:servicesList="SERVICES"
 			:groomersList="GROOMERS"
 			@onModalClose="isModalFromShow = false"
-			@onSubmitEvent="createEvent"
+			@onSubmitEvent="submitEvent"
 		/>
 	</div>
 </template>
@@ -157,7 +220,6 @@
 import { mapActions, mapGetters } from 'vuex';
 import { GCreateEventModalForm, GCalendarEventMenu } from '@/components';
 import { EventColorType } from '@/models/vutify';
-import { convertTimestampToLocalDateTime, getDeffData } from '@/utils';
 import './styles.scss';
 
 export default {
@@ -206,7 +268,7 @@ export default {
 		createOrder() {
 			console.log('createOrder');
 		},
-		async createEvent(formData: Object) {
+		async submitEvent(formData: Object) {
 			console.log('formData', formData);
 			const { data } = await this.CREATE_EVENT(formData);
 			this.isModalFromShow = false;
@@ -216,7 +278,7 @@ export default {
 			this.focus = date;
 			this.type = 'day';
 		},
-		showCreateEventForm({ date }: any) {
+		createEvent({ date }: any) {
 			this.currentDate = date;
 			this.isModalFromShow = true;
 		},
@@ -231,48 +293,6 @@ export default {
 		},
 		next() {
 			this.$refs.calendar?.next();
-		},
-		setEvent(data: any) {
-			Object.keys(data).forEach(key => {
-				this.selectedEvent[key] = data[key];
-			});
-		},
-		async saveEvent() {
-			const nativeEvent = this.EVENTS.find(
-				(el: any) => el.id === this.selectedEvent.id,
-			);
-			const {
-				start,
-				end,
-				name,
-				timed,
-				color,
-				services,
-				...selectedEventData
-			} = this.selectedEvent;
-			const currentSelectedEvent = {
-				...selectedEventData,
-				title: name,
-				startDate: convertTimestampToLocalDateTime(start),
-				endDate: convertTimestampToLocalDateTime(end),
-				services: JSON.parse(JSON.stringify(services)),
-			};
-
-			const diffEventData = getDeffData(
-				nativeEvent,
-				currentSelectedEvent,
-			);
-
-			if (Object.keys(diffEventData).length) {
-				const response = await this.UPDATE_EVENT({
-					id: this.selectedEvent.id,
-					data: diffEventData,
-				});
-				console.log('response', response.data);
-
-				this.getEvents();
-			}
-			this.closeEvent();
 		},
 		showEvent({ nativeEvent, event }: any) {
 			if (this.currentEvent) {
@@ -296,7 +316,7 @@ export default {
 			nativeEvent.stopPropagation();
 		},
 		closeEvent() {
-			this.selectedOpen = false;
+			this.selectedOpen = false
 		},
 		startDrag({ event, timed }: any) {
 			if (event && timed) {
@@ -408,29 +428,17 @@ export default {
 
 const eventsFormatter = (events: Object[]): Object[] => {
 	return events.map(
-		({
-			id,
-			title,
-			startDate,
-			endDate,
-			master,
-			services,
-			client,
-			comment,
-			createDate,
-		}: any) => {
+		({ id, title, startDate, endDate, master, services, client }: any) => {
 			return {
 				id,
 				name: title,
 				start: new Date(startDate).getTime(),
 				end: new Date(endDate).getTime(),
-				color: master?.color || '#FFC11C',
+				color: master.color,
 				timed: true,
 				services,
 				master,
 				client,
-				comment,
-				createDate,
 			};
 		},
 	);

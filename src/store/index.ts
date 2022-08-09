@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import user from './user';
 import services from './services';
 import master from './master';
+import events from './events';
 
 Vue.use(Vuex);
 
@@ -11,7 +12,7 @@ export default new Vuex.Store({
 	getters: {},
 	mutations: {},
 	actions: {},
-	modules: { user, services, master },
+	modules: { user, services, master, events },
 });
 
 export const successResponse = {
