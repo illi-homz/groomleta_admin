@@ -8,6 +8,8 @@
 }
 
 .v-calendar-weekly__day,
+.v-calendar-daily_head-day,
+.v-calendar-daily__day,
 .v-calendar-weekly__head-weekday {
 	&:nth-child(7),
 	&:nth-child(8) {
@@ -15,6 +17,7 @@
 	}
 }
 
+.v-calendar-daily_head-day,
 .v-calendar-weekly__day {
 	&.v-present {
 		.v-btn__content {

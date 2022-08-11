@@ -14,18 +14,18 @@
 			</router-link>
 
 			<nav class="flex-grow-1 d-flex justify-center">
-					<router-link
-					v-for="(link) in links"
+				<router-link
+					v-for="link in links"
 					:key="link.id"
 					:to="link.url"
 					class="text-decoration-none px-10 main-layout__border-bottom-on-hover"
+				>
+					<span
+						class="body-1 grey--text text--darken-3 d-block main-layout__nav-link"
 					>
-						<span
-							class="body-1 grey--text text--darken-3 d-block main-layout__nav-link"
-						>
-							{{ link.title }}
-						</span>
-					</router-link>
+						{{ link.title }}
+					</span>
+				</router-link>
 			</nav>
 			<div class="d-flex align-center pointer" @click="logout">
 				<v-img
@@ -60,8 +60,18 @@ export default {
 		logoIcon: require('../assets/logo.svg'),
 		logoutIcon: require('../assets/svg/logout.svg'),
 	}),
+	mounted() {
+		this.GET_SERVICES();
+		this.GET_ALL_GROOMERS();
+		this.GET_ALL_CLIENTS();
+	},
 	methods: {
-		...mapActions(['LOGOUT']),
+		...mapActions([
+			'LOGOUT',
+			'GET_SERVICES',
+			'GET_ALL_GROOMERS',
+			'GET_ALL_CLIENTS',
+		]),
 		async logout() {
 			const { status } = await this.LOGOUT();
 
@@ -89,7 +99,7 @@ export default {
 		border-width: 2px;
 		border-color: transparent;
 		border-style: solid;
-		transition: all .2s ease;
+		transition: all 0.2s ease;
 	}
 }
 </style>

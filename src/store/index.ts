@@ -4,6 +4,8 @@ import user from './user';
 import services from './services';
 import master from './master';
 import events from './events';
+import clients from './clients';
+import products from './products';
 
 Vue.use(Vuex);
 
@@ -12,16 +14,16 @@ export default new Vuex.Store({
 	getters: {},
 	mutations: {},
 	actions: {},
-	modules: { user, services, master, events },
+	modules: { user, services, master, events, clients, products },
 });
 
 export const successResponse = {
 	status: 'success',
 	ok: true,
 	data: null,
-}
+};
 export const errorResponse = {
 	status: 'error',
 	ok: false,
 	data: null,
-}
+};

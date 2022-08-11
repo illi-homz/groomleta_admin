@@ -1,37 +1,51 @@
 <template>
 	<v-dialog
-		class="g-create-event-modal-form"
+		content-class="g-create-event-modal-form"
 		@click:outside="closeModal"
 		:value="isAvtive"
 		max-width="30%"
 	>
 		<v-card>
-			<v-card-title class="pt-8 px-8 d-block">
-				<span class="text-h4">{{ currentTitle }}</span>
+			<v-card-title class="px-8 mb-4 d-block">
+				<span class="text-h4"></span>
+				<v-text-field
+					v-model="title"
+					class="text-h5"
+					label="Заголовок"
+					color="#FFC11C"
+					single-line
+					light
+					hide-details
+				/>
 			</v-card-title>
-			<v-divider class="mx-8" />
 			<v-card-text class="px-5">
 				<v-container>
-					<v-row>
-						<v-col>
-							<div class="mb-4">
+					<v-row class="mb-4">
+						<v-col class="d-flex align-end py-0">
+							<div class="flex-grow-1 mr-4">
 								<div class="caption">Время</div>
-								<div class="d-flex mb-1">
-									<div class="body-1 flex-grow-1">
-										{{ time }}
-									</div>
-									<v-icon
-										color="#FFC11C"
-										@click="toggleTimepiker"
-										>mdi-clock-outline</v-icon
+								<div class="mb-1" @click="toggleTimepiker">
+									<span
+										ref="timepickerText"
+										class="body-1"
+										style="cursor: pointer"
 									>
+										{{ time }}
+									</span>
 								</div>
 								<v-divider />
 							</div>
+							<v-icon
+								ref="timepickerIcon"
+								color="#FFC11C"
+								@click="toggleTimepiker"
+								>mdi-clock-outline</v-icon
+							>
 							<v-menu
+								:activator="$refs.timepickerText"
 								v-model="isTimepikerOpen"
 								:close-on-content-click="false"
-								:activator="$refs.timepickerField"
+								offset-x
 								offset-y
 							>
 								<v-time-picker
@@ -39,7 +53,7 @@
 									format="24hr"
 									v-model="time"
 								>
-									<v-btn
+									<!-- <v-btn
 										elevation="0"
 										@click="cencelTimepicker"
 										>Отмена</v-btn
@@ -52,55 +66,94 @@
 										elevation="0"
 										@click="toggleTimepiker"
 										>Ок</v-btn
-									>
+									> -->
 								</v-time-picker>
 							</v-menu>
 						</v-col>
 					</v-row>
-					<v-row>
-						<v-col>
+					<v-row class="mb-4">
+						<v-col class="py-0">
 							<v-autocomplete
-								:items="currentServicesList"
+								:items="
+									servicesList?.map((el, idx) => {
+										return {
+											text: `${el.breed.title} - ${el.title}`,
+											value: idx,
+										};
+									})
+								"
 								@change="setServices"
 								color="#FFC11C"
 								item-color="#FFC11C"
 								:no-data-text="'Ничего не найдено'"
 								v-model="servicePickerValue"
-								placeholder="Услуги"
+								label="Услуги"
 								hide-details
+								multiple
+								chips
+								small-chips
+								deletable-chips
 							/>
-							<div class="pt-3">
-								<v-list-item
+							<div class="pt-3" v-if="services.length">
+								<div
 									v-for="(serviceKey, idx) in services"
 									:key="serviceKey"
-									class="px-0 pl-2"
+									class="px-0 pl-2 d-flex"
 									:class="{ 'mt-2': idx === 0 }"
-									dense
 								>
-									<v-list-item-content class="py-2">
-										<v-list-item-title>{{
-											servicesList[serviceKey].title
-										}}</v-list-item-title>
-									</v-list-item-content>
+									<div class="flex-grow-1">
+										{{
+											servicesList[serviceKey].breed.title
+										}}
+										- {{ servicesList[serviceKey].title }}
+									</div>
 									<v-icon
 										@click="removeService(idx)"
 										color="#FFC11C"
 										>mdi-close</v-icon
 									>
-								</v-list-item>
+								</div>
 							</div>
 						</v-col>
 					</v-row>
 					<v-row class="mb-4">
-						<v-col>
+						<v-col class="py-0">
 							<v-autocomplete
-								:items="currentGroomersList"
+								:items="
+									groomersList?.map((el, idx) => {
+										return {
+											text: `$${el.username} ${el.lastname}`,
+											value: el.id,
+										};
+									})
+								"
 								color="#FFC11C"
 								item-color="#FFC11C"
 								:no-data-text="'Такого мастера нету'"
 								v-model="groommer"
 								clearable
-								placeholder="Мастер"
+								label="Мастер"
+								hide-details
+							/>
+						</v-col>
+					</v-row>
+					<v-row class="mb-8">
+						<v-col class="py-0">
+							<v-autocomplete
+								:items="
+									clientsList?.map((el, idx) => {
+										return {
+											text: `$${el.username} ${el.lastname}`,
+											value: el.id,
+										};
+									})
+								"
+								color="#FFC11C"
+								item-color="#FFC11C"
+								:no-data-text="'Такого клиента нету'"
+								v-model="client"
+								clearable
+								label="Клиент"
 								hide-details
 							/>
 						</v-col>
@@ -110,7 +163,7 @@
 							<v-textarea
 								v-model="comment"
 								label="Комментарий"
-								color="#ddd"
+								color="#FFC11C"
 								no-resize
 								outlined
 								background-color="#FFC11C08"
@@ -142,14 +195,14 @@
 </template>
 
 <script lang="ts">
-import {convertTimestampToLocalDateTime} from '@/utils'
-import { mapGetters } from 'vuex';
-// доделать форму, валидацию и сабмит
-const defaultData = {
-	time: '08:00',
+import { convertTimestampToLocalDateTime } from '@/utils';
+
+const defaultData: any = {
+	time: '09:00',
 	services: [],
 	servicePickerValue: '',
 	groommer: '',
+	client: '',
 	comment: '',
 };
 
@@ -164,6 +217,10 @@ export default {
 			type: String,
 			default: '',
 		},
+		currentTime: {
+			type: String,
+			default: '',
+		},
 		servicesList: {
 			type: Array,
 			default: () => [],
@@ -172,54 +229,51 @@ export default {
 			type: Array,
 			default: () => [],
 		},
+		clientsList: {
+			type: Array,
+			default: () => [],
+		},
 	},
 	data: (): any => ({
 		...defaultData,
 		timepicerActivetorElement: null,
 		isTimepikerOpen: false,
+		title: '',
 	}),
+	watch: {
+		isAvtive(v) {
+			if (!v) {
+				this.cencelTimepicker()
+			}
+		},
+		currentDate(v) {
+			const date = v.split('-').reverse().join('-');
+			this.title = `Новая запись на ${date}`;
+		},
+		currentTime(v) {
+			const [hour] = v?.split(':') || [];
+			this.time = `${hour || '09'}:00`;
+		},
+	},
 	computed: {
 		isFormValid() {
 			return true;
-		},
-		currentServicesList(): any {
-			return this.servicesList?.map((el: any, idx: number) => {
-				return { text: `${el.breed.title} - ${el.title}`, value: idx };
-			});
-		},
-		currentGroomersList(): any {
-			return this.groomersList?.map((el: any, idx: number) => {
-				return { text: `$${el.username} ${el.lastname}`, value: el.id };
-			});
-		},
-		firstServiceTitle() {
-			const idx = this.services[0];
-			const title =
-				idx !== undefined
-					? this.servicesList[idx].title
-					: 'Новая запись';
-			return title;
-		},
-		currentTitle(): string {
-			const date = this.currentDate.split('-').reverse().join('-');
-			return `${this.firstServiceTitle} на ${date}`;
 		},
 		form() {
 			const startDate = `${this.currentDate}T${this.time}:00`;
 			const startDateTime = new Date(startDate).getTime();
 			const endDateTime = new Date(startDateTime + 60 * 60 * 1000);
-			
+
 			const services = this.services.map(
 				(idx: number) => this.servicesList[idx].id,
 			);
 
 			return {
-				title: this.firstServiceTitle,
+				title: this.title,
 				startDate,
-				// endDate: `${endDate}T${endTime}`,
 				endDate: convertTimestampToLocalDateTime(endDateTime),
 				services,
-				client: '',
+				client: this.client,
 				master: this.groommer,
 				comment: this.comment,
 			};
@@ -237,22 +291,26 @@ export default {
 			this.$emit('onSubmitEvent', this.form);
 			this.closeModal();
 		},
-		setServices(serviceId: number | string) {
-			this.services = Array.from(new Set([...this.services, serviceId]));
+		setServices(services: any) {
+			const currentServices = Array.isArray(services)
+				? services
+				: [services];
+			this.services = currentServices;
 		},
 		removeService(idx: number) {
-			this.services = Array.from(this.services).filter(
+			this.services = this.services.filter(
 				(_: any, i: number) => i !== idx,
 			);
-			this.servicePickerValue = '';
+			this.servicePickerValue = this.services;
 		},
-		toggleTimepiker(event: any) {
-			console.log('toggleTimepiker');
+		toggleTimepiker() {
 			this.isTimepikerOpen = !this.isTimepikerOpen;
 		},
 		cencelTimepicker() {
 			this.isTimepikerOpen = false;
-			this.time = '08:00';
+			const [hour] = this.currentTime?.split(':') || [];
+			console.log('hour', hour)
+			this.time = `${hour || '09'}:00`;
 		},
 		clearFrom() {
 			Object.keys(defaultData).forEach((key: string) => {
@@ -265,5 +323,10 @@ export default {
 
 <style lang="scss">
 .g-create-event-modal-form {
+	// .v-chip {
+	// 	&.v-chip--select {
+	// 		display: none !important;
+	// 	}
+	// }
 }
 </style>

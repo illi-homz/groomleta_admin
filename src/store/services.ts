@@ -13,7 +13,7 @@ export default {
 	actions: {
 		async GET_SERVICES({ commit }: { commit: Function }) {
 			try {
-				const { allServices } = await API.services.getServices();
+				const { allServices } = await API.services.fetchAllServices();
 
 				commit('SET_SERVICES', allServices);
 

@@ -39,15 +39,7 @@
 							outlined
 							class="mr-4"
 							color="grey darken-2"
-							@click="checkChange"
-						>
-							Обновить
-						</v-btn>
-						<v-btn
-							outlined
-							class="mr-4"
-							color="grey darken-2"
-							@click="CREATE_EVENT"
+							@click="createOrder"
 						>
 							Оформить заказ
 						</v-btn>
@@ -55,10 +47,11 @@
 							outlined
 							class="mr-4"
 							color="grey darken-2"
-							@click="type = 'month'"
+							@click="getEvents"
 						>
-							Месяц
+							Обновить
 						</v-btn>
+
 						<v-btn
 							outlined
 							class="mr-4"
@@ -67,32 +60,13 @@
 						>
 							Неделя
 						</v-btn>
-						<!-- <v-menu bottom right>
-							<template v-slot:activator="{ on, attrs }">
-								<v-btn
-									outlined
-									color="grey darken-2"
-									v-bind="attrs"
-									v-on="on"
-								>
-									<span>{{ typeToLabel[type] }}</span>
-									<v-icon right> mdi-menu-down </v-icon>
-								</v-btn>
-							</template>
-							<v-list>
-								<v-list-item @click="type = 'month'">
-									<v-list-item-title>Месяц</v-list-item-title>
-								</v-list-item>
-								<v-list-item @click="type = 'week'">
-									<v-list-item-title
-										>Неделя</v-list-item-title
-									>
-								</v-list-item>
-								<v-list-item @click="type = '4day'">
-									<v-list-item-title>4 Дня</v-list-item-title>
-								</v-list-item>
-							</v-list>
-						</v-menu> -->
+						<v-btn
+							outlined
+							color="grey darken-2"
+							@click="type = 'month'"
+						>
+							Месяц
+						</v-btn>
 					</v-toolbar>
 				</v-sheet>
 				<v-sheet height="600" class="flex-grow-1">
@@ -108,9 +82,10 @@
 						weekdays="1,2,3,4,5,6,0"
 						:locale-first-day-of-year="4"
 						:event-ripple="false"
-						@click:more="viewDay"
-						@click:date="viewDay"
+						@click:more="toggleWeek"
+						@click:date="type = 'week'"
 						@click:day="showCreateEventForm"
+						@click:time="showCreateEventForm"
 						@click:event="showEvent"
 						@mousedown:event="startDrag"
 						@mousemove:time="mouseMove"
@@ -118,12 +93,41 @@
 						@mouseup:time="endDrag"
 						@mouseleave.native="cancelDrag"
 						@change="getEvents"
+						@contextmenu:time="toggleWeek"
+						@contextmenu:day="toggleWeek"
 					>
 						<template v-slot:event="{ event, timed, eventSummary }">
 							<div
 								class="v-event-draggable"
 								v-html="eventSummary()"
 							></div>
+
+							<div class="px-2">
+								<b>{{
+									event.services.length > 1
+										? 'Услуги'
+										: 'Услуга'
+								}}</b
+								>:
+							</div>
+							<ul v-if="event.services.length" class="mb-1">
+								<li
+									v-for="service in event.services"
+									:key="service.id"
+								>
+									{{ service.breed.title }} -
+									{{ service.title }}
+								</li>
+							</ul>
+							<div v-else class="px-2"><i>Услуга не выбрана</i></div>
+							<div class="px-2" v-if="event.master">
+								<b>Груммер</b>: {{ event.master.username }}
+								{{ event.master.lastname }}
+							</div>
+							<div class="px-2" v-if="event.client">
+								<b>Клиент</b>: {{ event.client.username }}
+								{{ event.client.lastname }}
+							</div>
 							<div
 								v-if="timed"
 								class="v-event-drag-bottom"
@@ -132,12 +136,16 @@
 						</template>
 					</v-calendar>
 					<GCalendarEventMenu
-						:selectedEvent="selectedEvent"
 						v-model="selectedOpen"
+						:selectedEvent="selectedEvent"
 						:selectedElement="selectedElement"
 						:servicesList="SERVICES"
+						:groomersList="GROOMERS"
+						:clientsList="CLIENTS"
 						@setEvent="setEvent"
 						@saveEvent="saveEvent"
+						@onClose="getEvents"
+						@onRemoveEvent="removeEvent"
 					/>
 				</v-sheet>
 			</v-col>
@@ -145,8 +153,10 @@
 		<GCreateEventModalForm
 			:isAvtive="isModalFromShow"
 			:currentDate="currentDate"
+			:currentTime="currentTime"
 			:servicesList="SERVICES"
 			:groomersList="GROOMERS"
+			:clientsList="CLIENTS"
 			@onModalClose="isModalFromShow = false"
 			@onSubmitEvent="createEvent"
 		/>
@@ -166,6 +176,7 @@ export default {
 	data: (): any => ({
 		isModalFromShow: false,
 		currentDate: '',
+		currentTime: '',
 		focus: '',
 		type: 'month',
 		typeToLabel: {
@@ -185,25 +196,25 @@ export default {
 		events: [],
 	}),
 	computed: {
-		...mapGetters(['SERVICES', 'GROOMERS', 'EVENTS']),
+		...mapGetters(['SERVICES', 'GROOMERS', 'EVENTS', 'CLIENTS']),
 	},
-	mounted() {
-		this.GET_SERVICES();
-		this.GET_ALL_GROOMERS();
-	},
+	// mounted() {
+	// },
 	methods: {
 		...mapActions([
-			'GET_SERVICES',
-			'GET_ALL_GROOMERS',
 			'GET_EVENTS',
 			'CREATE_EVENT',
 			'UPDATE_EVENT',
+			'REMOVE_EVENT',
 		]),
 		async getEvents() {
 			const { data } = await this.GET_EVENTS();
 			this.events = eventsFormatter(data);
 		},
-		createOrder() {
+		checkChange() {
+			this.$refs.calendar.checkChange();
+		},
+		createOrder(data?: any) {
 			console.log('createOrder');
 		},
 		async createEvent(formData: Object) {
@@ -212,11 +223,16 @@ export default {
 			this.isModalFromShow = false;
 			this.getEvents();
 		},
-		viewDay({ date }: any) {
+		toggleWeek({ date }: any) {
 			this.focus = date;
-			this.type = 'day';
+			this.type = this.type === 'week' ? 'month' : 'week';
 		},
-		showCreateEventForm({ date }: any) {
+		showCreateEventForm({ date, time }: any) {
+			if (this.currentEvent) {
+				return;
+			}
+
+			this.currentTime = time;
 			this.currentDate = date;
 			this.isModalFromShow = true;
 		},
@@ -233,14 +249,19 @@ export default {
 			this.$refs.calendar?.next();
 		},
 		setEvent(data: any) {
-			Object.keys(data).forEach(key => {
+			for (let key in data) {
 				this.selectedEvent[key] = data[key];
-			});
+			}
 		},
 		async saveEvent() {
+			if (!Object.keys(this.selectedEvent).length) return;
+
 			const nativeEvent = this.EVENTS.find(
 				(el: any) => el.id === this.selectedEvent.id,
 			);
+
+			if (!nativeEvent) return;
+
 			const {
 				start,
 				end,
@@ -268,11 +289,18 @@ export default {
 					id: this.selectedEvent.id,
 					data: diffEventData,
 				});
-				console.log('response', response.data);
+				console.log('UPDATE_EVENT response', response.data);
 
 				this.getEvents();
 			}
+			this.selectedEvent = null;
 			this.closeEvent();
+		},
+		async removeEvent(id: any) {
+			console.log('removeEvent', id)
+			await this.REMOVE_EVENT(id)
+			this.closeEvent()
+			this.getEvents()
 		},
 		showEvent({ nativeEvent, event }: any) {
 			if (this.currentEvent) {
@@ -283,7 +311,11 @@ export default {
 				this.selectedEvent = event;
 				this.selectedElement = nativeEvent.target;
 				requestAnimationFrame(() =>
-					requestAnimationFrame(() => (this.selectedOpen = true)),
+					requestAnimationFrame(() => {
+						console.log('showEvent', new Date());
+						this.selectedOpen = true;
+						this.selectedEvent = event;
+					}),
 				);
 			};
 
@@ -296,7 +328,10 @@ export default {
 			nativeEvent.stopPropagation();
 		},
 		closeEvent() {
-			this.selectedOpen = false;
+			// this.selectedOpen = false;
+			requestAnimationFrame(() =>
+				requestAnimationFrame(() => (this.selectedOpen = false)),
+			);
 		},
 		startDrag({ event, timed }: any) {
 			if (event && timed) {
@@ -310,7 +345,7 @@ export default {
 			this.createStart = event.start;
 			this.extendOriginal = event.end;
 		},
-		startTime(tms) {
+		startTime(tms: any) {
 			const mouse = this.toTime(tms);
 
 			if (this.dragEvent && this.dragTime === null) {
@@ -342,8 +377,6 @@ export default {
 		},
 		async endDrag() {
 			if (this.currentEvent || this.dragEvent) {
-				console.log('this.currentEvent', this.currentEvent);
-				console.log('this.dragEvent', this.dragEvent);
 				await this.updateEventDates(
 					this.currentEvent || this.dragEvent,
 				);
@@ -361,7 +394,7 @@ export default {
 			}
 			this.endDrag();
 		},
-		roundTime(time, down = true) {
+		roundTime(time: any, down = true) {
 			const roundTo = 15; // minutes
 			const roundDownTime = roundTo * 60 * 1000;
 
@@ -378,28 +411,15 @@ export default {
 				tms.minute,
 			).getTime();
 		},
-		checkChange() {
-			this.getEvents();
-		},
 		async updateEventDates(event: any) {
 			if (!event) return;
 
-			const { id, ...currentEventData } = this.EVENTS.find(
-				(el: any) => el.id === event.id,
-			);
-			const start = new Date(event.start);
-			const startDate = convertDateToLocal(start);
-			const startTime = start.toLocaleTimeString().slice(0, 5);
-			const end = new Date(event.end);
-			const endDate = convertDateToLocal(end);
-			const endTime = end.toLocaleTimeString().slice(0, 5);
-
 			const currentData = {
-				startDate: `${startDate}T${startTime}`,
-				endDate: `${endDate}T${endTime}`,
+				startDate: convertTimestampToLocalDateTime(event.start),
+				endDate: convertTimestampToLocalDateTime(event.end),
 			};
 
-			await this.UPDATE_EVENT({ id, data: currentData });
+			await this.UPDATE_EVENT({ id: event.id, data: currentData });
 
 			this.getEvents();
 		},
@@ -476,6 +496,16 @@ const convertDateToLocal = (date: Date) => {
 		&:hover::after {
 			display: block;
 		}
+	}
+
+	.v-toolbar__content {
+		padding-right: 0;
+		padding-left: 0;
+	}
+
+	.v-event-timed {
+		overflow: hidden;
+		overflow-y: scroll;
 	}
 }
 </style>

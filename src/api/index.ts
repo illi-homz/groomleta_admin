@@ -3,17 +3,17 @@ import User from './user';
 import Master from './master';
 import Services from './services';
 import Events from './events';
+import Clients from './clients';
+import Products from './products';
 import Vue from 'vue';
 const API_URL = process.env.VUE_APP_API_URL;
 
 export const fetcherGQL = ({
 	key = '',
 	query,
-	mutation
 }: {
 	key: string,
 	query?: Object,
-	mutation?: Object,
 }) => {
 	const token = Vue.$cookies.get('JWT');
 	
@@ -24,7 +24,7 @@ export const fetcherGQL = ({
 				'Content-Type': 'application/json',
 				Authorization: `JWT ${token || ''}`,
 			},
-			body: JSON.stringify(query || mutation || {}),
+			body: JSON.stringify(query || {}),
 		})
 			.then(response => {
 				if (!response?.ok) {
@@ -50,4 +50,6 @@ export default {
 	master: Master,
 	services: Services,
 	events: Events,
+	clients: Clients,
+	products: Products,
 };

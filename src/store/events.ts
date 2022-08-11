@@ -42,6 +42,16 @@ export default {
 				return errorResponse;
 			}
 		},
+		async REMOVE_EVENT({ commit }: any, id: number) {
+			try {
+				const {removeEvent} = await API.events.removeEvent(id);
+				console.log('REMOVE_EVENT', removeEvent)
+				return {...successResponse, data: removeEvent?.event}
+			} catch (e) {
+				console.log('REMOVE_EVENT exeption:', e);
+				return errorResponse;
+			}
+		},
 	},
 	getters: {
 		EVENTS: (s: any) => s.events,

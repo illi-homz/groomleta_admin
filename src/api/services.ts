@@ -1,9 +1,9 @@
 import { fetcherGQL } from '.';
 
 export default class Services {
-	static getServices() {
+	static fetchAllServices() {
 		return fetcherGQL({
-			key: 'Services.getServices',
+			key: 'Services.fetchAllServices',
 			query: {
 				query: `
 					query {

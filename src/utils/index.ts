@@ -1,4 +1,4 @@
-export const convertTimestampToLocalDateTime = (timestamp: number): string => {
+export const convertTimestampToLocalDateTime = (timestamp: number | Date): string => {
 	const nativeDate = new Date(timestamp);
 	const date = nativeDate.toLocaleDateString().split('.').reverse().join('-');
 	const time = nativeDate.toLocaleTimeString();

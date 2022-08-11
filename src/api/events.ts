@@ -22,21 +22,21 @@ class Events {
 		master,
 		comment,
 	}: EventType) {
-		console.log('master', master);
-
 		return fetcherGQL({
 			key: 'Events.getEvents',
 			query: {
 				query: `
 					mutation {
 						createEvent(
-							title: "${title}"
-							startDate: "${startDate}"
-							endDate: "${endDate}"
-							services: [${services?.join(',') || ''}]
-							client: "${client || ''}"
-							master: "${master || ''}"
-							comment: "${comment?.replaceAll('\n', '\\n')}"
+							eventData: {
+								title: "${title}"
+								startDate: "${startDate}"
+								endDate: "${endDate}"
+								services: [${services?.join(',') || ''}]
+								client: "${client || ''}"
+								master: "${master || ''}"
+								comment: "${comment?.replaceAll('\n', '\\n')}"
+							}
 						  ) {
 							event {${eventProps}}
 						}
@@ -47,8 +47,7 @@ class Events {
 
 	static updateEvent({ id, data }: { id: number | string; data: any }) {
 		if (!id || !data) {
-			console.warn('event id or data is undefined');
-			return null;
+			return console.warn('event id or data is undefined');
 		}
 
 		const qStr = Object.keys(data).reduce((acc: string, dataKey: any) => {
@@ -62,7 +61,7 @@ class Events {
 				);
 			}
 
-			return acc + `\n${dataKey}: "${data[dataKey]}"`;
+			return acc + `\n${dataKey}: "${data[dataKey] || ''}"`;
 		}, '');
 
 		return fetcherGQL({
@@ -73,6 +72,25 @@ class Events {
 						updateEvent(
 							id: "${id}"
 							eventData: {${qStr}}
+						) {
+							event {${eventProps}}
+						}
+					}`,
+			},
+		});
+	}
+	static removeEvent(id: number | any) {
+		if (!id) {
+			return console.warn('event id is undefined');
+		}
+
+		return fetcherGQL({
+			key: 'Events.getEvents',
+			query: {
+				query: `
+					mutation {
+						removeEvent(
+							id: "${id}"
 						) {
 							event {${eventProps}}
 						}

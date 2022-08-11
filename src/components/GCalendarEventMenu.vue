@@ -1,6 +1,5 @@
 <template>
 	<div class="g-calendar-event-menu">
-		<!-- v-model="value" -->
 		<v-menu
 			v-if="selectedEvent"
 			@input="vModel"
@@ -8,31 +7,45 @@
 			:close-on-content-click="false"
 			:activator="selectedElement"
 			offset-y
+			offset-x
 		>
 			<v-card color="grey lighten-4" min-width="350px" flat>
-				<v-toolbar :color="selectedEvent.color" dark>
-					<v-toolbar-title v-if="!isWritable">
+				<v-toolbar :color="selectedEvent.color" dark elevation="0">
+					<v-toolbar-title
+						v-if="!isWritable"
+						class="flex-grow-1 mr-8"
+					>
 						{{ selectedEvent.name }}
 					</v-toolbar-title>
-					<v-toolbar-title v-else>
+					<v-toolbar-title v-else class="flex-grow-1 mr-8">
 						<v-text-field
-							label="Название события"
 							:value="selectedEvent.name"
 							@input="name => setEvent({ name })"
 							filled
 							dense
-							outlined
+							rounded
 							color="#FFC11C"
+							background-color="#FFF"
+							light
 							hide-details
 						></v-text-field>
 					</v-toolbar-title>
-					<v-spacer></v-spacer>
 					<v-btn v-if="isWritable" icon @click="saveCanges">
 						<v-icon>mdi-content-save-outline</v-icon>
 					</v-btn>
-					<v-btn icon @click="isWritable = !isWritable">
-						<v-icon v-if="!isWritable">mdi-pencil</v-icon>
-						<v-icon v-else>mdi-cancel</v-icon>
+					<GRemoveBtn
+						v-if="!isWritable"
+						@onRemoveEvent="$emit('onRemoveEvent', selectedEvent.id)"
+					/>
+					<v-btn
+						v-if="!isWritable"
+						icon
+						@click="isWritable = !isWritable"
+					>
+						<v-icon>mdi-pencil</v-icon>
+					</v-btn>
+					<v-btn v-else icon @click="cancelEvent">
+						<v-icon>mdi-cancel</v-icon>
 					</v-btn>
 					<v-btn icon @click="closeEvent">
 						<v-icon>mdi-close</v-icon>
@@ -42,39 +55,39 @@
 					<div>
 						<div class="text-h6">Услуги:</div>
 						<div v-if="!isWritable">
-							<v-list-item
-								v-for="service in selectedEvent.services"
-								:key="service.id"
-								dense
-							>
-								<v-list-item-content class="py-2">
-									<v-list-item-title>{{
-										service.title
-									}}</v-list-item-title>
-								</v-list-item-content>
-							</v-list-item>
+							<ul v-if="selectedEvent.services?.length">
+								<li
+									v-for="service in selectedEvent.services"
+									:key="service.id"
+									class="pl-1"
+								>
+									{{ service.breed.title }} -
+									{{ service.title }}
+								</li>
+							</ul>
+							<div v-else class="px-2">
+								<i>Услуги не выбраны</i>
+							</div>
 						</div>
 						<div v-else class="mb-2">
-							<div>
-								<v-list-item
+							<div class="mb-1">
+								<div
 									v-for="(
 										service, idx
 									) in selectedEvent.services"
 									:key="service.id"
-									class="px-0 pl-2"
-									dense
+									class="px-0 pl-2 d-flex"
 								>
-									<v-list-item-content class="py-2">
-										<v-list-item-title>{{
-											service.title
-										}}</v-list-item-title>
-									</v-list-item-content>
+									<div class="flex-grow-1">
+										{{ service.breed.title }} -
+										{{ service.title }}
+									</div>
 									<v-icon
 										@click="removeService(idx)"
 										color="#FFC11C"
 										>mdi-close</v-icon
 									>
-								</v-list-item>
+								</div>
 							</div>
 							<v-autocomplete
 								:items="
@@ -84,7 +97,9 @@
 									}))
 								"
 								@change="setServices"
-								v-model="services"
+								:value="
+									selectedEvent.services?.map((_, i) => i)
+								"
 								color="#FFC11C"
 								item-color="#FFC11C"
 								:no-data-text="'Ничего не найдено'"
@@ -93,69 +108,153 @@
 								outlined
 								dense
 								background-color="#FFF"
+								clearable
+								multiple
+								chips
+								small-chips
+								deletable-chips
 							/>
 						</div>
 					</div>
-					<div v-if="selectedEvent.master">
+					<div>
 						<span class="text-h6">Мастер:</span>
-						<span class="ml-2">{{
-							selectedEvent.master.username
-						}}</span>
+						<div v-if="!isWritable">
+							<div v-if="selectedEvent.master" class="ml-2">
+								{{ selectedEvent.master?.username }}
+							</div>
+							<div v-else class="ml-2">Не назначен</div>
+						</div>
+						<div v-else class="mb-2">
+							<v-autocomplete
+								:items="
+									groomersList?.map((el, idx) => {
+										return {
+											text: `$${el.username} ${el.lastname}`,
+											value: idx,
+										};
+									})
+								"
+								:value="
+									groomersList?.findIndex(
+										el =>
+											el.id === selectedEvent.master?.id,
+									)
+								"
+								@change="setMaster"
+								color="#FFC11C"
+								item-color="#FFC11C"
+								:no-data-text="'Такого мастера нету'"
+								clearable
+								hide-details
+								class="pt-0 mt-0"
+								background-color="#FFF"
+								outlined
+								dense
+							/>
+						</div>
 					</div>
-					<div v-if="selectedEvent.client">
+					<div>
 						<span class="text-h6">Клиент:</span>
-						<span class="ml-2">{{
-							selectedEvent.client.username
-						}}</span>
+						<div v-if="!isWritable">
+							<div v-if="selectedEvent.client" class="ml-2">
+								{{ selectedEvent.client.username }}
+							</div>
+							<div v-else class="ml-2">Не выбран</div>
+						</div>
+						<div v-else class="mb-2">
+							<v-autocomplete
+								:items="
+									clientsList?.map((el, idx) => {
+										return {
+											text: `$${el.username} ${el.lastname}`,
+											value: idx,
+										};
+									})
+								"
+								:value="
+									clientsList?.findIndex(
+										el =>
+											el.id === selectedEvent.client?.id,
+									)
+								"
+								@change="setClient"
+								color="#FFC11C"
+								item-color="#FFC11C"
+								:no-data-text="'Такого клиента нету'"
+								hide-details
+								class="pt-0 mt-0"
+								background-color="#FFF"
+								outlined
+								dense
+							/>
+						</div>
 					</div>
 					<div>
 						<span class="text-h6">Комментарий:</span>
 						<div v-if="!isWritable" class="ml-2">
 							{{ selectedEvent.comment }}
 						</div>
-						<!-- v-model="comment" -->
 						<v-textarea
 							v-else
 							:value="selectedEvent.comment"
 							@input="comment => setEvent({ comment })"
 							label="Комментарий"
 							color="#ddd"
+							class="mt-2"
 							no-resize
 							outlined
 							background-color="#fff"
 						></v-textarea>
 					</div>
 				</v-card-text>
-				<v-card-actions>
-					<v-btn text color="secondary" @click="closeEvent">
-						Отмена
-					</v-btn>
-				</v-card-actions>
 			</v-card>
 		</v-menu>
 	</div>
 </template>
 
 <script>
+import GRemoveBtn from './GRemoveBtn.vue'
+
 export default {
 	name: 'GCalendarEventMenu',
-	props: ['selectedEvent', 'value', 'selectedElement', 'servicesList'],
+	components: {GRemoveBtn},
+	props: [
+		'selectedEvent',
+		'value',
+		'selectedElement',
+		'servicesList',
+		'groomersList',
+		'clientsList',
+	],
 	data: () => ({
 		isWritable: false,
-		services: '',
+		selectedServices: '',
+		oldEvent: null,
 	}),
 	watch: {
 		value(v) {
 			if (!v && this.isWritable) {
-				this.isWritable = false;
+				this.cancelEvent();
 			}
+		},
+		selectedEvent(v) {
+			console.log('set oldEvent', v);
+			this.oldEvent = JSON.parse(JSON.stringify(v));
 		},
 	},
 	methods: {
 		vModel(v) {
 			this.$emit('input', v);
 		},
+		cancelEvent() {
+			this.isWritable = false;
+
+			if (this.oldEvent && this.selectedEvent.id) {
+				this.setEvent(this.oldEvent);
+			}
+		},
 		closeEvent() {
+			this.cancelEvent();
 			this.$emit('input', false);
 		},
 		setEvent(v) {
@@ -163,26 +262,33 @@ export default {
 		},
 		saveCanges() {
 			this.$emit('saveEvent');
+			this.oldEvent = null;
 		},
-		setServices(idx) {
-			const servicesIds = Array.from(
-				new Set([
-					...this.selectedEvent.services.map(el => el.id),
-					this.servicesList[idx].id,
-				]),
-			);
-			const services = servicesIds.map(id => {
-				return this.servicesList.find(el => el.id === id);
-			});
+		setServices(srvcs) {
+			const services = Array.isArray(srvcs)
+				? srvcs.map(idx => {
+						return this.servicesList[idx];
+				  })
+				: [this.servicesList[srvcs]];
+
 			this.setEvent({ services });
-			this.services = '';
 		},
 		removeService(idx) {
 			const services = this.selectedEvent.services?.filter(
-				(el, i) => idx !== i,
+				(_, i) => idx !== i,
 			);
 			this.setEvent({ services });
-			this.services = '';
+		},
+		setMaster(idx) {
+			const master = this.groomersList[idx];
+			this.setEvent({ master });
+		},
+		setClient(idx) {
+			const client = this.clientsList[idx];
+
+			if (client) {
+				this.setEvent({ client });
+			}
 		},
 	},
 };

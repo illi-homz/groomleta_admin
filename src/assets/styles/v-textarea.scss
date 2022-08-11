@@ -1,8 +1,5 @@
-.v-input {
-	&__slot {
-		&::before,
-		&::after {
-			border-color: rgba(36, 49, 56, 0.2) !important;
-		}
+.v-textarea {
+	fieldset {
+		border-color: rgba(36, 49, 56, 0.2) !important;
 	}
 }
