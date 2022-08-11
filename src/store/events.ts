@@ -25,8 +25,13 @@ export default {
 		},
 		async CREATE_EVENT({ commit }: any, formData: any) {
 			try {
-				const data = await API.events.createEvent(formData);
-				return { ...successResponse, data }
+				const {createEvent} = await API.events.createEvent(formData);
+
+				if (createEvent?.allEvents) {
+					commit('SET_EVENTS', createEvent.allEvents);
+				}
+
+				return { ...successResponse, data: createEvent }
 			} catch (e) {
 				console.log('CREATE_EVENT exeption:', e);
 				return errorResponse;
@@ -35,8 +40,12 @@ export default {
 		async UPDATE_EVENT({ commit }: any, {id, data}: any) {
 			try {
 				const {updateEvent} = await API.events.updateEvent({id, data});
-				console.log('UPDATE_EVENT', updateEvent)
-				return {...successResponse, data: updateEvent?.event}
+
+				if (updateEvent?.allEvents) {
+					commit('SET_EVENTS', updateEvent.allEvents);
+				}
+
+				return {...successResponse, data: updateEvent}
 			} catch (e) {
 				console.log('UPDATE_EVENT exeption:', e);
 				return errorResponse;
@@ -45,8 +54,12 @@ export default {
 		async REMOVE_EVENT({ commit }: any, id: number) {
 			try {
 				const {removeEvent} = await API.events.removeEvent(id);
-				console.log('REMOVE_EVENT', removeEvent)
-				return {...successResponse, data: removeEvent?.event}
+
+				if (removeEvent?.allEvents) {
+					commit('SET_EVENTS',removeEvent.allEvents);
+				}
+
+				return {...successResponse, data: removeEvent}
 			} catch (e) {
 				console.log('REMOVE_EVENT exeption:', e);
 				return errorResponse;

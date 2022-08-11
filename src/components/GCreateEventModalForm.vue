@@ -2,12 +2,12 @@
 	<v-dialog
 		content-class="g-create-event-modal-form"
 		@click:outside="closeModal"
+		@keydown="onKeyDown"
 		:value="isAvtive"
 		max-width="30%"
 	>
 		<v-card>
 			<v-card-title class="px-8 mb-4 d-block">
-				<span class="text-h4"></span>
 				<v-text-field
 					v-model="title"
 					class="text-h5"
@@ -186,7 +186,6 @@
 					class="px-6 ml-4"
 					@click="submitForm"
 				>
-					<!-- @click="click" -->
 					Создать
 				</v-btn>
 			</v-card-actions>
@@ -280,9 +279,6 @@ export default {
 		},
 	},
 	methods: {
-		click() {
-			console.log('services', this.services);
-		},
 		closeModal() {
 			this.clearFrom();
 			this.$emit('onModalClose');
@@ -309,7 +305,6 @@ export default {
 		cencelTimepicker() {
 			this.isTimepikerOpen = false;
 			const [hour] = this.currentTime?.split(':') || [];
-			console.log('hour', hour)
 			this.time = `${hour || '09'}:00`;
 		},
 		clearFrom() {
@@ -317,6 +312,11 @@ export default {
 				this[key] = defaultData[key];
 			});
 		},
+		onKeyDown({keyCode}: any) {
+			if (keyCode === 27) { // Escape
+				this.closeModal()
+			}
+		}
 	},
 };
 </script>

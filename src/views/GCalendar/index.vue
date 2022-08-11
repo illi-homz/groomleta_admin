@@ -119,7 +119,9 @@
 									{{ service.title }}
 								</li>
 							</ul>
-							<div v-else class="px-2"><i>Услуга не выбрана</i></div>
+							<div v-else class="px-2">
+								<i>Услуга не выбрана</i>
+							</div>
 							<div class="px-2" v-if="event.master">
 								<b>Груммер</b>: {{ event.master.username }}
 								{{ event.master.lastname }}
@@ -218,10 +220,15 @@ export default {
 			console.log('createOrder');
 		},
 		async createEvent(formData: Object) {
-			console.log('formData', formData);
-			const { data } = await this.CREATE_EVENT(formData);
+			const {
+				data: { allEvents },
+			} = await this.CREATE_EVENT(formData);
+
 			this.isModalFromShow = false;
-			this.getEvents();
+
+			if (allEvents) {
+				this.events = eventsFormatter(allEvents);
+			}
 		},
 		toggleWeek({ date }: any) {
 			this.focus = date;
@@ -254,7 +261,7 @@ export default {
 			}
 		},
 		async saveEvent() {
-			if (!Object.keys(this.selectedEvent).length) return;
+			if (!this.selectedEvent) return;
 
 			const nativeEvent = this.EVENTS.find(
 				(el: any) => el.id === this.selectedEvent.id,
@@ -285,22 +292,47 @@ export default {
 			);
 
 			if (Object.keys(diffEventData).length) {
-				const response = await this.UPDATE_EVENT({
+				const {
+					data: { allEvents },
+				} = await this.UPDATE_EVENT({
 					id: this.selectedEvent.id,
 					data: diffEventData,
 				});
-				console.log('UPDATE_EVENT response', response.data);
 
-				this.getEvents();
+				// this.getEvents();
+				if (allEvents) {
+					this.events = eventsFormatter(allEvents);
+				}
 			}
-			this.selectedEvent = null;
+			// this.selectedEvent = null;
 			this.closeEvent();
 		},
+		async updateEventDates(event: any) {
+			if (!event) return;
+
+			const currentData = {
+				startDate: convertTimestampToLocalDateTime(event.start),
+				endDate: convertTimestampToLocalDateTime(event.end),
+			};
+
+			const {
+				data: { allEvents },
+			} = await this.UPDATE_EVENT({ id: event.id, data: currentData });
+
+			if (allEvents) {
+				this.events = eventsFormatter(allEvents);
+			}
+		},
 		async removeEvent(id: any) {
-			console.log('removeEvent', id)
-			await this.REMOVE_EVENT(id)
-			this.closeEvent()
-			this.getEvents()
+			const {
+				data: { allEvents },
+			} = await this.REMOVE_EVENT(id);
+
+			this.closeEvent();
+
+			if (allEvents) {
+				this.events = eventsFormatter(allEvents);
+			}
 		},
 		showEvent({ nativeEvent, event }: any) {
 			if (this.currentEvent) {
@@ -312,7 +344,6 @@ export default {
 				this.selectedElement = nativeEvent.target;
 				requestAnimationFrame(() =>
 					requestAnimationFrame(() => {
-						console.log('showEvent', new Date());
 						this.selectedOpen = true;
 						this.selectedEvent = event;
 					}),
@@ -328,9 +359,11 @@ export default {
 			nativeEvent.stopPropagation();
 		},
 		closeEvent() {
-			// this.selectedOpen = false;
 			requestAnimationFrame(() =>
-				requestAnimationFrame(() => (this.selectedOpen = false)),
+				requestAnimationFrame(() => {
+					this.selectedOpen = false;
+					this.selectedEvent = null;
+				}),
 			);
 		},
 		startDrag({ event, timed }: any) {
@@ -411,46 +444,20 @@ export default {
 				tms.minute,
 			).getTime();
 		},
-		async updateEventDates(event: any) {
-			if (!event) return;
-
-			const currentData = {
-				startDate: convertTimestampToLocalDateTime(event.start),
-				endDate: convertTimestampToLocalDateTime(event.end),
-			};
-
-			await this.UPDATE_EVENT({ id: event.id, data: currentData });
-
-			this.getEvents();
-		},
 	},
 };
 
 const eventsFormatter = (events: Object[]): Object[] => {
 	return events.map(
-		({
-			id,
-			title,
-			startDate,
-			endDate,
-			master,
-			services,
-			client,
-			comment,
-			createDate,
-		}: any) => {
+		({ title, startDate, endDate, master, ...eventProps }: any) => {
 			return {
-				id,
+				...eventProps,
+				master,
 				name: title,
 				start: new Date(startDate).getTime(),
 				end: new Date(endDate).getTime(),
 				color: master?.color || '#FFC11C',
 				timed: true,
-				services,
-				master,
-				client,
-				comment,
-				createDate,
 			};
 		},
 	);

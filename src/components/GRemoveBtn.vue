@@ -34,7 +34,7 @@ export default {
 	methods: {
 		success() {
 			this.$emit('onRemoveEvent')
-			dialog = false
+			this.dialog = false
 		}
 	}
 };

@@ -238,7 +238,6 @@ export default {
 			}
 		},
 		selectedEvent(v) {
-			console.log('set oldEvent', v);
 			this.oldEvent = JSON.parse(JSON.stringify(v));
 		},
 	},
