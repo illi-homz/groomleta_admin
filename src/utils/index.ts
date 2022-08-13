@@ -22,7 +22,7 @@ export const getDeffData = (nativeEvent: any, currentSelectedEvent: any) => {
 		}
 		if (key === 'client') {
 			if (nativeEvent.client?.id !== currentSelectedEvent.client?.id) {
-				return { ...acc, [key]: currentSelectedEvent.client?.id };
+				return { ...acc, [key]: currentSelectedEvent.client?.id || '' };
 			}
 			return acc;
 		}

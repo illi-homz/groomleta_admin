@@ -187,6 +187,7 @@
 								class="pt-0 mt-0"
 								background-color="#FFF"
 								outlined
+								clearable
 								dense
 								@change="setClient"
 							/>
@@ -287,10 +288,7 @@ export default {
 		},
 		setClient(idx) {
 			const client = this.clientsList[idx];
-
-			if (client) {
-				this.setEvent({ client });
-			}
+			this.setEvent({ client: client || '' });
 		},
 	},
 };

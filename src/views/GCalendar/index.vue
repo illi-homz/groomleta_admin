@@ -149,7 +149,7 @@
 						@setEvent="setEvent"
 						@saveEvent="saveEvent"
 						@onClose="getEvents"
-						@onEemoveEvent="removeEvent"
+						@onRemoveEvent="removeEvent"
 					/>
 				</v-sheet>
 			</v-col>
@@ -281,6 +281,7 @@ export default {
 				services,
 				...selectedEventData
 			} = this.selectedEvent;
+
 			const currentSelectedEvent = {
 				...selectedEventData,
 				title: name,
