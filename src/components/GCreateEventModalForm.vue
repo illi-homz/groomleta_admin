@@ -1,21 +1,20 @@
 <template>
 	<v-dialog
 		content-class="g-create-event-modal-form"
-		@click:outside="closeModal"
-		@keydown="onKeyDown"
 		:value="isAvtive"
 		max-width="30%"
+		@click:outside="closeModal"
+		@keydown="onKeyDown"
 	>
-		<v-card>
-			<v-card-title class="px-8 mb-4 d-block">
+		<v-card class="pt-4">
+			<v-card-title class="px-8 d-block">
 				<v-text-field
 					v-model="title"
 					class="text-h5"
-					label="Заголовок"
+					label="Заголовок*"
 					color="#FFC11C"
-					single-line
 					light
-					hide-details
+					:rules="[v => !!v || 'Укажите название записи']"
 				/>
 			</v-card-title>
 			<v-card-text class="px-5">
@@ -39,19 +38,20 @@
 								ref="timepickerIcon"
 								color="#FFC11C"
 								@click="toggleTimepiker"
-								>mdi-clock-outline</v-icon
 							>
+								mdi-clock-outline
+							</v-icon>
 							<v-menu
-								:activator="$refs.timepickerText"
 								v-model="isTimepikerOpen"
+								:activator="$refs.timepickerText"
 								:close-on-content-click="false"
 								offset-x
 								offset-y
 							>
 								<v-time-picker
+									v-model="time"
 									color="#FFC11C"
 									format="24hr"
-									v-model="time"
 								>
 									<!-- <v-btn
 										elevation="0"
@@ -74,6 +74,7 @@
 					<v-row class="mb-4">
 						<v-col class="py-0">
 							<v-autocomplete
+								v-model="servicePickerValue"
 								:items="
 									servicesList?.map((el, idx) => {
 										return {
@@ -82,19 +83,18 @@
 										};
 									})
 								"
-								@change="setServices"
 								color="#FFC11C"
 								item-color="#FFC11C"
 								:no-data-text="'Ничего не найдено'"
-								v-model="servicePickerValue"
 								label="Услуги"
 								hide-details
 								multiple
 								chips
 								small-chips
 								deletable-chips
+								@change="setServices"
 							/>
-							<div class="pt-3" v-if="services.length">
+							<div v-if="services.length" class="pt-3">
 								<div
 									v-for="(serviceKey, idx) in services"
 									:key="serviceKey"
@@ -108,10 +108,11 @@
 										- {{ servicesList[serviceKey].title }}
 									</div>
 									<v-icon
-										@click="removeService(idx)"
 										color="#FFC11C"
-										>mdi-close</v-icon
+										@click="removeService(idx)"
 									>
+										mdi-close
+									</v-icon>
 								</div>
 							</div>
 						</v-col>
@@ -119,6 +120,7 @@
 					<v-row class="mb-4">
 						<v-col class="py-0">
 							<v-autocomplete
+								v-model="groommer"
 								:items="
 									groomersList?.map((el, idx) => {
 										return {
@@ -130,7 +132,6 @@
 								color="#FFC11C"
 								item-color="#FFC11C"
 								:no-data-text="'Такого мастера нету'"
-								v-model="groommer"
 								clearable
 								label="Мастер"
 								hide-details
@@ -140,6 +141,7 @@
 					<v-row class="mb-8">
 						<v-col class="py-0">
 							<v-autocomplete
+								v-model="client"
 								:items="
 									clientsList?.map((el, idx) => {
 										return {
@@ -151,7 +153,6 @@
 								color="#FFC11C"
 								item-color="#FFC11C"
 								:no-data-text="'Такого клиента нету'"
-								v-model="client"
 								clearable
 								label="Клиент"
 								hide-details
@@ -167,7 +168,7 @@
 								no-resize
 								outlined
 								background-color="#FFC11C08"
-							></v-textarea>
+							/>
 						</v-col>
 					</v-row>
 				</v-container>
@@ -239,24 +240,9 @@ export default {
 		isTimepikerOpen: false,
 		title: '',
 	}),
-	watch: {
-		isAvtive(v) {
-			if (!v) {
-				this.cencelTimepicker()
-			}
-		},
-		currentDate(v) {
-			const date = v.split('-').reverse().join('-');
-			this.title = `Новая запись на ${date}`;
-		},
-		currentTime(v) {
-			const [hour] = v?.split(':') || [];
-			this.time = `${hour || '09'}:00`;
-		},
-	},
 	computed: {
 		isFormValid() {
-			return true;
+			return !!this.title;
 		},
 		form() {
 			const startDate = `${this.currentDate}T${this.time}:00`;
@@ -278,12 +264,29 @@ export default {
 			};
 		},
 	},
+	watch: {
+		isAvtive(v) {
+			if (!v) {
+				this.cencelTimepicker();
+			}
+		},
+		currentDate(v) {
+			const date = v.split('-').reverse().join('-');
+			this.title = `Новая запись на ${date}`;
+		},
+		currentTime(v) {
+			const [hour] = v?.split(':') || [];
+			this.time = `${hour || '09'}:00`;
+		},
+	},
 	methods: {
 		closeModal() {
 			this.clearFrom();
 			this.$emit('onModalClose');
 		},
 		submitForm() {
+			if (!this.isFormValid) return;
+
 			this.$emit('onSubmitEvent', this.form);
 			this.closeModal();
 		},
@@ -312,21 +315,17 @@ export default {
 				this[key] = defaultData[key];
 			});
 		},
-		onKeyDown({keyCode}: any) {
-			if (keyCode === 27) { // Escape
-				this.closeModal()
+		onKeyDown({ keyCode }: any) {
+			// on Escape press
+			if (keyCode === 27) {
+				this.closeModal();
 			}
-		}
+		},
 	},
 };
 </script>
 
 <style lang="scss">
 .g-create-event-modal-form {
-	// .v-chip {
-	// 	&.v-chip--select {
-	// 		display: none !important;
-	// 	}
-	// }
 }
 </style>

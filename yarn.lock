@@ -6565,6 +6565,11 @@ vue@^2.6.14:
     "@vue/compiler-sfc" "2.7.8"
     csstype "^3.1.0"
 
+vuetify-image-input@^19.2.2:
+  version "19.2.2"
+  resolved "https://registry.npmjs.org/vuetify-image-input/-/vuetify-image-input-19.2.2.tgz#e12e2abc3bc80d631de6345ded14d9f661691dcf"
+  integrity sha512-U3qKkMXBiYSXV3IaRyTxNCw9rpgr52lqck0zWM7geOMdUu9IXKDGN1kfIbFGzT6FU6QntFoduHwwEOcug62bxw==
+
 vuetify-loader@^1.7.0:
   version "1.9.2"
   resolved "https://registry.npmjs.org/vuetify-loader/-/vuetify-loader-1.9.2.tgz"

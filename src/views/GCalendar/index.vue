@@ -34,7 +34,7 @@
 						<v-toolbar-title v-if="$refs.calendar">
 							{{ $refs.calendar.title }}
 						</v-toolbar-title>
-						<v-spacer></v-spacer>
+						<v-spacer />
 						<v-btn
 							outlined
 							class="mr-4"
@@ -100,15 +100,17 @@
 							<div
 								class="v-event-draggable"
 								v-html="eventSummary()"
-							></div>
+							/>
 
 							<div class="px-2">
-								<b>{{
-									event.services.length > 1
-										? 'Услуги'
-										: 'Услуга'
-								}}</b
-								>:
+								<b>
+									{{
+										event.services.length > 1
+											? 'Услуги'
+											: 'Услуга'
+									}}
+								</b>
+								:
 							</div>
 							<ul v-if="event.services.length" class="mb-1">
 								<li
@@ -122,11 +124,11 @@
 							<div v-else class="px-2">
 								<i>Услуга не выбрана</i>
 							</div>
-							<div class="px-2" v-if="event.master">
+							<div v-if="event.master" class="px-2">
 								<b>Груммер</b>: {{ event.master.username }}
 								{{ event.master.lastname }}
 							</div>
-							<div class="px-2" v-if="event.client">
+							<div v-if="event.client" class="px-2">
 								<b>Клиент</b>: {{ event.client.username }}
 								{{ event.client.lastname }}
 							</div>
@@ -134,31 +136,31 @@
 								v-if="timed"
 								class="v-event-drag-bottom"
 								@mousedown.stop="extendBottom(event)"
-							></div>
+							/>
 						</template>
 					</v-calendar>
 					<GCalendarEventMenu
 						v-model="selectedOpen"
-						:selectedEvent="selectedEvent"
-						:selectedElement="selectedElement"
-						:servicesList="SERVICES"
-						:groomersList="GROOMERS"
-						:clientsList="CLIENTS"
+						:selected-event="selectedEvent"
+						:selected-element="selectedElement"
+						:services-list="SERVICES"
+						:groomers-list="GROOMERS"
+						:clients-list="CLIENTS"
 						@setEvent="setEvent"
 						@saveEvent="saveEvent"
 						@onClose="getEvents"
-						@onRemoveEvent="removeEvent"
+						@onEemoveEvent="removeEvent"
 					/>
 				</v-sheet>
 			</v-col>
 		</v-row>
 		<GCreateEventModalForm
-			:isAvtive="isModalFromShow"
-			:currentDate="currentDate"
-			:currentTime="currentTime"
-			:servicesList="SERVICES"
-			:groomersList="GROOMERS"
-			:clientsList="CLIENTS"
+			:is-avtive="isModalFromShow"
+			:current-date="currentDate"
+			:current-time="currentTime"
+			:services-list="SERVICES"
+			:groomers-list="GROOMERS"
+			:clients-list="CLIENTS"
 			@onModalClose="isModalFromShow = false"
 			@onSubmitEvent="createEvent"
 		/>
@@ -166,7 +168,7 @@
 </template>
 
 <script lang="ts">
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { GCreateEventModalForm, GCalendarEventMenu } from '@/components';
 import { EventColorType } from '@/models/vutify';
 import { convertTimestampToLocalDateTime, getDeffData } from '@/utils';
@@ -209,6 +211,7 @@ export default {
 			'UPDATE_EVENT',
 			'REMOVE_EVENT',
 		]),
+		...mapMutations(['SHOW_ORDER_FORM']),
 		async getEvents() {
 			const { data } = await this.GET_EVENTS();
 			this.events = eventsFormatter(data);
@@ -218,6 +221,7 @@ export default {
 		},
 		createOrder(data?: any) {
 			console.log('createOrder');
+			this.SHOW_ORDER_FORM()
 		},
 		async createEvent(formData: Object) {
 			const {
@@ -238,7 +242,6 @@ export default {
 			if (this.currentEvent) {
 				return;
 			}
-
 			this.currentTime = time;
 			this.currentDate = date;
 			this.isModalFromShow = true;
@@ -461,10 +464,6 @@ const eventsFormatter = (events: Object[]): Object[] => {
 			};
 		},
 	);
-};
-
-const convertDateToLocal = (date: Date) => {
-	return date.toLocaleDateString().split('.').reverse().join('-');
 };
 </script>
 

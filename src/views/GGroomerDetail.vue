@@ -9,7 +9,7 @@
 				:width="5"
 				color="amber"
 				indeterminate
-			></v-progress-circular>
+			/>
 		</div>
 		<div v-else class="flex-grow-1 d-flex flex-column">
 			<v-breadcrumbs :items="breadcrumbs">
@@ -17,30 +17,62 @@
 					<v-icon>mdi-chevron-right</v-icon>
 				</template>
 			</v-breadcrumbs>
-			<UserCard :data="groomer" />
+			<v-row v-if="master" class="user-card">
+				<v-col cols="1" class="flex-grow-0">
+					<v-img
+						:src="imageURl"
+						width="126"
+						height="126"
+						@click="loadImage"
+						class="pointer"
+					/>
+				</v-col>
+				<v-col class="flex-grow-1">
+					<h5 class="text-h5 font-weight-bold text-left mb-4">
+						{{ master.username }} {{ master.lastname }}
+					</h5>
+					<p class="mb-02 text-caption">Образование</p>
+					<p class="mb-3 text-body-1">{{ master.education }}</p>
+					<p class="mb-02 text-caption">Должность</p>
+					<p class="mb-0 text-body-1">{{ posts[master.post] }}</p>
+				</v-col>
+			</v-row>
+			<input
+				ref="avatar"
+				type="file"
+				name="images"
+				multiple
+				accept=".jpg,.png"
+				hidden
+				@change="onUploadImages"
+				@click="onInputClick"
+			/>
 		</div>
 	</div>
 </template>
 
 <script>
+import { posts } from '@/variables';
 import { mapActions } from 'vuex';
-import { UserCard } from '@/components';
+import API from '@/api';
+const API_URL = process.env.VUE_APP_API_URL;
+const MEDIAFILES = process.env.VUE_APP_MEDIAFILES;
 
 export default {
 	name: 'GGroomerDetail',
-	components: { UserCard },
-	mounted() {
-		this.getData();
-	},
 	data: () => ({
 		isLoading: true,
-		groomer: null,
+		master: null,
+		events: null,
+		orders: null,
+		avatar: '',
+		posts,
 	}),
 	computed: {
 		breadcrumbs() {
-			if (!this.groomer) return [];
+			if (!this.master) return [];
 
-			const {username, lastname} = this.groomer
+			const { username, lastname } = this.master;
 
 			return [
 				{
@@ -54,19 +86,43 @@ export default {
 				},
 			];
 		},
+		imageURl() {
+			if (!this.master) return '';
+
+			const { avatar } = this.master;
+
+			return `${API_URL + MEDIAFILES}/${avatar}`;
+		},
+	},
+	mounted() {
+		this.getData();
 	},
 	methods: {
 		...mapActions(['GET_MASTER_BY_ID']),
 		async getData() {
 			const id = this.$route.params.id;
 
-			const { data: groomer } = await this.GET_MASTER_BY_ID(id);
-			this.groomer = groomer;
-			console.log('groomer', groomer);
+			const {
+				data: { master, allEvents, allOrders },
+			} = await this.GET_MASTER_BY_ID(id);
+			this.master = master;
+			this.events = allEvents;
+			this.orders = allOrders;
 
-			setTimeout(() => {
-				this.isLoading = false;
-			}, 1000);
+			this.isLoading = false;
+		},
+		loadImage() {
+			this.$refs.avatar.click();
+		},
+		async onUploadImages({ target }) {
+			await API.master.uploadAvatar(
+				this.$route.params.id,
+				target.files[0],
+			);
+			this.getData();
+		},
+		onInputClick(data) {
+			console.log('onInputClick', data);
 		},
 	},
 };
@@ -74,5 +130,8 @@ export default {
 
 <style lang="scss">
 .g-groomer-detail {
+	p {
+		line-height: 1rem !important;
+	}
 }
 </style>

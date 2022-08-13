@@ -18,6 +18,7 @@
 					v-for="link in links"
 					:key="link.id"
 					:to="link.url"
+					:class="{active: link.url === $route.path}"
 					class="text-decoration-none px-10 main-layout__border-bottom-on-hover"
 				>
 					<span
@@ -40,14 +41,17 @@
 		<div class="px-8 pb-8 flex-grow-1 d-flex flex-column">
 			<slot />
 		</div>
+		<GCreateOrderModalForm />
 	</div>
 </template>
 
 <script lang="ts">
+import { GCreateOrderModalForm } from '@/components';
 import { mapActions } from 'vuex';
 
 export default {
 	name: 'MainLayout',
+	components: { GCreateOrderModalForm },
 	data: () => ({
 		links: [
 			{ id: 0, title: 'Календарь', url: '/' },
@@ -64,6 +68,7 @@ export default {
 		this.GET_SERVICES();
 		this.GET_ALL_GROOMERS();
 		this.GET_ALL_CLIENTS();
+		this.GET_ALL_PRODUCTS();
 	},
 	methods: {
 		...mapActions([
@@ -71,6 +76,7 @@ export default {
 			'GET_SERVICES',
 			'GET_ALL_GROOMERS',
 			'GET_ALL_CLIENTS',
+			'GET_ALL_PRODUCTS',
 		]),
 		async logout() {
 			const { status } = await this.LOGOUT();
@@ -89,6 +95,11 @@ export default {
 
 	&__border-bottom-on-hover {
 		&:hover {
+			.main-layout__nav-link {
+				border-bottom-color: #243138;
+			}
+		}
+		&.active {
 			.main-layout__nav-link {
 				border-bottom-color: #243138;
 			}

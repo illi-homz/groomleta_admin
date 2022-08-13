@@ -7,38 +7,38 @@
 					v-model="searchStr"
 					prepend-inner-icon="mdi-magnify"
 					label="Поиск клиента"
-					single-line
 					hide-details
 					color="#FFC11C"
 					filled
 					dense
-				></v-text-field>
+				/>
 			</v-col>
 			<v-col class="d-flex">
-				<v-spacer></v-spacer>
+				<v-spacer />
 				<v-btn
 					x-large
 					color="#FFC11C"
-					tile
-					dark
-					elevation="0"
-					@click="isFormActive = true"
-				>
-					<v-icon>mdi-plus</v-icon>
-					Создать нового клиента
-				</v-btn>
-				<v-btn
-					x-large
-					color="primary"
-					class="ml-4"
 					tile
 					dark
 					elevation="0"
 					@click="createClient"
 				>
+					<!-- @click="isFormActive = true" -->
+					<v-icon>mdi-plus</v-icon>
+					Создать нового клиента
+				</v-btn>
+				<!-- <v-btn
+					x-large
+					color="#666"
+					class="ml-4"
+					tile
+					outlined
+					elevation="0"
+					@click="createClient"
+				>
 					<v-icon>mdi-plus</v-icon>
 					New
-				</v-btn>
+				</v-btn> -->
 			</v-col>
 		</v-row>
 		<v-row class="flex-grow-1">
@@ -59,7 +59,7 @@
 						pageText: `${currentPage} из ${pageCount}`,
 					}"
 					@pagination="setCurrentPage"
-					@page-count="setPageCount"
+					@pageCount="setPageCount"
 				>
 					<template v-slot:item="{ item }">
 						<tr
@@ -67,14 +67,14 @@
 								+writableClientId !== +item.id ||
 								!selectedClient
 							"
+							class="pointer"
 							@click="goToClientDetail(item.id)"
 							@contextmenu.prevent="writeClient(item.id)"
-							class="pointer"
 						>
 							<td
-								class="text-xs-right py-2"
-								v-for="key in ['username', 'lastname', 'phone']"
+								v-for="key in ['username', 'lastname', 'phone', 'animal']"
 								:key="key"
+								class="text-xs-right py-2"
 							>
 								<span>{{ item[key] }}</span>
 							</td>
@@ -90,15 +90,17 @@
 										class="mr-5"
 										:color="hover ? '#FFC11C' : 'gray'"
 										@click="writeClient(item.id)"
-										>mdi-pencil-outline</v-icon
 									>
+										mdi-pencil-outline
+									</v-icon>
 								</v-hover>
 								<v-hover v-slot="{ hover }">
 									<v-icon
 										:color="hover ? 'red' : 'gray'"
 										@click="removeClient(item.id)"
-										>mdi-trash-can-outline</v-icon
 									>
+										mdi-trash-can-outline
+									</v-icon>
 								</v-hover>
 								<v-spacer />
 							</td>
@@ -122,11 +124,23 @@
 							<td class="g-clients__td text-xs-right py-2">
 								<v-text-field
 									:value="selectedClient.phone"
-									@input="setPhone"
 									filled
 									dense
 									color="#FFC11C"
 									class="data-tel-input"
+									light
+									hide-details
+									@input="setPhone"
+								/>
+							</td>
+							<td
+								class="g-clients__td text-xs-right py-2"
+							>
+								<v-text-field
+									v-model="selectedClient.animal"
+									filled
+									dense
+									color="#FFC11C"
 									light
 									hide-details
 								/>
@@ -170,8 +184,9 @@
 									style="width: 100%"
 									x-large
 									@click="cancelWritingClient"
-									>Отменить</v-btn
 								>
+									Отменить
+								</v-btn>
 								<v-btn
 									elevation="0"
 									class="d-block"
@@ -181,8 +196,9 @@
 									tile
 									dark
 									@click="saveClient"
-									>Сохранить</v-btn
 								>
+									Сохранить
+								</v-btn>
 							</td>
 						</tr>
 					</template>
@@ -191,12 +207,12 @@
 		</v-row>
 		<v-dialog v-model="removeDialog" persistent max-width="290">
 			<v-card>
-				<v-card-title class="text-h5"> Удалить событие? </v-card-title>
-				<v-card-text
-					>После удаления данные будут недоступны</v-card-text
-				>
+				<v-card-title class="text-h5"> Удалить клиента? </v-card-title>
+				<v-card-text>
+					После удаления данные будут недоступны
+				</v-card-text>
 				<v-card-actions>
-					<v-spacer></v-spacer>
+					<v-spacer />
 					<v-btn color="#FFC11C" text @click="cancelRemoveClient">
 						Отмена
 					</v-btn>
@@ -211,7 +227,7 @@
 			</v-card>
 		</v-dialog>
 		<GCreateClientModalForm
-			:isAvtive="isFormActive"
+			:is-avtive="isFormActive"
 			@onModalClose="isFormActive = false"
 			@onSubmitEvent="submitForm"
 		/>
@@ -229,6 +245,7 @@ const defaultClient = {
 	lastname: '',
 	phone: '+7',
 	comment: '',
+	animal: '',
 };
 
 export default {
@@ -244,6 +261,7 @@ export default {
 			{ text: 'Имя', value: 'username', width: 300 },
 			{ text: 'Фамилия', value: 'lastname', width: 300 },
 			{ text: 'Телефон', value: 'phone', width: 230 },
+			{ text: 'Животное', value: 'animal', width: 300 },
 			{ text: 'Комментарий', value: 'comment' },
 			{
 				text: 'Действия',
@@ -311,6 +329,7 @@ export default {
 					lastname: client.lastname?.trim() || '',
 					phone: client.phone?.trim() || '',
 					comment: client.comment?.trim() || '',
+					animal: client.animal?.trim() || '',
 				};
 
 				const {
@@ -329,6 +348,8 @@ export default {
 					data.lastname = client.lastname.trim();
 				if (this.oldClient.phone !== client.phone)
 					data.phone = client.phone.trim();
+				if (this.oldClient.animal !== client.animal)
+					data.animal = client.animal.trim();
 				if (this.oldClient.comment !== client.comment)
 					data.comment = client.comment.trim();
 

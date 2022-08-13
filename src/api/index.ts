@@ -5,6 +5,7 @@ import Services from './services';
 import Events from './events';
 import Clients from './clients';
 import Products from './products';
+import Order from './order';
 import Vue from 'vue';
 const API_URL = process.env.VUE_APP_API_URL;
 
@@ -52,4 +53,5 @@ export default {
 	events: Events,
 	clients: Clients,
 	products: Products,
+	order: Order,
 };

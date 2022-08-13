@@ -8,8 +8,8 @@ export default {
 		groomers: [],
 	}),
 	mutations: {
-		SET_GROOMERS(state: any, { data }: { data: MasterType[] }) {
-			state.groomers = data;
+		SET_GROOMERS(state: any, groomers: MasterType[]) {
+			state.groomers = groomers;
 		},
 	},
 	actions: {
@@ -20,7 +20,7 @@ export default {
 
 				if (!allGroomers) return errorResponse
 
-				commit('SET_GROOMERS', {data: allGroomers})
+				commit('SET_GROOMERS', allGroomers)
 
 				return {...successResponse, data: allGroomers};
 			} catch {
@@ -29,14 +29,34 @@ export default {
 		},
 		async GET_MASTER_BY_ID({ commit }: any, id: any) {
 			try {
-				const {grooberById} = await API.master.fetchMasterById(id);
-				if (!grooberById) throw '[GET_MASTER_BY_ID] grooberById exist'
+				const {masterById} = await API.master.fetchMasterById(id);
+
+				console.log('masterById', masterById)
 				
-				return {...successResponse, data: grooberById};
+				if (!masterById) throw '[GET_MASTER_BY_ID] masterById exist'
+				
+				return {...successResponse, data: masterById};
 			} catch (e) {
 				return errorResponse
 			}
-		}
+		},
+		async CREATE_MASTER({ commit }: any, formData: any) {
+			try {
+				const { createMaster } = await API.master.createMaster(
+					formData,
+				);
+
+				commit('SET_GROOMERS', createMaster?.allMasters || []);
+
+				return {
+					...successResponse,
+					data: createMaster?.allMasters,
+				};
+			} catch (e) {
+				console.log('CREATE_MASTER exeption:', e);
+				return errorResponse;
+			}
+		},
 	},
 	getters: {
 		GROOMERS: (s: any) => s.groomers,

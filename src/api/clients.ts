@@ -13,7 +13,7 @@ class Clients {
 							lastname
 							phone
 							comment
-							address
+							animal
 							createDate
 						}
 					}`,
@@ -49,7 +49,7 @@ class Clients {
 								lastname
 								phone
 								comment
-								address
+								animal
 								createDate
 							}
 						}
@@ -87,7 +87,7 @@ class Clients {
 								lastname
 								phone
 								comment
-								address
+								animal
 								createDate
 							}
 						}
@@ -114,7 +114,7 @@ class Clients {
 								lastname
 								phone
 								comment
-								address
+								animal
 								createDate
 							}
 							success

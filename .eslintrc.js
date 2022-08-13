@@ -12,5 +12,9 @@ module.exports = {
 		'vue/singleline-html-element-content-newline': 0,
 		'vue/no-v-text-v-html-on-component': 0,
 		'vue/max-attributes-per-line': 0,
+		'vue/v-slot-style': 0,
+		'vue/mustache-interpolation-spacing': 0,
+		'vue/require-prop-types': 0,
+		'vue/no-v-html': 0,
 	},
 };

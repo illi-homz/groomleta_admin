@@ -2,12 +2,12 @@
 	<div class="g-calendar-event-menu">
 		<v-menu
 			v-if="selectedEvent"
-			@input="vModel"
 			:value="value"
 			:close-on-content-click="false"
 			:activator="selectedElement"
 			offset-y
 			offset-x
+			@input="vModel"
 		>
 			<v-card color="grey lighten-4" min-width="350px" flat>
 				<v-toolbar :color="selectedEvent.color" dark elevation="0">
@@ -20,7 +20,6 @@
 					<v-toolbar-title v-else class="flex-grow-1 mr-8">
 						<v-text-field
 							:value="selectedEvent.name"
-							@input="name => setEvent({ name })"
 							filled
 							dense
 							rounded
@@ -28,14 +27,17 @@
 							background-color="#FFF"
 							light
 							hide-details
-						></v-text-field>
+							@input="name => setEvent({ name })"
+						/>
 					</v-toolbar-title>
 					<v-btn v-if="isWritable" icon @click="saveCanges">
 						<v-icon>mdi-content-save-outline</v-icon>
 					</v-btn>
 					<GRemoveBtn
 						v-if="!isWritable"
-						@onRemoveEvent="$emit('onRemoveEvent', selectedEvent.id)"
+						@onRemoveEvent="
+							$emit('onRemoveEvent', selectedEvent.id)
+						"
 					/>
 					<v-btn
 						v-if="!isWritable"
@@ -83,10 +85,11 @@
 										{{ service.title }}
 									</div>
 									<v-icon
-										@click="removeService(idx)"
 										color="#FFC11C"
-										>mdi-close</v-icon
+										@click="removeService(idx)"
 									>
+										mdi-close
+									</v-icon>
 								</div>
 							</div>
 							<v-autocomplete
@@ -96,7 +99,6 @@
 										value: idx,
 									}))
 								"
-								@change="setServices"
 								:value="
 									selectedEvent.services?.map((_, i) => i)
 								"
@@ -113,6 +115,7 @@
 								chips
 								small-chips
 								deletable-chips
+								@change="setServices"
 							/>
 						</div>
 					</div>
@@ -140,7 +143,6 @@
 											el.id === selectedEvent.master?.id,
 									)
 								"
-								@change="setMaster"
 								color="#FFC11C"
 								item-color="#FFC11C"
 								:no-data-text="'Такого мастера нету'"
@@ -150,6 +152,7 @@
 								background-color="#FFF"
 								outlined
 								dense
+								@change="setMaster"
 							/>
 						</div>
 					</div>
@@ -177,7 +180,6 @@
 											el.id === selectedEvent.client?.id,
 									)
 								"
-								@change="setClient"
 								color="#FFC11C"
 								item-color="#FFC11C"
 								:no-data-text="'Такого клиента нету'"
@@ -186,6 +188,7 @@
 								background-color="#FFF"
 								outlined
 								dense
+								@change="setClient"
 							/>
 						</div>
 					</div>
@@ -197,14 +200,14 @@
 						<v-textarea
 							v-else
 							:value="selectedEvent.comment"
-							@input="comment => setEvent({ comment })"
 							label="Комментарий"
 							color="#ddd"
 							class="mt-2"
 							no-resize
 							outlined
 							background-color="#fff"
-						></v-textarea>
+							@input="comment => setEvent({ comment })"
+						/>
 					</div>
 				</v-card-text>
 			</v-card>
@@ -213,11 +216,11 @@
 </template>
 
 <script>
-import GRemoveBtn from './GRemoveBtn.vue'
+import GRemoveBtn from './GRemoveBtn.vue';
 
 export default {
 	name: 'GCalendarEventMenu',
-	components: {GRemoveBtn},
+	components: { GRemoveBtn },
 	props: [
 		'selectedEvent',
 		'value',

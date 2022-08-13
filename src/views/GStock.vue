@@ -12,10 +12,10 @@
 					color="#FFC11C"
 					filled
 					dense
-				></v-text-field>
+				/>
 			</v-col>
 			<v-col class="d-flex">
-				<v-spacer></v-spacer>
+				<v-spacer />
 				<v-btn
 					x-large
 					color="#FFC11C"
@@ -47,7 +47,7 @@
 						pageText: `${currentPage} из ${pageCount}`,
 					}"
 					@pagination="setCurrentPage"
-					@page-count="setPageCount"
+					@pageCount="setPageCount"
 				>
 					<template v-slot:item="{ item }">
 						<tr
@@ -55,17 +55,13 @@
 								+writableProductId !== +item.id ||
 								!selectedProduct
 							"
-							@contextmenu.prevent="writeProduct(item.id)"
 							class="pointer"
+							@contextmenu.prevent="writeProduct(item.id)"
 						>
 							<td
-								class="g-stock__td text-xs-right py-2"
-								v-for="key in [
-									'id',
-									'vendorCode',
-									'title',
-								]"
+								v-for="key in ['id', 'vendorCode', 'title']"
 								:key="key"
+								class="g-stock__td text-xs-right py-2"
 							>
 								<span>{{ item[key] }}</span>
 							</td>
@@ -83,26 +79,27 @@
 								</div>
 								<v-menu open-on-hover offset-y left>
 									<template v-slot:activator="{ on, attrs }">
-										<v-icon v-bind="attrs" v-on="on"
-											>mdi-dots-horizontal</v-icon
-										>
+										<v-icon v-bind="attrs" v-on="on">
+											mdi-dots-horizontal
+										</v-icon>
 									</template>
 
 									<v-list>
 										<v-list-item
 											@click="writeProduct(item.id)"
 										>
-											<v-icon class="mr-3"
-												>mdi-pencil-outline</v-icon
-											>
+											<v-icon class="mr-3">
+												mdi-pencil-outline
+											</v-icon>
 											Изменить
 										</v-list-item>
 										<v-list-item
 											@click="removeProduct(item.id)"
 										>
-											<v-icon class="mr-3"
-												>mdi-trash-can-outline</v-icon
-											>Удалить
+											<v-icon class="mr-3">
+												mdi-trash-can-outline
+											</v-icon>
+											Удалить
 										</v-list-item>
 									</v-list>
 								</v-menu>
@@ -158,8 +155,9 @@
 										class="flex-grow-1 mr-4"
 										x-large
 										@click="cancelWritingProduct"
-										>Отменить</v-btn
 									>
+										Отменить
+									</v-btn>
 									<v-btn
 										elevation="0"
 										class="flex-grow-1"
@@ -168,8 +166,9 @@
 										tile
 										dark
 										@click="saveProduct"
-										>Сохранить</v-btn
 									>
+										Сохранить
+									</v-btn>
 								</div>
 							</td>
 						</tr>
@@ -180,11 +179,11 @@
 		<v-dialog v-model="removeDialog" persistent max-width="290">
 			<v-card>
 				<v-card-title class="text-h5"> Удалить событие? </v-card-title>
-				<v-card-text
-					>После удаления данные будут недоступны</v-card-text
-				>
+				<v-card-text>
+					После удаления данные будут недоступны
+				</v-card-text>
 				<v-card-actions>
-					<v-spacer></v-spacer>
+					<v-spacer />
 					<v-btn
 						color="green darken-1"
 						text

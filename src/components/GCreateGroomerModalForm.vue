@@ -1,6 +1,6 @@
 <template>
 	<v-dialog
-		content-class="g-create-client-modal-form"
+		content-class="g-create-groomer-modal-form"
 		:value="isAvtive"
 		max-width="40%"
 		@click:outside="closeModal"
@@ -8,7 +8,7 @@
 	>
 		<v-card class="pt-4">
 			<v-card-title class="px-8 mb-4 d-block">
-				<span class="text-h4">Создание клиента</span>
+				<span class="text-h4">Создание нового грумера</span>
 			</v-card-title>
 			<v-card-text class="px-5">
 				<v-container>
@@ -45,13 +45,47 @@
 							/>
 						</v-col>
 						<v-col class="py-0">
+							<v-select
+								:items="posts"
+								v-model="post"
+								label="Должность"
+								color="#FFC11C"
+								item-color="warning"
+							/>
+						</v-col>
+					</v-row>
+					<v-row class="mb-4">
+						<v-col class="py-0">
 							<v-text-field
-								v-model="animal"
+								v-model="education"
 								class="text-h5"
-								label="Питомец"
+								label="Образование"
 								color="#FFC11C"
 								light
 							/>
+						</v-col>
+						<v-col cols="2" class="py-0 d-flex justify-end">
+							<v-menu offset-y :close-on-content-click="false">
+								<template v-slot:activator="{ on, attrs }">
+									<v-btn
+										v-bind="attrs"
+										v-on="on"
+										fab
+										elevation="0"
+										:color="color"
+									>
+										<v-icon color="white">
+											mdi-eyedropper-variant
+										</v-icon>
+									</v-btn>
+								</template>
+								<v-color-picker
+									v-model="color"
+									dot-size="25"
+									hide-inputs
+									swatches-max-height="200"
+								/>
+							</v-menu>
 						</v-col>
 					</v-row>
 					<v-row>
@@ -71,8 +105,8 @@
 			</v-card-text>
 			<v-card-actions class="pb-8 px-8">
 				<v-spacer />
-				<v-btn tile class="px-6" text @click="closeModal">
-					Закрыть
+				<v-btn tile class="px-6" text outlined @click="closeModal">
+					Отменить
 				</v-btn>
 				<v-btn
 					color="#FFC11C"
@@ -83,7 +117,7 @@
 					class="px-6 ml-4"
 					@click="submitForm"
 				>
-					Создать
+					Создать грумера
 				</v-btn>
 			</v-card-actions>
 		</v-card>
@@ -93,16 +127,8 @@
 <script lang="ts">
 import { onPhoneInput } from '@/utils/phoneMask';
 
-const defaultData: any = {
-	username: '',
-	lastname: '',
-	phone: '',
-	comment: '',
-	animal: '',
-};
-
 export default {
-	name: 'GCreateClientModalForm',
+	name: 'GCreateGroomerModalForm',
 	props: {
 		isAvtive: {
 			type: Boolean,
@@ -111,6 +137,18 @@ export default {
 	},
 	data: () => ({
 		...defaultData,
+		username: '',
+		lastname: '',
+		phone: '',
+		post: 'groommer',
+		education: '',
+		color: '#FFC11C',
+		comment: '',
+		posts: [
+			{ text: 'Главный груммер', value: 'main_groommer' },
+			{ text: 'Груммер', value: 'groommer' },
+			{ text: 'Помощник груммера', value: 'helper' },
+		],
 	}),
 	computed: {
 		isFormValid() {
@@ -122,7 +160,9 @@ export default {
 				lastname: this.lastname.trim(),
 				phone: this.phone.trim(),
 				comment: this.comment.trim(),
-				animal: this.animal.trim(),
+				post: this.post.trim(),
+				color: this.color.trim(),
+				education: this.education.trim(),
 			};
 		},
 	},
@@ -140,7 +180,7 @@ export default {
 		submitForm() {
 			if (!this.isFormValid) return;
 
-			this.$emit('onSubmitEvent', this.form);
+			this.$emit('onSubmit', this.form);
 			this.closeModal();
 		},
 		onKeyDown({ keyCode }: { keyCode: number }) {
@@ -150,5 +190,14 @@ export default {
 			}
 		},
 	},
+};
+
+const defaultData: any = {
+	username: '',
+	lastname: '',
+	post: 'groommer',
+	phone: '',
+	comment: '',
+	color: '#FFC11C',
 };
 </script>
