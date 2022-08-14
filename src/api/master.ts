@@ -2,6 +2,7 @@ import Vue from 'vue';
 import { fetcherGQL } from '.';
 const API_URL = process.env.VUE_APP_API_URL;
 
+// comment
 class Master {
 	static fetchAllMasters() {
 		return fetcherGQL({
