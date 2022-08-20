@@ -20,6 +20,8 @@ class Master {
 							post
 							color
 							createDate
+							address
+							rate
 						}
 					}
 				`,
@@ -46,9 +48,21 @@ class Master {
 								post
 								color
 								createDate
+								address
+								rate
+								comment
 							}
 							allEvents {
 								id
+								startDate
+								services {
+									id
+									title
+									price
+								}
+								comment
+								createDate
+								updateDate
 							}
 							allOrders {
 								id
@@ -62,14 +76,16 @@ class Master {
 
 	static createMaster(data: any) {
 		const qStr = Object.keys(data).reduce((acc: any, key: string) => {
+			if (key === 'rate') {
+				return acc + `${key}: ${data[key]}\n`;
+			}
+
 			if (key === 'comment') {
 				return acc + `${key}: "${data[key]?.replace('\n', '\\n')}"\n`;
 			}
 
 			return acc + `${key}: "${data[key]}"\n`;
 		}, '');
-
-		console.log('qStr', qStr);
 
 		return fetcherGQL({
 			key: 'Master.createMaster',
@@ -94,6 +110,65 @@ class Master {
 								post
 								color
 								createDate
+								address
+								rate
+							}
+						}
+					}`,
+			},
+		});
+	}
+
+	static updateMaster(id: any, data: any) {
+		const qStr = Object.keys(data).reduce((acc: any, key: string) => {
+			if (key === 'rate') {
+				return acc + `${key}: ${data[key]}\n`;
+			}
+
+			if (key === 'comment') {
+				return acc + `${key}: "${data[key]?.replace('\n', '\\n')}"\n`;
+			}
+
+			return acc + `${key}: "${data[key]}"\n`;
+		}, '');
+
+		return fetcherGQL({
+			key: 'Master.updateMaster',
+			query: {
+				query: `
+					mutation {
+						updateMaster (
+							id: "${id}",
+							masterData: {
+								${qStr}
+							}
+						) {
+							master {
+								id
+								username
+								lastname
+								avatar
+								education
+								phone
+								post
+								color
+								createDate
+								address
+								rate
+								comment
+							}
+							allMasters {
+								id
+								username
+								lastname
+								avatar
+								education
+								phone
+								post
+								color
+								createDate
+								address
+								rate
 							}
 						}
 					}`,

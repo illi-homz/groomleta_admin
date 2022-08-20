@@ -29,6 +29,7 @@
     ]
   },
   "include": [
+	"additional.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",

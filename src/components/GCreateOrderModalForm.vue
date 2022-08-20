@@ -357,6 +357,7 @@ export default {
 			const { data } = await this.CREATE_ORDER({
 				...this.form,
 				isSuccess,
+				isReserved: isSuccess ? false : true,
 			});
 			console.log('data', data);
 		},

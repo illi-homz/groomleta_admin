@@ -21,11 +21,21 @@ export default {
 		}
 	},
 	actions: {
-		// async GET_ALL_ORDERS({ commit }: any) {
-		// },
+		async GET_ALL_ORDERS({ commit }: any) {
+			try {
+				const {allOrders} = await API.order.fetchAllOrders()
+
+				return {...successResponse, data: allOrders}
+			} catch (e) {
+				console.log('GET_ALL_ORDERS exeption:', e);
+				return errorResponse;
+			}
+		},
 		async CREATE_ORDER({ commit }: any, orderData: DefaultOrderDataType) {
 			try {
 				const {createOrder} = await API.order.createOrder(orderData)
+
+				commit('CLOSE_ORDER_FORM');
 
 				return {...successResponse, data: createOrder}
 			} catch (e) {

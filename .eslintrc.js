@@ -16,5 +16,6 @@ module.exports = {
 		'vue/mustache-interpolation-spacing': 0,
 		'vue/require-prop-types': 0,
 		'vue/no-v-html': 0,
+		'vue/html-self-closing': 0,
 	},
 };

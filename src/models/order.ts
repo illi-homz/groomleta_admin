@@ -26,5 +26,6 @@ export type DefaultCreateOrderDataType = {
 	masterId?: number|string
 	eventId?: number|string
 	isSuccess?: boolean
+	isReserved?: boolean
 	price?: number
 }

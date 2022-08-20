@@ -66,6 +66,7 @@ class Order {
 								master: "${orderData.masterId || ''}"
 								price: ${orderData.price}
 								isSuccess: ${orderData.isSuccess}
+								isReserved: ${orderData.isReserved}
 							}
 						) {
 							order {

@@ -7,6 +7,7 @@
 					<v-toolbar flat>
 						<v-btn
 							outlined
+							tile
 							class="mr-4"
 							color="grey darken-2"
 							@click="setToday"
@@ -15,6 +16,7 @@
 						</v-btn>
 						<v-btn
 							fab
+							tile
 							text
 							small
 							color="grey darken-2"
@@ -37,6 +39,7 @@
 						<v-spacer />
 						<v-btn
 							outlined
+							tile
 							class="mr-4"
 							color="grey darken-2"
 							@click="createOrder"
@@ -45,6 +48,7 @@
 						</v-btn>
 						<v-btn
 							outlined
+							tile
 							class="mr-4"
 							color="grey darken-2"
 							@click="getEvents"
@@ -54,6 +58,7 @@
 
 						<v-btn
 							outlined
+							tile
 							class="mr-4"
 							color="grey darken-2"
 							@click="type = 'week'"
@@ -62,6 +67,7 @@
 						</v-btn>
 						<v-btn
 							outlined
+							tile
 							color="grey darken-2"
 							@click="type = 'month'"
 						>
@@ -82,6 +88,7 @@
 						weekdays="1,2,3,4,5,6,0"
 						:locale-first-day-of-year="4"
 						:event-ripple="false"
+						event-more-text="смотреть все"
 						@click:more="toggleWeek"
 						@click:date="type = 'week'"
 						@click:day="showCreateEventForm"
@@ -202,8 +209,10 @@ export default {
 	computed: {
 		...mapGetters(['SERVICES', 'GROOMERS', 'EVENTS', 'CLIENTS']),
 	},
-	// mounted() {
-	// },
+	mounted() {
+		// console.log('$refs.calendar', this.$refs.calendar.genMore('2022-08-04'))
+		console.log('$refs.calendar', this.$vuetify);
+	},
 	methods: {
 		...mapActions([
 			'GET_EVENTS',
@@ -219,9 +228,8 @@ export default {
 		checkChange() {
 			this.$refs.calendar.checkChange();
 		},
-		createOrder(data?: any) {
-			console.log('createOrder');
-			this.SHOW_ORDER_FORM()
+		createOrder() {
+			this.SHOW_ORDER_FORM();
 		},
 		async createEvent(formData: Object) {
 			const {

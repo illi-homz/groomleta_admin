@@ -12,7 +12,16 @@
 			</v-card-title>
 			<v-card-text class="px-5">
 				<v-container>
-					<v-row>
+					<v-row class="mb-4">
+						<v-col class="py-0">
+							<v-text-field
+								v-model="lastname"
+								class="text-h5"
+								label="Фамилия"
+								color="#FFC11C"
+								light
+							/>
+						</v-col>
 						<v-col class="py-0">
 							<v-text-field
 								v-model="username"
@@ -21,15 +30,6 @@
 								color="#FFC11C"
 								light
 								:rules="[v => !!v || 'Укажите имя']"
-							/>
-						</v-col>
-						<v-col class="py-0">
-							<v-text-field
-								v-model="lastname"
-								class="text-h5"
-								label="Фамилия"
-								color="#FFC11C"
-								light
 							/>
 						</v-col>
 					</v-row>
@@ -41,16 +41,37 @@
 								label="Телефон"
 								color="#FFC11C"
 								light
-								@input="v => (phone = onPhoneInput(v))"
+								@input="setPhone"
 							/>
 						</v-col>
 						<v-col class="py-0">
 							<v-select
-								:items="posts"
 								v-model="post"
+								:items="posts"
 								label="Должность"
 								color="#FFC11C"
 								item-color="warning"
+							/>
+						</v-col>
+					</v-row>
+					<v-row class="mb-4">
+						<v-col class="py-0" cols="10">
+							<v-text-field
+								v-model="address"
+								class="text-h5"
+								label="Адрес"
+								color="#FFC11C"
+								light
+							/>
+						</v-col>
+						<v-col class="py-0">
+							<v-text-field
+								:value="rate"
+								class="text-h5"
+								label="Ставка, %"
+								color="#FFC11C"
+								light
+								@input="setRate"
 							/>
 						</v-col>
 					</v-row>
@@ -64,28 +85,8 @@
 								light
 							/>
 						</v-col>
-						<v-col cols="2" class="py-0 d-flex justify-end">
-							<v-menu offset-y :close-on-content-click="false">
-								<template v-slot:activator="{ on, attrs }">
-									<v-btn
-										v-bind="attrs"
-										v-on="on"
-										fab
-										elevation="0"
-										:color="color"
-									>
-										<v-icon color="white">
-											mdi-eyedropper-variant
-										</v-icon>
-									</v-btn>
-								</template>
-								<v-color-picker
-									v-model="color"
-									dot-size="25"
-									hide-inputs
-									swatches-max-height="200"
-								/>
-							</v-menu>
+						<v-col class="py-0 d-flex justify-end align-center">
+							<GColorSelector v-model="color" :data="colors" />
 						</v-col>
 					</v-row>
 					<v-row>
@@ -98,6 +99,7 @@
 								outlined
 								background-color="#f9f9f9"
 								rows="6"
+								counter="100"
 							/>
 						</v-col>
 					</v-row>
@@ -126,9 +128,12 @@
 
 <script lang="ts">
 import { onPhoneInput } from '@/utils/phoneMask';
+import GColorSelector from './GColorSelector.vue';
+import { defaultColors } from '@/variables';
 
 export default {
 	name: 'GCreateGroomerModalForm',
+	components: { GColorSelector },
 	props: {
 		isAvtive: {
 			type: Boolean,
@@ -142,13 +147,16 @@ export default {
 		phone: '',
 		post: 'groommer',
 		education: '',
-		color: '#FFC11C',
+		address: '',
+		rate: 0,
 		comment: '',
 		posts: [
 			{ text: 'Главный груммер', value: 'main_groommer' },
 			{ text: 'Груммер', value: 'groommer' },
 			{ text: 'Помощник груммера', value: 'helper' },
 		],
+		color: '#FFBE11',
+		colors: defaultColors,
 	}),
 	computed: {
 		isFormValid() {
@@ -160,9 +168,11 @@ export default {
 				lastname: this.lastname.trim(),
 				phone: this.phone.trim(),
 				comment: this.comment.trim(),
-				post: this.post.trim(),
+				post: this.post.toLowerCase(),
 				color: this.color.trim(),
 				education: this.education.trim(),
+				address: this.address.trim(),
+				rate: this.rate,
 			};
 		},
 	},
@@ -189,6 +199,24 @@ export default {
 				this.closeModal();
 			}
 		},
+		setRate(v: string) {
+			const value = v.replace(/\D/g, '');
+
+			if (this.rate === +value) {
+				this.rate = v;
+			}
+
+			setTimeout(() => (this.rate = +value), 0);
+		},
+		setPhone(v: string) {
+			const value = onPhoneInput(v);
+
+			if (this.phone === value) {
+				this.phone = v;
+			}
+
+			setTimeout(() => (this.phone = value), 0);
+		},
 	},
 };
 
@@ -199,5 +227,22 @@ const defaultData: any = {
 	phone: '',
 	comment: '',
 	color: '#FFC11C',
+	rate: 0,
+	address: '',
 };
 </script>
+
+<style lang="scss">
+.g-create-groomer-modal-form {
+	.v-text-field__details {
+		position: absolute;
+		bottom: 10px;
+		left: 0;
+		right: 0px;
+
+		.v-counter {
+			color: rgba(36, 49, 56, 0.38);
+		}
+	}
+}
+</style>

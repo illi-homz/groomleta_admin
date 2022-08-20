@@ -5,6 +5,13 @@
 		border-color: transparent;
 		border-bottom-color: #e0e0e0;
 	}
+
+	& .v-event-more {
+		background-color: transparent !important;
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 
 .v-calendar-weekly__day,
@@ -14,6 +21,13 @@
 	&:nth-child(7),
 	&:nth-child(8) {
 		background-color: #FFC11C20;
+	}
+}
+
+.v-calendar-daily__day,
+.v-calendar-weekly__day {
+	&:hover {
+		background-color: #0001;
 	}
 }
 

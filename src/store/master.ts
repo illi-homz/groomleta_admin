@@ -15,29 +15,29 @@ export default {
 	actions: {
 		async GET_ALL_GROOMERS({ commit }: any) {
 			try {
-				const {allGroomers} = await API.master.fetchAllMasters();
-				if (!allGroomers) throw '[GET_ALL_GROOMERS] allGroomers exist'
+				const { allGroomers } = await API.master.fetchAllMasters();
+				if (!allGroomers) throw '[GET_ALL_GROOMERS] allGroomers exist';
 
-				if (!allGroomers) return errorResponse
+				if (!allGroomers) return errorResponse;
 
-				commit('SET_GROOMERS', allGroomers)
+				commit('SET_GROOMERS', allGroomers);
 
-				return {...successResponse, data: allGroomers};
+				return { ...successResponse, data: allGroomers };
 			} catch {
-				errorResponse
+				errorResponse;
 			}
 		},
 		async GET_MASTER_BY_ID({ commit }: any, id: any) {
 			try {
-				const {masterById} = await API.master.fetchMasterById(id);
+				const { masterById } = await API.master.fetchMasterById(id);
 
-				console.log('masterById', masterById)
-				
-				if (!masterById) throw '[GET_MASTER_BY_ID] masterById exist'
-				
-				return {...successResponse, data: masterById};
+				console.log('masterById', masterById);
+
+				if (!masterById) throw '[GET_MASTER_BY_ID] masterById exist';
+
+				return { ...successResponse, data: masterById };
 			} catch (e) {
-				return errorResponse
+				return errorResponse;
 			}
 		},
 		async CREATE_MASTER({ commit }: any, formData: any) {
@@ -51,6 +51,24 @@ export default {
 				return {
 					...successResponse,
 					data: createMaster?.allMasters,
+				};
+			} catch (e) {
+				console.log('CREATE_MASTER exeption:', e);
+				return errorResponse;
+			}
+		},
+		async UPDATE_MASTER({ commit }: any, {id, formData}: any) {
+			try {
+				const { updateMaster } = await API.master.updateMaster(
+					id,
+					formData,
+				);
+
+				commit('SET_GROOMERS', updateMaster?.allMasters || []);
+
+				return {
+					...successResponse,
+					data: updateMaster?.master,
 				};
 			} catch (e) {
 				console.log('CREATE_MASTER exeption:', e);

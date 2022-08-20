@@ -1,6 +1,7 @@
 <template>
 	<div class="g-groomers d-flex flex-column flex-grow-1">
 		<h1>Грумеры</h1>
+		<v-divider />
 		<v-row class="flex-grow-0">
 			<v-col class="d-flex justify-space-between">
 				<v-text-field
@@ -64,7 +65,7 @@
 			</template>
 		</v-data-table>
 		<GCreateGroomerModalForm
-			:isAvtive="isFormActive"
+			:is-avtive="isFormActive"
 			@onModalClose="isFormActive = false"
 			@onSubmit="createNewGroomer"
 		/>
