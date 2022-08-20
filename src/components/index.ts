@@ -6,3 +6,4 @@ export { default as GCreateOrderModalForm } from './GCreateOrderModalForm.vue';
 export { default as GCreateGroomerModalForm } from './GCreateGroomerModalForm.vue';
 export { default as GColorSelector } from './GColorSelector.vue';
 export { default as GGroomerServicesTable } from './GGroomerServicesTable.vue';
+export { default as GGroomerOrdersTable } from './GGroomerOrdersTable.vue';

@@ -121,13 +121,18 @@
 				</v-col>
 			</v-row>
 			<v-tabs color="grey darken-1" class="flex-grow-0">
-				<v-tab @click="tableType = 'services'">Отчет</v-tab>
+				<v-tab @click="tableType = 'services'">Услуги</v-tab>
 				<v-tab @click="tableType = 'orders'">Заказы</v-tab>
 			</v-tabs>
 			<v-divider />
 			<GGroomerServicesTable
-				v-if="tableType === 'services' && !!events"
-				:events="events"
+				v-if="tableType === 'services' && !!orders"
+				:orders="orders"
+				class="flex-grow-1"
+			/>
+			<GGroomerOrdersTable
+				v-if="tableType === 'orders' && !!orders"
+				:orders="orders"
 				class="flex-grow-1"
 			/>
 		</div>
@@ -138,19 +143,18 @@
 import { mapActions } from 'vuex';
 import { posts, postsList, defaultColors } from '@/variables';
 import { getExperience } from '@/services/index';
-import { GColorSelector, GGroomerServicesTable } from '@/components';
+import { GColorSelector, GGroomerServicesTable, GGroomerOrdersTable } from '@/components';
 import API from '@/api';
 const API_URL = process.env.VUE_APP_API_URL;
 const MEDIAFILES = process.env.VUE_APP_MEDIAFILES;
 
 export default {
 	name: 'GGroomerDetail',
-	components: { GColorSelector, GGroomerServicesTable },
+	components: { GColorSelector, GGroomerServicesTable, GGroomerOrdersTable },
 	data: () => ({
 		tableType: 'services', // | 'orders'
 		isLoading: true,
 		master: null,
-		events: null,
 		orders: null,
 		avatar: '',
 		posts,
@@ -197,11 +201,10 @@ export default {
 			const id = this.$route.params.id;
 
 			const {
-				data: { master, allEvents, allOrders },
+				data: { master, allOrders },
 			} = await this.GET_MASTER_BY_ID(id);
 			this.master = JSON.parse(JSON.stringify(master));
 			this.oldMaster = master;
-			this.events = allEvents;
 			this.orders = allOrders;
 
 			this.isLoading = false;

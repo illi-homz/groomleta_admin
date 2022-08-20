@@ -31,8 +31,6 @@ export default {
 			try {
 				const { masterById } = await API.master.fetchMasterById(id);
 
-				console.log('masterById', masterById);
-
 				if (!masterById) throw '[GET_MASTER_BY_ID] masterById exist';
 
 				return { ...successResponse, data: masterById };

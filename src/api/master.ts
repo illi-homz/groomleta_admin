@@ -52,20 +52,29 @@ class Master {
 								rate
 								comment
 							}
-							allEvents {
-								id
-								startDate
-								services {
-									id
-									title
-									price
-								}
-								comment
-								createDate
-								updateDate
-							}
 							allOrders {
 								id
+								services {
+									count
+									service {
+										id
+										title
+										price
+									}
+								}
+								products {
+									count
+									product {
+										id
+										title
+										price
+									}
+								}
+								price
+								isSuccess
+								isCancel
+								isReserved
+								updateDate
 							}
 						}
 					}
@@ -181,9 +190,14 @@ class Master {
 		formData.append('id', id);
 		formData.append('file', avatar);
 
+		const token = Vue.$cookies.get('JWT');
+
 		try {
 			return fetch(API_URL + '/api/upload-master-avatar', {
 				method: 'POST',
+				headers: {
+					Authorization: `JWT ${token || ''}`,
+				},
 				body: formData,
 			})
 				.then(response => {
