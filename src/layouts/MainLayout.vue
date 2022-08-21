@@ -42,16 +42,17 @@
 			<slot />
 		</div>
 		<GCreateOrderModalForm />
+		<GDetailOrderModalShield />
 	</div>
 </template>
 
 <script lang="ts">
-import { GCreateOrderModalForm } from '@/components';
+import { GCreateOrderModalForm, GDetailOrderModalShield } from '@/components';
 import { mapActions } from 'vuex';
 
 export default {
 	name: 'MainLayout',
-	components: { GCreateOrderModalForm },
+	components: { GCreateOrderModalForm, GDetailOrderModalShield },
 	data: () => ({
 		links: [
 			{ id: 0, title: 'Календарь', url: '/' },

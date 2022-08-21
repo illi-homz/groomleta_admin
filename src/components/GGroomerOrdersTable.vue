@@ -7,17 +7,18 @@
 		no-data-text="Ничего найти не получилось"
 		no-results-text="Ничего найти не получилось"
 		loading-text="Загрузка"
+		color="#FFC11C"
 		:footer-props="{
 			itemsPerPageText: 'Заказов на странице',
 			itemsPerPageAllText: 'Все',
 			showCurrentPage: true,
-			showFirstLastPage: true,
+			showFirstLastPage: false,
 			pageText: `${currentPage} из ${pageCount}`,
 		}"
 		@pagination="setCurrentPage"
 	>
 		<template v-slot:item="{ item }">
-			<tr class="pointer" @click="showDetail(item)">
+			<tr class="pointer" @click="showDetail(item.data)">
 				<td class="py-2">
 					{{ item.date }}
 				</td>
@@ -26,6 +27,12 @@
 				</td>
 				<td class="text-xs-right py-2">
 					{{ item.products }}
+				</td>
+				<td class="text-xs-right py-2 text-center">
+					{{ item.groomer }}
+				</td>
+				<td class="text-xs-right py-2 text-center">
+					{{ item.client }}
 				</td>
 				<td class="text-xs-right py-2 text-center">
 					<span
@@ -57,8 +64,10 @@ export default {
 			{ text: 'Дата', value: 'date', width: 140 },
 			{ text: 'Услуги', value: 'services' },
 			{ text: 'Продукты', value: 'products' },
+			{ text: 'Грумер', value: 'groomer', width: 200, align: 'center' },
+			{ text: 'Клиент', value: 'client', width: 200, align: 'center' },
 			{ text: 'Статус', value: 'status', width: 200, align: 'center' },
-			{ text: 'Стоимость, ₽', value: 'price', width: 200 },
+			{ text: 'Стоимость, ₽', value: 'price', width: 130 },
 		],
 		currentPage: 0,
 		pageCount: 0,
@@ -69,29 +78,13 @@ export default {
 		},
 	}),
 	computed: {
-		servicesList() {
-			return this.orders.reduce((mainAcc, { services, updateDate }) => {
-				const newAcc = [...mainAcc];
-
-				services?.forEach(({ count, service }) => {
-					// const newAcc = [...acc];
-					newAcc.push({
-						date: new Date(updateDate).toLocaleDateString(),
-						title: service.title,
-						count,
-						price: service.price,
-						fullPrice: count * +service.price,
-					});
-				});
-
-				return newAcc;
-			}, []);
-		},
 		ordersList() {
 			return this.orders.reduce(
 				(
 					acc,
-					{
+					order,
+				) => {
+					const {
 						updateDate,
 						services,
 						products,
@@ -99,8 +92,9 @@ export default {
 						isSuccess,
 						isCancel,
 						isReserved,
-					},
-				) => {
+						master,
+						client,
+					} = order
 					const servicesStr = services
 						.map(({ service }) => service.title)
 						.join(', ');
@@ -122,6 +116,9 @@ export default {
 							products: productsStr,
 							status,
 							price,
+							groomer: master ? `${master.username} ${master.lastname}` : '-',
+							client: client ? `${client.username} ${client.lastname}` : '-',
+							data: order
 						},
 					];
 				},
@@ -135,6 +132,9 @@ export default {
 			this.currentPage = page;
 			this.pageCount = pageCount;
 		},
+		showDetail(item) {
+			this.$emit('onLineClick', item)
+		}
 	},
 };
 </script>

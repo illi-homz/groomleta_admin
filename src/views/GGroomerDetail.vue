@@ -78,7 +78,17 @@
 						</v-col>
 					</v-row>
 					<v-row>
-						<v-col cols="4">
+						<v-col cols="2">
+							<v-text-field
+								:value="master.phone"
+								class="text-h5"
+								label="Телефон"
+								color="#FFC11C"
+								light
+								@input="setPhone"
+							/>
+						</v-col>
+						<v-col cols="2">
 							<v-text-field
 								v-model="master.education"
 								class="text-h5"
@@ -124,7 +134,6 @@
 				<v-tab @click="tableType = 'services'">Услуги</v-tab>
 				<v-tab @click="tableType = 'orders'">Заказы</v-tab>
 			</v-tabs>
-			<v-divider />
 			<GGroomerServicesTable
 				v-if="tableType === 'services' && !!orders"
 				:orders="orders"
@@ -134,17 +143,39 @@
 				v-if="tableType === 'orders' && !!orders"
 				:orders="orders"
 				class="flex-grow-1"
+				@onLineClick="showOrderModal"
 			/>
+			<v-row class="flex-grow-0">
+				<v-col class="d-flex flex-column justify-end align-start">
+					<v-btn tile text>
+						Сохранить отчет
+						<v-icon class="ml-1"> mdi-download-outline </v-icon>
+					</v-btn>
+				</v-col>
+				<v-col>
+					<div class="text-end text-h6 font-weight-black">
+						Итого: 3 000 ₽
+					</div>
+					<div class="text-end text-h6 font-weight-bold">
+						ЗП грумера: 200 ₽
+					</div>
+				</v-col>
+			</v-row>
 		</div>
 	</div>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapMutations } from 'vuex';
 import { posts, postsList, defaultColors } from '@/variables';
 import { getExperience } from '@/services/index';
-import { GColorSelector, GGroomerServicesTable, GGroomerOrdersTable } from '@/components';
+import {
+	GColorSelector,
+	GGroomerServicesTable,
+	GGroomerOrdersTable,
+} from '@/components';
 import API from '@/api';
+import { onPhoneInput } from '@/utils/phoneMask';
 const API_URL = process.env.VUE_APP_API_URL;
 const MEDIAFILES = process.env.VUE_APP_MEDIAFILES;
 
@@ -196,6 +227,7 @@ export default {
 	},
 	methods: {
 		...mapActions(['GET_MASTER_BY_ID', 'UPDATE_MASTER']),
+		...mapMutations(['SHOW_ORDER_DETAIL_SHIELD']),
 		getExperience,
 		async getData() {
 			const id = this.$route.params.id;
@@ -222,15 +254,6 @@ export default {
 		onInputClick(data) {
 			console.log('onInputClick', data);
 		},
-		setRate(v) {
-			const value = v.replace(/\D/g, '');
-
-			if (this.master.rate === +value) {
-				this.master.rate = v;
-			}
-
-			setTimeout(() => (this.master.rate = +value), 0);
-		},
 		cancelUpdates() {
 			this.master = JSON.parse(JSON.stringify(this.oldMaster));
 		},
@@ -245,13 +268,35 @@ export default {
 				}
 			});
 
-			console.log('formData', formData)
+			console.log('formData', formData);
 
 			const { data: master } = await this.UPDATE_MASTER({ id, formData });
 
 			this.master = JSON.parse(JSON.stringify(master));
 			this.oldMaster = master;
 		},
+		setRate(v) {
+			const value = v.replace(/\D/g, '');
+
+			if (this.master.rate === +value) {
+				this.master.rate = v;
+			}
+
+			setTimeout(() => (this.master.rate = +value), 0);
+		},
+		setPhone(v) {
+			const value = onPhoneInput(v);
+
+			if (this.master.phone === value) {
+				this.master.phone = v;
+			}
+
+			setTimeout(() => (this.master.phone = value), 0);
+		},
+		showOrderModal(item) {
+			console.log('showOrderModal', item)
+			this.SHOW_ORDER_DETAIL_SHIELD(item)
+		}
 	},
 };
 </script>

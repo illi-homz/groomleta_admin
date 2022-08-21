@@ -177,7 +177,6 @@ export default {
 		},
 	},
 	methods: {
-		onPhoneInput,
 		closeModal() {
 			this.clearFrom();
 			this.$emit('onModalClose');

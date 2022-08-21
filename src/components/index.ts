@@ -7,3 +7,4 @@ export { default as GCreateGroomerModalForm } from './GCreateGroomerModalForm.vu
 export { default as GColorSelector } from './GColorSelector.vue';
 export { default as GGroomerServicesTable } from './GGroomerServicesTable.vue';
 export { default as GGroomerOrdersTable } from './GGroomerOrdersTable.vue';
+export { default as GDetailOrderModalShield } from './GDetailOrderModalShield.vue';

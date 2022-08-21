@@ -16,6 +16,7 @@
 					<v-row>
 						<v-col>
 							<v-autocomplete
+								:value="search"
 								:items="[...servicesList, ...productsList]"
 								color="#FFC11C"
 								prepend-inner-icon="mdi-magnify"
@@ -73,91 +74,69 @@
 							/>
 						</v-col>
 						<v-col cols="2">
-							<v-btn text> Удалить все </v-btn>
+							<v-btn text @click="clearAll"> Удалить все </v-btn>
 						</v-col>
 					</v-row>
 					<v-row>
 						<v-col>
 							<v-data-table
 								:headers="headers"
-								:items="servicesForTable"
+								:items="orderItems"
 								no-data-text="Ничего не выбрано"
 								no-results-text="Ничего не выбрано"
 								loading-text="Загрузка"
 								hide-default-footer
 							>
-								<template v-slot:item="{ item, index }">
+								<template
+									v-slot:item="{ item: { count, id, type } }"
+								>
 									<tr>
 										<td class="g-stock__td py-2">
-											<span>{{ item.title }}</span>
+											<span v-if="type === 'product'">
+												{{ productsObj[id].title }}
+											</span>
+											<span v-if="type === 'service'">
+												{{ servicesObj[id].title }}
+											</span>
 										</td>
 										<td
 											class="g-stock__td text-center py-2"
 										>
 											<v-icon
-												:disabled="item.count === 1"
-												@click="services[index].count--"
+												@click="decrement({ id, type })"
 											>
 												mdi-minus
 											</v-icon>
 											<span class="mx-2">{{
-												item.count
+												count
 											}}</span>
 											<v-icon
-												@click="services[index].count++"
+												@click="increment({ id, type })"
 											>
 												mdi-plus
 											</v-icon>
 										</td>
 										<td class="g-stock__td text-right py-2">
-											<span>{{ item.price }}</span>
+											<span v-if="type === 'product'">
+												{{ productsObj[id].price }}
+											</span>
+											<span v-if="type === 'service'">
+												{{ servicesObj[id].price }}
+											</span>
 										</td>
 										<td class="g-stock__td text-right py-2">
-											<span>{{ item.finalPrice }}</span>
-										</td>
-									</tr>
-								</template>
-							</v-data-table>
-						</v-col>
-					</v-row>
-					<v-row>
-						<v-col>
-							<v-data-table
-								:headers="headers"
-								:items="productsForTable"
-								no-data-text="Ничего не выбрано"
-								no-results-text="Ничего не выбрано"
-								loading-text="Загрузка"
-								hide-default-footer
-							>
-								<template v-slot:item="{ item, index }">
-									<tr>
-										<td class="g-stock__td py-2">
-											<span>{{ item.title }}</span>
-										</td>
-										<td
-											class="g-stock__td text-center py-2"
-										>
-											<v-icon
-												:disabled="item.count === 1"
-												@click="products[index].count--"
-											>
-												mdi-minus
-											</v-icon>
-											<span class="mx-2">{{
-												item.count
-											}}</span>
-											<v-icon
-												@click="products[index].count++"
-											>
-												mdi-plus
-											</v-icon>
-										</td>
-										<td class="g-stock__td text-right py-2">
-											<span>{{ item.price }}</span>
-										</td>
-										<td class="g-stock__td text-right py-2">
-											<span>{{ item.finalPrice }}</span>
+											<span v-if="type === 'product'">
+												{{
+													productsObj[id].price *
+													count
+												}}
+											</span>
+											<span v-if="type === 'service'">
+												{{
+													servicesObj[id].price *
+													count
+												}}
+											</span>
 										</td>
 									</tr>
 								</template>
@@ -201,27 +180,31 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 const defaultData = {
-	products: [],
-	services: [],
+	orderItems: [],
 	clientId: '',
 	masterId: '',
 	eventId: '',
+	search: '',
 };
 
 export default {
 	name: 'GCreateOrderModalForm',
 	data: () => ({
-		services: [],
-		products: [],
+		orderItems: [],
 		clientId: '',
 		masterId: '',
 		eventId: '',
+		search: '',
 		headers: [
 			{ text: 'Название', value: 'title' },
 			{ text: 'Количество', value: 'count', width: 130 },
 			{ text: 'Сумма ₽, шт', value: 'price', width: 130 },
 			{ text: 'Всего ₽', value: 'finalPrice', width: 130 },
 		],
+		keys: {
+			product: 'productId',
+			service: 'serviceId',
+		},
 	}),
 	computed: {
 		...mapGetters([
@@ -233,22 +216,6 @@ export default {
 			'IS_CREATE_ORDER_SHOW',
 			'DEFAULT_ORDER_DATA',
 		]),
-		servicesForTable() {
-			return this.services.map(({ serviceId, count }) => ({
-				title: this.servicesObj[serviceId].title,
-				count,
-				price: this.servicesObj[serviceId].price,
-				finalPrice: this.servicesObj[serviceId].price * count,
-			}));
-		},
-		productsForTable() {
-			return this.products.map(({ productId, count }) => ({
-				title: this.productsObj[productId].title,
-				count,
-				price: this.productsObj[productId].price,
-				finalPrice: this.productsObj[productId].price * count,
-			}));
-		},
 		servicesList() {
 			return this.SERVICES.map(el => ({
 				text: `${el.breed.title} - ${el.title}`,
@@ -274,26 +241,45 @@ export default {
 			);
 		},
 		isFormValid() {
-			return !!this.services.length || !!this.products.length;
+			return !!this.orderItems.length;
+		},
+		currentObj() {
+			return {
+				service: this.servicesObj,
+				product: this.productsObj,
+			};
 		},
 		finalPrice() {
-			return (
-				this.services.reduce(
-					(acc, el) =>
-						acc + el.count * this.servicesObj[el.serviceId].price,
-					0,
-				) +
-				this.products.reduce(
-					(acc, el) =>
-						acc + el.count * this.productsObj[el.productId].price,
-					0,
-				)
-			);
+			return this.orderItems.reduce((acc, { id, type, count }) => {
+				return acc + this.currentObj[type][id].price * count;
+			}, 0);
 		},
 		form() {
+			const { service: services, product: products } =
+				this.orderItems.reduce(
+					(acc, { id, type, count }) => {
+						const currentKey = this.keys[type];
+
+						return {
+							...acc,
+							[type]: [
+								...acc[type],
+								{
+									[currentKey]: id,
+									count,
+								},
+							],
+						};
+					},
+					{
+						service: [],
+						product: [],
+					},
+				);
+
 			return {
-				services: this.services,
-				products: this.products,
+				services,
+				products,
 				price: this.finalPrice,
 			};
 		},
@@ -338,28 +324,67 @@ export default {
 				this.closeModal();
 			}
 		},
-		setBasket(item) {
-			if (!item) return
-			
-			if (item.type === 'service') {
-				if (this.products.find(el => el.serviceId === item.id)) return
+		setBasket({ id, type }) {
+			try {
+				if (!id || !type) throw false;
 
-				this.services.push({ serviceId: item.id, count: 1 });
-			}
+				this.search = '-';
+				const idx = this.orderItems.findIndex(
+					el => el.id === id && el.type === type,
+				);
 
-			if (item.type === 'product') {
-				if (this.products.find(el => el.productId === item.id)) return
-				
-				this.products.push({ productId: item.id, count: 1 });
+				if (type === 'service') {
+					if (idx !== -1) throw false;
+					this.orderItems.push({ type: 'service', id, count: 1 });
+				}
+
+				if (type === 'product') {
+					if (idx !== -1) throw false;
+					this.orderItems.push({ type: 'product', id, count: 1 });
+				}
+
+				throw false;
+			} catch (e) {
+				setTimeout(() => (this.search = ''), 0);
 			}
 		},
 		async createOrder(isSuccess = false) {
 			const { data } = await this.CREATE_ORDER({
 				...this.form,
+				clientId: this.clientId,
+				masterId: this.masterId,
 				isSuccess,
 				isReserved: isSuccess ? false : true,
 			});
 			console.log('data', data);
+		},
+		increment({ id, type }) {
+			const idx = this.orderItems.findIndex(
+				el => el.id === id && el.type === type,
+			);
+			this.orderItems[idx].count++;
+		},
+		decrement({ id, type }) {
+			const idx = this.orderItems.findIndex(
+				el => el.id === id && el.type === type,
+			);
+
+			if (this.orderItems[idx].count === 1) {
+				if (confirm('Удалить?')) {
+					this.orderItems = this.orderItems.filter(
+						(_, i) => i !== idx,
+					);
+
+					return;
+				}
+			}
+
+			this.orderItems[idx].count--;
+		},
+		clearAll() {
+			if (confirm('Удалить карзину?')) {
+				this.orderItems = [];
+			}
 		},
 	},
 };

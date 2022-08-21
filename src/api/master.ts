@@ -70,6 +70,16 @@ class Master {
 										price
 									}
 								}
+								master {
+									id
+									username
+									lastname
+								}
+								client {
+									id
+									username
+									lastname
+								}
 								price
 								isSuccess
 								isCancel

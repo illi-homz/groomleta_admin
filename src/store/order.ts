@@ -6,18 +6,30 @@ import { errorResponse, successResponse } from '.';
 export default {
 	state: (): any => ({
 		isCreateOrderShow: false,
-		defaultData: null
+		isDetailOrderShow: false,
+		defaultOrderData: null,
+		detailOrderShieldData: null,
 	}),
 	mutations: {
 		SHOW_ORDER_FORM(state: any, defaultData: DefaultOrderDataType) {
-			state.isCreateOrderShow = true
 			if (defaultData) {
-				state.defaultData = defaultData
+				state.defaultOrderData = defaultData
 			}
+			state.isCreateOrderShow = true
 		},
 		CLOSE_ORDER_FORM(state: any) {
 			state.isCreateOrderShow = false
-			state.defaultData = null
+			state.defaultOrderData = null
+		},
+		SHOW_ORDER_DETAIL_SHIELD(state: any, defaultData: any) {
+			if (defaultData) {
+				state.detailOrderShieldData = defaultData
+			}
+			state.isDetailOrderShow = true
+		},
+		CLOSE_ORDER_DETAIL_SHIELD(state: any) {
+			state.isDetailOrderShow = false
+			state.detailOrderShieldData = null
 		}
 	},
 	actions: {
@@ -33,6 +45,8 @@ export default {
 		},
 		async CREATE_ORDER({ commit }: any, orderData: DefaultOrderDataType) {
 			try {
+				console.log('orderData', orderData)
+				// return {data: null}
 				const {createOrder} = await API.order.createOrder(orderData)
 
 				commit('CLOSE_ORDER_FORM');
@@ -46,6 +60,8 @@ export default {
 	},
 	getters: {
 		IS_CREATE_ORDER_SHOW: (s: any) => s.isCreateOrderShow,
-		DEFAULT_ORDER_DATA: (s: any) => s.defaultData,
+		IS_DETAIL_ORDER_SHOW: (s: any) => s.isDetailOrderShow,
+		DEFAULT_ORDER_DATA: (s: any) => s.defaultOrderData,
+		DETAIL_ORDER_SHIELD_DATA: (s: any) => s.detailOrderShieldData,
 	},
 };

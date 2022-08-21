@@ -33,6 +33,8 @@ export default {
 
 				if (!masterById) throw '[GET_MASTER_BY_ID] masterById exist';
 
+				console.log('masterById', masterById)
+
 				return { ...successResponse, data: masterById };
 			} catch (e) {
 				return errorResponse;
