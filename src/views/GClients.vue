@@ -1,12 +1,14 @@
 <template>
-	<div class="g-clients">
+	<div class="g-clients flex-grow-1 d-flex flex-column">
 		<h1 class="mb-4">Клиенты</h1>
-		<v-row>
-			<v-col cols="3">
+		<v-divider class="mb-5" />
+		<v-row class="flex-grow-0 my-0 mb-5">
+			<v-col cols="3" class="py-0 d-flex align-end">
 				<v-text-field
 					v-model="searchStr"
 					prepend-inner-icon="mdi-magnify"
 					label="Поиск клиента"
+					single-line
 					hide-details
 					color="#FFC11C"
 					filled
@@ -41,123 +43,122 @@
 				</v-btn> -->
 			</v-col>
 		</v-row>
-		<v-row class="flex-grow-1">
-			<v-col>
-				<v-data-table
-					:items-per-page="15"
-					:headers="headers"
-					:items="currentClients"
-					:search="search"
-					no-data-text="Ничего найти не получилось"
-					no-results-text="Ничего найти не получилось"
-					loading-text="Загрузка"
-					:footer-props="{
-						itemsPerPageText: 'Мастеров на странице',
-						itemsPerPageAllText: 'Все',
-						showCurrentPage: true,
-						showFirstLastPage: true,
-						pageText: `${currentPage} из ${pageCount}`,
-					}"
-					@pagination="setCurrentPage"
-					@pageCount="setPageCount"
+		<v-data-table
+			class="flex-grow-1"
+			:items-per-page="15"
+			:headers="headers"
+			:items="currentClients"
+			:search="search"
+			no-data-text="Ничего найти не получилось"
+			no-results-text="Ничего найти не получилось"
+			loading-text="Загрузка"
+			:footer-props="{
+				itemsPerPageText: 'Мастеров на странице',
+				itemsPerPageAllText: 'Все',
+				showCurrentPage: true,
+				showFirstLastPage: true,
+				pageText: `${currentPage} из ${pageCount}`,
+			}"
+			@pagination="setCurrentPage"
+			@pageCount="setPageCount"
+		>
+			<template v-slot:item="{ item }">
+				<tr
+					v-if="+writableClientId !== +item.id || !selectedClient"
+					class="pointer"
+					@click="goToClientDetail(item.id)"
+					@contextmenu.prevent="writeClient(item.id)"
 				>
-					<template v-slot:item="{ item }">
-						<tr
-							v-if="
-								+writableClientId !== +item.id ||
-								!selectedClient
-							"
-							class="pointer"
-							@click="goToClientDetail(item.id)"
-							@contextmenu.prevent="writeClient(item.id)"
-						>
-							<td
-								v-for="key in ['username', 'lastname', 'phone', 'animal']"
-								:key="key"
-								class="text-xs-right py-2"
+					<td
+						v-for="key in [
+							'username',
+							'lastname',
+							'phone',
+							'animal',
+						]"
+						:key="key"
+						class="text-xs-right py-2"
+					>
+						<span>{{ item[key] }}</span>
+					</td>
+					<td class="text-xs-right py-2">
+						<div class="flex-grow-1">
+							{{ item.comment }}
+						</div>
+					</td>
+					<td class="text-center">
+						<v-spacer />
+						<v-hover v-slot="{ hover }">
+							<v-icon
+								class="mr-5"
+								:color="hover ? '#FFC11C' : 'gray'"
+								@click="writeClient(item.id)"
 							>
-								<span>{{ item[key] }}</span>
-							</td>
-							<td class="text-xs-right py-2">
-								<div class="flex-grow-1">
-									{{ item.comment }}
-								</div>
-							</td>
-							<td class="text-center">
-								<v-spacer />
-								<v-hover v-slot="{ hover }">
-									<v-icon
-										class="mr-5"
-										:color="hover ? '#FFC11C' : 'gray'"
-										@click="writeClient(item.id)"
-									>
-										mdi-pencil-outline
-									</v-icon>
-								</v-hover>
-								<v-hover v-slot="{ hover }">
-									<v-icon
-										:color="hover ? 'red' : 'gray'"
-										@click="removeClient(item.id)"
-									>
-										mdi-trash-can-outline
-									</v-icon>
-								</v-hover>
-								<v-spacer />
-							</td>
-						</tr>
+								mdi-pencil-outline
+							</v-icon>
+						</v-hover>
+						<v-hover v-slot="{ hover }">
+							<v-icon
+								:color="hover ? 'red' : 'gray'"
+								@click="removeClient(item.id)"
+							>
+								mdi-trash-can-outline
+							</v-icon>
+						</v-hover>
+						<v-spacer />
+					</td>
+				</tr>
 
-						<tr v-else @click="goToClientDetail(item.id)">
-							<td
-								v-for="key in ['username', 'lastname']"
-								:key="key"
-								class="g-clients__td text-xs-right py-2"
-							>
-								<v-text-field
-									v-model="selectedClient[key]"
-									filled
-									dense
-									color="#FFC11C"
-									light
-									hide-details
-								/>
-							</td>
-							<td class="g-clients__td text-xs-right py-2">
-								<v-text-field
-									:value="selectedClient.phone"
-									filled
-									dense
-									color="#FFC11C"
-									class="data-tel-input"
-									light
-									hide-details
-									@input="setPhone"
-								/>
-							</td>
-							<td
-								class="g-clients__td text-xs-right py-2"
-							>
-								<v-text-field
-									v-model="selectedClient.animal"
-									filled
-									dense
-									color="#FFC11C"
-									light
-									hide-details
-								/>
-							</td>
-							<td class="g-clients__td text-xs-right py-2">
-								<div class="d-flex align-center">
-									<v-textarea
-										v-model="selectedClient.comment"
-										class="lex-grow-1"
-										filled
-										color="#FFC11C"
-										light
-										hide-details
-										rows="2"
-									/>
-								</div>
-								<!-- <div class="py-2 d-flex">
+				<tr v-else @click="goToClientDetail(item.id)">
+					<td
+						v-for="key in ['username', 'lastname']"
+						:key="key"
+						class="g-clients__td text-xs-right py-2"
+					>
+						<v-text-field
+							v-model="selectedClient[key]"
+							filled
+							dense
+							color="#FFC11C"
+							light
+							hide-details
+						/>
+					</td>
+					<td class="g-clients__td text-xs-right py-2">
+						<v-text-field
+							:value="selectedClient.phone"
+							filled
+							dense
+							color="#FFC11C"
+							class="data-tel-input"
+							light
+							hide-details
+							@input="setPhone"
+						/>
+					</td>
+					<td class="g-clients__td text-xs-right py-2">
+						<v-text-field
+							v-model="selectedClient.animal"
+							filled
+							dense
+							color="#FFC11C"
+							light
+							hide-details
+						/>
+					</td>
+					<td class="g-clients__td text-xs-right py-2">
+						<div class="d-flex align-center">
+							<v-textarea
+								v-model="selectedClient.comment"
+								class="lex-grow-1"
+								filled
+								color="#FFC11C"
+								light
+								hide-details
+								rows="2"
+							/>
+						</div>
+						<!-- <div class="py-2 d-flex">
 									<v-btn
 										elevation="0"
 										class="flex-grow-1 mr-4"
@@ -176,35 +177,33 @@
 										>Сохранить</v-btn
 									>
 								</div> -->
-							</td>
-							<td class="py-2">
-								<v-btn
-									elevation="0"
-									class="mb-2"
-									style="width: 100%"
-									x-large
-									@click="cancelWritingClient"
-								>
-									Отменить
-								</v-btn>
-								<v-btn
-									elevation="0"
-									class="d-block"
-									style="width: 100%"
-									x-large
-									color="#FFC11C"
-									tile
-									dark
-									@click="saveClient"
-								>
-									Сохранить
-								</v-btn>
-							</td>
-						</tr>
-					</template>
-				</v-data-table>
-			</v-col>
-		</v-row>
+					</td>
+					<td class="py-2">
+						<v-btn
+							elevation="0"
+							class="mb-2"
+							style="width: 100%"
+							x-large
+							@click="cancelWritingClient"
+						>
+							Отменить
+						</v-btn>
+						<v-btn
+							elevation="0"
+							class="d-block"
+							style="width: 100%"
+							x-large
+							color="#FFC11C"
+							tile
+							dark
+							@click="saveClient"
+						>
+							Сохранить
+						</v-btn>
+					</td>
+				</tr>
+			</template>
+		</v-data-table>
 		<v-dialog v-model="removeDialog" persistent max-width="290">
 			<v-card>
 				<v-card-title class="text-h5"> Удалить клиента? </v-card-title>

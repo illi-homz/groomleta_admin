@@ -1,18 +1,22 @@
 <template>
 	<div class="g-groomers d-flex flex-column flex-grow-1">
-		<h1>Грумеры</h1>
-		<v-divider />
-		<v-row class="flex-grow-0">
-			<v-col class="d-flex justify-space-between">
+		<h1 class="mb-4">Грумеры</h1>
+		<v-divider class="mb-5" />
+		<v-row class="flex-grow-0 my-0 mb-5">
+			<v-col cols="3" class="py-0 d-flex align-end">
 				<v-text-field
 					v-model="searchStr"
-					append-icon="mdi-magnify"
-					label="Поиск грумера"
-					class="flex-grow-0"
+					prepend-inner-icon="mdi-magnify"
+					label="Поиск заказа"
 					single-line
 					hide-details
 					color="#FFC11C"
+					filled
+					dense
 				/>
+			</v-col>
+			<v-col class="d-flex py-0">
+				<v-spacer />
 				<v-btn
 					x-large
 					color="#FFC11C"
@@ -103,17 +107,20 @@ export default {
 	computed: {
 		...mapGetters(['GROOMERS']),
 		currentGroomersList() {
-			return this.GROOMERS.map(
-				({ id, username, lastname, avatar, createDate, phone }) => {
-					return {
-						id: id,
-						name: `${username} ${lastname}`,
-						image: `${API_URL + MEDIAFILES}/${avatar}`,
-						phone: phone,
-						experience: getExperience(createDate),
-					};
-				},
-			);
+			return this.GROOMERS.filter(
+				el =>
+					el.username.includes(this.searchStr) ||
+					el.lastname.includes(this.searchStr) ||
+					el.phone.includes(this.searchStr),
+			).map(({ id, username, lastname, avatar, createDate, phone }) => {
+				return {
+					id: id,
+					name: `${username} ${lastname}`,
+					image: `${API_URL + MEDIAFILES}/${avatar}`,
+					phone: phone,
+					experience: getExperience(createDate),
+				};
+			});
 		},
 	},
 	mounted() {},
@@ -135,13 +142,5 @@ export default {
 
 <style lang="scss">
 .g-groomers {
-	.v-data-table {
-		display: flex;
-		flex-direction: column;
-
-		&__wrapper {
-			flex: 1;
-		}
-	}
 }
 </style>

@@ -42,34 +42,13 @@ class Order {
 					mutation {
 						createOrder(
 							orderData: {
-								services: [${orderData.services
-									?.map(
-										el =>
-											`{
-												id: "${el.id || ''}",
-												serviceId: ${el.serviceId},
-												count: ${el.count} 
-											}`,
-									)
-									.join(',')}]
-								products: [${orderData.products
-									?.map(
-										el =>
-											`{
-												id: "${el.id || ''}",
-												productId: ${el.productId},
-												count: ${el.count} 
-											}`,
-									)
-									.join(',')}]
-								client: "${orderData.clientId || ''}"
-								master: "${orderData.masterId || ''}"
-								price: ${orderData.price}
-								isSuccess: ${orderData.isSuccess}
-								isReserved: ${orderData.isReserved}
+								${orderDataCreator(orderData)}
 							}
 						) {
 							order {
+								${orderParams}
+							}
+							allOrders {
 								${orderParams}
 							}
 						}
@@ -79,21 +58,76 @@ class Order {
 		});
 	}
 
-	static payOrder(id: number) {
+	static payForOrder(id: number) {
 		if (!id) return;
 
 		return fetcherGQL({
-			key: 'Order.payOrder',
+			key: 'Order.payForOrder',
 			query: {
 				query: `
 					mutation {
-						payOrder(
+						payForOrder(
 							id: ${id}
 						) {
 							order {
 								${orderParams}
 							}
-							success
+							allOrders {
+								${orderParams}
+							}
+						}
+					}
+				`,
+			},
+		});
+	}
+
+	static updateAndPayOrder(id: number, orderData: any) {
+		if (!id) return;
+
+		console.log('orderData', orderData)
+
+		return fetcherGQL({
+			key: 'Order.updateAndPayOrder',
+			query: {
+				query: `
+					mutation {
+						updateAndPayOrder(
+							id: ${id}
+							orderData: {
+								${orderDataCreator(orderData)}
+							}
+						) {
+							order {
+								${orderParams}
+							}
+							allOrders {
+								${orderParams}
+							}
+						}
+					}
+				`,
+			},
+		});
+	}
+
+	static cancelOrder(id: number) {
+		if (!id) return;
+
+		return fetcherGQL({
+			key: 'Order.cancelOrder',
+			query: {
+				query: `
+					mutation {
+						cancelOrder(
+							id: ${id}
+						) {
+							order {
+								${orderParams}
+							}
+							allOrders {
+								${orderParams}
+							}
 						}
 					}
 				`,
@@ -112,14 +146,52 @@ master { id }
 services {
 	id
 	count
-	service { id }
+	service {
+		id
+		title
+		price
+	}
 }
 products {
 	id
 	count
-	product { id }
+	product {
+		id
+		title
+		price
+	}
 }
 isSuccess
+isCancel
+isReserved
 updateDate
 createDate
 `;
+
+const orderDataCreator = (orderData: any) => `
+	services: [${orderData.services
+		?.map(
+			(el: any) =>
+				`{
+					id: "${el.id || ''}",
+					serviceId: ${el.serviceId},
+					count: ${el.count} 
+				}`,
+		)
+		.join(',')}]
+	products: [${orderData.products
+		?.map(
+			(el: any) =>
+				`{
+					id: "${el.id || ''}",
+					productId: ${el.productId},
+					count: ${el.count} 
+				}`,
+		)
+		.join(',')}]
+	client: "${orderData.clientId || ''}"
+	master: "${orderData.masterId || ''}"
+	price: ${orderData.price}
+	isSuccess: ${orderData.isSuccess || false}
+	isReserved: ${orderData.isReserved || false}
+`

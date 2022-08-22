@@ -1,18 +1,22 @@
 <template>
-	<div class="g-orders">
-		<h1>Заказы</h1>
-		<v-divider />
-		<v-row class="flex-grow-0">
-			<v-col class="d-flex justify-space-between">
+	<div class="g-orders flex-grow-1 d-flex flex-column">
+		<h1 class="mb-4">Заказы</h1>
+		<v-divider class="mb-5" />
+		<v-row class="flex-grow-0 my-0 mb-5">
+			<v-col cols="3" class="py-0 d-flex align-end">
 				<v-text-field
 					v-model="searchStr"
-					append-icon="mdi-magnify"
-					label="Поиск грумера"
-					class="flex-grow-0"
+					prepend-inner-icon="mdi-magnify"
+					label="Поиск заказа"
 					single-line
 					hide-details
 					color="#FFC11C"
+					filled
+					dense
 				/>
+			</v-col>
+			<v-col class="d-flex py-0">
+				<v-spacer />
 				<v-btn x-large tile outlined elevation="0" @click="createOrder">
 					<v-icon>mdi-plus</v-icon>
 					Создать заказ
@@ -57,7 +61,7 @@
 </template>
 
 <script>
-import { mapActions, mapMutations } from 'vuex';
+import { mapActions, mapMutations, mapGetters } from 'vuex';
 
 const dateFormatter = date => {
 	return new Intl.DateTimeFormat('ru-RU', {
@@ -90,6 +94,7 @@ export default {
 		},
 	}),
 	computed: {
+		...mapGetters(['ALL_ORDERS']),
 		currentOrders() {
 			return this.orders.map(order => {
 				let status = 'reserved';
@@ -107,13 +112,17 @@ export default {
 			});
 		},
 	},
-	async mounted() {
-		const { data } = await this.GET_ALL_ORDERS();
-		this.orders = data;
+	watch: {
+		ALL_ORDERS(orders) {
+			this.orders = orders || []
+		},
+	},
+	mounted() {
+		this.GET_ALL_ORDERS()
 	},
 	methods: {
 		...mapActions(['GET_ALL_ORDERS']),
-		...mapMutations(['SHOW_ORDER_FORM']),
+		...mapMutations(['SHOW_ORDER_FORM', 'SHOW_ORDER_DETAIL_SHIELD']),
 		createOrder() {
 			this.SHOW_ORDER_FORM();
 		},
@@ -122,7 +131,7 @@ export default {
 			this.pageCount = pageCount;
 		},
 		showDetail({ data: order }) {
-			console.log('order', order);
+			this.SHOW_ORDER_DETAIL_SHIELD(order)
 		},
 	},
 };

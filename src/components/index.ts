@@ -8,3 +8,5 @@ export { default as GColorSelector } from './GColorSelector.vue';
 export { default as GGroomerServicesTable } from './GGroomerServicesTable.vue';
 export { default as GGroomerOrdersTable } from './GGroomerOrdersTable.vue';
 export { default as GDetailOrderModalShield } from './GDetailOrderModalShield.vue';
+export { default as GStockProductsTable } from './GStockProductsTable.vue';
+export { default as GStockServicesTable } from './GStockServicesTable.vue';

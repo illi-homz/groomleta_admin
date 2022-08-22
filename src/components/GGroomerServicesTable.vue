@@ -51,7 +51,7 @@
 				</tfoot>
 			</template>
 		</v-data-table>
-		<h3 class="mb-6">Всего по услугам:</h3>
+		<!-- <h3 class="mb-6">Всего по услугам:</h3>
 		<v-divider />
 		<v-data-table
 			class="g-groomer-orders-table mb-4"
@@ -92,11 +92,13 @@
 					</td>
 				</tr>
 			</template>
-		</v-data-table>
+		</v-data-table> -->
 	</div>
 </template>
 
 <script>
+import { parsePrice } from '@/services';
+
 export default {
 	name: 'GGroomerOrdersTable',
 	props: {
@@ -132,7 +134,7 @@ export default {
 						title: service.title,
 						count,
 						price: service.price,
-						fullPrice: count * +service.price,
+						fullPrice: count * +parsePrice(service.price),
 					});
 				});
 
@@ -167,7 +169,7 @@ export default {
 							newAcc[id] = {
 								...newAcc[id],
 								count: currentCount,
-								fullPrice: currentCount * +price,
+								fullPrice: currentCount * +parsePrice(price),
 								date: new Date(updateDate).toLocaleDateString(),
 							};
 						},
@@ -189,6 +191,7 @@ export default {
 	},
 	mounted() {},
 	methods: {
+		parsePrice,
 		setCurrentPage({ page, pageCount }) {
 			this.currentPage = page;
 			this.pageCount = pageCount;
@@ -199,15 +202,6 @@ export default {
 
 <style lang="scss">
 .g-groomer-orders-table {
-	&.v-data-table {
-		display: flex;
-		flex-direction: column;
-
-		.v-data-table__wrapper {
-			flex: 1;
-		}
-	}
-
 	& .v-data-table-header {
 		background-color: #f5f5f5;
 

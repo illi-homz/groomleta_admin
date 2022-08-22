@@ -104,10 +104,20 @@
 						@contextmenu:day="toggleWeek"
 					>
 						<template v-slot:event="{ event, timed, eventSummary }">
-							<div
-								class="v-event-draggable"
-								v-html="eventSummary()"
-							/>
+							<div class="d-flex align-start pl-1">
+								<v-icon
+									v-if="!event.isSuccess && !event.client"
+									color="white"
+									size="16"
+									style="margin-top: 2px"
+								>
+									mdi-account-outline
+								</v-icon>
+								<div
+									class="v-event-draggable"
+									v-html="eventSummary()"
+								/>
+							</div>
 
 							<div class="px-2">
 								<b>
@@ -157,6 +167,7 @@
 						@saveEvent="saveEvent"
 						@onClose="getEvents"
 						@onRemoveEvent="removeEvent"
+						@toCreateOrder="toCreateOrder"
 					/>
 				</v-sheet>
 			</v-col>
@@ -209,6 +220,11 @@ export default {
 	computed: {
 		...mapGetters(['SERVICES', 'GROOMERS', 'EVENTS', 'CLIENTS']),
 	},
+	watch: {
+		EVENTS(events) {
+			this.events = eventsFormatter(events);
+		},
+	},
 	mounted() {
 		// console.log('$refs.calendar', this.$refs.calendar.genMore('2022-08-04'))
 		console.log('$refs.calendar', this.$vuetify);
@@ -254,8 +270,8 @@ export default {
 			this.currentDate = date;
 			this.isModalFromShow = true;
 		},
-		getEventColor(event: EventColorType) {
-			return event.color;
+		getEventColor({ color, isSuccess }: any) {
+			return isSuccess ? 'grey darken-1' : color;
 		},
 		setToday() {
 			this.focus = '';
@@ -365,7 +381,8 @@ export default {
 			if (this.selectedOpen) {
 				this.closeEvent();
 			} else {
-				open();
+				const delay = this.dragEvent ? 200 : 0;
+				setTimeout(open, delay);
 			}
 
 			nativeEvent.stopPropagation();
@@ -379,13 +396,15 @@ export default {
 			);
 		},
 		startDrag({ event, timed }: any) {
-			if (event && timed) {
-				this.dragEvent = event;
-				this.dragTime = null;
-				this.extendOriginal = null;
-			}
+			if (event.isSuccess) return
+			
+			this.dragEvent = event;
+			this.dragTime = null;
+			this.extendOriginal = null;
 		},
 		extendBottom(event: any) {
+			if (event.isSuccess) return
+
 			this.currentEvent = event;
 			this.createStart = event.start;
 			this.extendOriginal = event.end;
@@ -401,6 +420,7 @@ export default {
 		},
 		mouseMove(tms: any) {
 			const mouse = this.toTime(tms);
+
 			if (this.dragEvent && this.dragTime !== null) {
 				const start = this.dragEvent.start;
 				const end = this.dragEvent.end;
@@ -455,6 +475,10 @@ export default {
 				tms.hour,
 				tms.minute,
 			).getTime();
+		},
+		toCreateOrder(data: any) {
+			this.selectedOpen = false;
+			data && this.SHOW_ORDER_FORM(data);
 		},
 	},
 };

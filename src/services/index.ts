@@ -27,3 +27,8 @@ export const getExperience = (createDate: string) => {
 
 	return `${day} ${declOfNum(day, ['день', 'дня', 'дней'])}`
 };
+
+export const parsePrice = (price: string|number) => {
+	if (typeof price === 'number') return price
+	return price?.replace(/[^\d.]/g, '');
+}

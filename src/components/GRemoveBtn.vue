@@ -1,7 +1,16 @@
 <template>
 	<v-dialog v-model="dialog" persistent max-width="290">
 		<template v-slot:activator="{ on, attrs }">
-			<v-btn icon v-bind="attrs" v-on="on">
+			<v-btn
+				fab
+				color="white"
+				light
+				height="40"
+				width="40"
+				elevation="0"
+				v-bind="attrs"
+				v-on="on"
+			>
 				<v-icon>mdi-trash-can-outline</v-icon>
 			</v-btn>
 		</template>

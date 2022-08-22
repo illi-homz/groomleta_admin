@@ -145,7 +145,7 @@
 				class="flex-grow-1"
 				@onLineClick="showOrderModal"
 			/>
-			<v-row class="flex-grow-0">
+			<!-- <v-row class="flex-grow-0">
 				<v-col class="d-flex flex-column justify-end align-start">
 					<v-btn tile text>
 						Сохранить отчет
@@ -160,7 +160,7 @@
 						ЗП грумера: 200 ₽
 					</div>
 				</v-col>
-			</v-row>
+			</v-row> -->
 		</div>
 	</div>
 </template>
@@ -238,7 +238,6 @@ export default {
 			this.master = JSON.parse(JSON.stringify(master));
 			this.oldMaster = master;
 			this.orders = allOrders;
-
 			this.isLoading = false;
 		},
 		loadImage() {

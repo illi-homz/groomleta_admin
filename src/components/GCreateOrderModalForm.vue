@@ -8,29 +8,18 @@
 	>
 		<v-card class="pt-4">
 			<v-card-title class="px-8 d-block">
-				<span class="text-h4">Оформление заказа</span>
+				<div class="d-flex">
+					<span class="text-h4">Оформление заказа</span>
+					<v-spacer />
+					<v-btn icon large @click="closeModal">
+						<v-icon large>mdi-close</v-icon>
+					</v-btn>
+				</div>
 				<v-divider class="mt-4" />
 			</v-card-title>
 			<v-card-text class="px-5">
 				<v-container>
 					<v-row>
-						<v-col>
-							<v-autocomplete
-								:value="search"
-								:items="[...servicesList, ...productsList]"
-								color="#FFC11C"
-								prepend-inner-icon="mdi-magnify"
-								item-color="#FFC11C"
-								:no-data-text="'Ничего не найдено'"
-								placeholder="Поиск товара или услуги"
-								hide-details
-								outlined
-								dense
-								background-color="#FFF"
-								clearable
-								@change="setBasket"
-							/>
-						</v-col>
 						<v-col>
 							<v-autocomplete
 								v-model="masterId"
@@ -73,8 +62,36 @@
 								clearable
 							/>
 						</v-col>
-						<v-col cols="2">
+						<v-col cols="5" class="d-flex">
+							<v-spacer />
+							<v-btn
+								v-if="checkedItems.length"
+								text
+								color="#FF5252"
+								@click="removeSelected"
+							>
+								Удалить выбранные
+							</v-btn>
 							<v-btn text @click="clearAll"> Удалить все </v-btn>
+						</v-col>
+					</v-row>
+					<v-row>
+						<v-col cols="7">
+							<v-autocomplete
+								:value="search"
+								:items="[...servicesList, ...productsList]"
+								color="#FFC11C"
+								prepend-inner-icon="mdi-magnify"
+								item-color="#FFC11C"
+								:no-data-text="'Ничего не найдено'"
+								placeholder="Поиск товара или услуги"
+								hide-details
+								outlined
+								dense
+								background-color="#FFF"
+								clearable
+								@change="setBasket"
+							/>
 						</v-col>
 					</v-row>
 					<v-row>
@@ -91,13 +108,30 @@
 									v-slot:item="{ item: { count, id, type } }"
 								>
 									<tr>
-										<td class="g-stock__td py-2">
+										<td
+											class="g-stock__td py-2 d-flex align-center"
+										>
+											<v-checkbox
+												:value="
+													checkCheckedId({
+														id,
+														type,
+													})
+												"
+												color="#FFC11C"
+												class="d-inline ma-0 pa-0"
+												hide-details
+												@change="
+													toggleChecked({ id, type })
+												"
+											/>
 											<span v-if="type === 'product'">
 												{{ productsObj[id].title }}
 											</span>
 											<span v-if="type === 'service'">
 												{{ servicesObj[id].title }}
 											</span>
+											{{ id }}
 										</td>
 										<td
 											class="g-stock__td text-center py-2"
@@ -118,23 +152,33 @@
 										</td>
 										<td class="g-stock__td text-right py-2">
 											<span v-if="type === 'product'">
-												{{ productsObj[id].price }}
+												{{
+													parsePrice(
+														productsObj[id].price,
+													)
+												}}
 											</span>
 											<span v-if="type === 'service'">
-												{{ servicesObj[id].price }}
+												{{
+													parsePrice(
+														servicesObj[id].price,
+													)
+												}}
 											</span>
 										</td>
 										<td class="g-stock__td text-right py-2">
 											<span v-if="type === 'product'">
 												{{
-													productsObj[id].price *
-													count
+													parsePrice(
+														productsObj[id].price,
+													) * count
 												}}
 											</span>
 											<span v-if="type === 'service'">
 												{{
-													servicesObj[id].price *
-													count
+													parsePrice(
+														servicesObj[id].price,
+													) * count
 												}}
 											</span>
 										</td>
@@ -152,24 +196,39 @@
 					<b>{{ finalPrice }}</b>
 				</div>
 				<v-btn
-					tile
-					class="px-6"
+					v-if="!orderId"
 					:disabled="!isFormValid"
+					tile
+					elevation="0"
+					class="px-6 ml-4"
 					outlined
-					@click="createOrder(true)"
+					@click="reserveOrder"
 				>
-					Оплатить
+					Забронировать
 				</v-btn>
 				<v-btn
+					v-if="!orderId"
 					color="#FFC11C"
 					:dark="isFormValid"
 					:disabled="!isFormValid"
 					tile
 					elevation="0"
 					class="px-6 ml-4"
-					@click="createOrder(false)"
+					@click="createOrder"
 				>
-					Заказать
+					Оформить
+				</v-btn>
+				<v-btn
+					v-if="orderId"
+					color="#FFC11C"
+					:dark="isFormValid"
+					:disabled="!isFormValid"
+					tile
+					elevation="0"
+					class="px-6 ml-4"
+					@click="pyForOrder"
+				>
+					Оплатить
 				</v-btn>
 			</v-card-actions>
 		</v-card>
@@ -177,23 +236,32 @@
 </template>
 
 <script>
+import { parsePrice } from '@/services';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 const defaultData = {
 	orderItems: [],
+	checkedItems: [],
 	clientId: '',
 	masterId: '',
 	eventId: '',
 	search: '',
 };
 
+const keys = {
+	product: 'productId',
+	service: 'serviceId',
+};
+
 export default {
 	name: 'GCreateOrderModalForm',
 	data: () => ({
 		orderItems: [],
+		checkedItems: [],
 		clientId: '',
 		masterId: '',
 		eventId: '',
+		orderId: '',
 		search: '',
 		headers: [
 			{ text: 'Название', value: 'title' },
@@ -201,10 +269,6 @@ export default {
 			{ text: 'Сумма ₽, шт', value: 'price', width: 130 },
 			{ text: 'Всего ₽', value: 'finalPrice', width: 130 },
 		],
-		keys: {
-			product: 'productId',
-			service: 'serviceId',
-		},
 	}),
 	computed: {
 		...mapGetters([
@@ -223,7 +287,7 @@ export default {
 			}));
 		},
 		productsList() {
-			return this.PRODUCTS.map(el => ({
+			return this.PRODUCTS.filter(el => +el.count).map(el => ({
 				text: el.title,
 				value: { id: el.id, type: 'product' },
 			}));
@@ -251,14 +315,15 @@ export default {
 		},
 		finalPrice() {
 			return this.orderItems.reduce((acc, { id, type, count }) => {
-				return acc + this.currentObj[type][id].price * count;
+				const price = this.parsePrice(this.currentObj[type][id].price);
+				return acc + price * count;
 			}, 0);
 		},
 		form() {
 			const { service: services, product: products } =
 				this.orderItems.reduce(
-					(acc, { id, type, count }) => {
-						const currentKey = this.keys[type];
+					(acc, { id, type, count, orderId }) => {
+						const currentKey = keys[type];
 
 						return {
 							...acc,
@@ -267,6 +332,7 @@ export default {
 								{
 									[currentKey]: id,
 									count,
+									id: orderId,
 								},
 							],
 						};
@@ -285,11 +351,11 @@ export default {
 		},
 	},
 	watch: {
-		IS_CREATE_ORDER_SHOW(v) {
-			if (!v) {
-				this.clearFrom();
-			}
-		},
+		// IS_CREATE_ORDER_SHOW(v) {
+		// 	if (!v) {
+		// 		this.clearFrom();
+		// 	}
+		// },
 		DEFAULT_ORDER_DATA(defaultData) {
 			if (!defaultData) return;
 
@@ -299,18 +365,11 @@ export default {
 		},
 	},
 	methods: {
-		...mapActions(['CREATE_ORDER']),
+		...mapActions(['CREATE_ORDER', 'SUCCESS_EVENT', 'UPDATE_AND_PAY_ORDER']),
 		...mapMutations(['CLOSE_ORDER_FORM']),
+		parsePrice,
 		closeModal() {
-			// this.clearFrom();
-			// this.$emit('onModalClose');
 			this.CLOSE_ORDER_FORM();
-		},
-		submitForm() {
-			if (!this.isFormValid) return;
-
-			this.$emit('onSubmitEvent', this.form);
-			this.closeModal();
 		},
 		// },
 		clearFrom() {
@@ -334,12 +393,18 @@ export default {
 				);
 
 				if (type === 'service') {
-					if (idx !== -1) throw false;
+					if (idx !== -1) {
+						this.orderItems[idx].count += 1;
+						throw false;
+					}
 					this.orderItems.push({ type: 'service', id, count: 1 });
 				}
 
 				if (type === 'product') {
-					if (idx !== -1) throw false;
+					if (idx !== -1) {
+						this.orderItems[idx].count += 1;
+						throw false;
+					}
 					this.orderItems.push({ type: 'product', id, count: 1 });
 				}
 
@@ -348,21 +413,55 @@ export default {
 				setTimeout(() => (this.search = ''), 0);
 			}
 		},
-		async createOrder(isSuccess = false) {
+		async createOrder({ isSuccess = true, isReserved = false }) {
+			if (!confirm('Продолжить?')) return;
+
 			const { data } = await this.CREATE_ORDER({
 				...this.form,
 				clientId: this.clientId,
 				masterId: this.masterId,
-				isSuccess,
-				isReserved: isSuccess ? false : true,
+				isSuccess: isSuccess,
+				isReserved: isReserved,
 			});
-			console.log('data', data);
+
+			if (data && this.eventId) {
+				await this.SUCCESS_EVENT(this.eventId);
+			}
+
+			this.clearFrom();
+			this.closeModal();
+		},
+		async pyForOrder() {
+			if (!confirm('Продолжить?')) return;
+
+			const { data } = await this.UPDATE_AND_PAY_ORDER({
+				id: this.orderId,
+				orderData: {
+					...this.form,
+					clientId: this.clientId,
+					masterId: this.masterId,
+				},
+			});
+
+			this.clearFrom();
+			this.closeModal();
+		},
+		reserveOrder() {
+			this.createOrder({ isSuccess: false, isReserved: true });
 		},
 		increment({ id, type }) {
 			const idx = this.orderItems.findIndex(
 				el => el.id === id && el.type === type,
 			);
-			this.orderItems[idx].count++;
+			if (type === 'service') {
+				return this.orderItems[idx].count++;
+			}
+
+			const product = this.productsObj[this.orderItems[idx].id];
+
+			if (product.count > this.orderItems[idx].count) {
+				this.orderItems[idx].count++;
+			}
 		},
 		decrement({ id, type }) {
 			const idx = this.orderItems.findIndex(
@@ -374,17 +473,43 @@ export default {
 					this.orderItems = this.orderItems.filter(
 						(_, i) => i !== idx,
 					);
-
-					return;
 				}
+
+				return;
 			}
 
 			this.orderItems[idx].count--;
 		},
 		clearAll() {
-			if (confirm('Удалить карзину?')) {
-				this.orderItems = [];
+			if (confirm('Очистить карзину?')) {
+				this.clearFrom();
 			}
+		},
+		toggleChecked({ id, type }) {
+			const isItem = el => el.id === id && el.type === type;
+
+			const idx = this.checkedItems.findIndex(el => isItem(el));
+
+			if (idx === -1) {
+				this.checkedItems = [...this.checkedItems, { id, type }];
+				return;
+			}
+
+			this.checkedItems = this.checkedItems.filter(el => !isItem(el));
+		},
+		removeSelected() {
+			this.orderItems = this.orderItems.filter(
+				({ id, type }) =>
+					!this.checkedItems.find(
+						el => el.id === id && el.type === type,
+					),
+			);
+			this.checkedItems = [];
+		},
+		checkCheckedId({ id, type }) {
+			return !!this.checkedItems.find(
+				el => el.id === id && el.type === type,
+			);
 		},
 	},
 };

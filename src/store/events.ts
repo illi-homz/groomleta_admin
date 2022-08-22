@@ -65,6 +65,20 @@ export default {
 				return errorResponse;
 			}
 		},
+		async SUCCESS_EVENT({ commit }: any, id: number) {
+			try {
+				const {successEvent} = await API.events.successEvent(id);
+
+				if (successEvent?.allEvents) {
+					commit('SET_EVENTS',successEvent.allEvents);
+				}
+
+				return {...successResponse, data: successEvent}
+			} catch (e) {
+				console.log('REMOVE_EVENT exeption:', e);
+				return errorResponse;
+			}
+		},
 	},
 	getters: {
 		EVENTS: (s: any) => s.events,

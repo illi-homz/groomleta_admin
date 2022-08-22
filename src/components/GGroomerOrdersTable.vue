@@ -141,15 +141,6 @@ export default {
 
 <style lang="scss">
 .g-groomer-services-table {
-	&.v-data-table {
-		display: flex;
-		flex-direction: column;
-
-		.v-data-table__wrapper {
-			flex: 1;
-		}
-	}
-
 	&__status {
 		&.color-success {
 			color: #72c565;

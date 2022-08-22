@@ -1,9 +1,6 @@
 // var phoneInputs = document.querySelectorAll('input[data-tel-input]');
 var phoneInputs = document.querySelectorAll('.data-tel-input input');
-console.log('phoneInputs', phoneInputs);
 // var phoneInputs = document.querySelectorAll('input');
-
-// console.log('phoneInputs', phoneInputs)
 
 var getInputNumbersValue = function (value) {
 	// Return stripped input value — just numbers

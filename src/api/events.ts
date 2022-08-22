@@ -87,11 +87,32 @@ class Events {
 		}
 
 		return fetcherGQL({
-			key: 'Events.getEvents',
+			key: 'Events.removeEvent',
 			query: {
 				query: `
 					mutation {
 						removeEvent(
+							id: "${id}"
+						) {
+							event {${eventProps}}
+							allEvents {${eventProps}}
+						}
+					}`,
+			},
+		});
+	}
+	static successEvent(id: number | any) {
+		console.log('id', id)
+		if (!id) {
+			return console.warn('event id is undefined');
+		}
+
+		return fetcherGQL({
+			key: 'Events.successEvent',
+			query: {
+				query: `
+					mutation {
+						successEvent(
 							id: "${id}"
 						) {
 							event {${eventProps}}
@@ -142,4 +163,5 @@ master {
 }
 comment
 createDate
+isSuccess
 `;
