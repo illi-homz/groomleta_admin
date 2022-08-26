@@ -14,4 +14,5 @@ module.exports = defineConfig({
 			msTileImage: 'img/icons/ms-icon-150x150.png',
 		},
 	},
+	publicPath: process.env.NODE_ENV === 'production' ? '/crm/' : '',
 });
