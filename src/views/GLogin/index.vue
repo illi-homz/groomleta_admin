@@ -27,7 +27,9 @@
 				color="rgba(36, 49, 56, 0.38)"
 			/>
 		</div>
-		<v-btn x-large color="#FFC11C" dark @click="onLogin">Войти</v-btn>
+		<v-btn x-large color="#FFC11C" dark elevation="0" @click="onLogin">
+			Войти
+		</v-btn>
 	</v-card>
 </template>
 

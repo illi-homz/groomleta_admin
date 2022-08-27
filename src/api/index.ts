@@ -13,17 +13,18 @@ export const fetcherGQL = ({
 	key = '',
 	query,
 }: {
-	key: string,
-	query?: Object,
+	key: string;
+	query?: Object;
 }) => {
 	const token = Vue.$cookies.get('JWT');
-	
+
 	try {
 		return fetch(API_URL + '/graphql/', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `JWT ${token || ''}`,
+				'Access-Control-Allow-Origin': '*',
 			},
 			body: JSON.stringify(query || {}),
 		})
@@ -39,7 +40,7 @@ export const fetcherGQL = ({
 			.catch(e => {
 				console.warn(`${key} exeption:`, e);
 				return null;
-			})
+			});
 	} catch (e) {
 		console.warn(`${key} exeption:`, e);
 		return new Promise(resolve => resolve(null));
