@@ -14,12 +14,16 @@ export default {
 				const { tokenAuth } = (await API.user.login(data)) || {};
 				const { token, refreshToken } = tokenAuth || {};
 
+				console.log('LOGIN token', token)
+
 				if (!token) {
-					Vue.$cookies.remove('JWT');
+					Vue.$cookies.remove('JWTToken');
 					throw new Error('token is null');
 				}
 
-				Vue.$cookies.set('JWT', token);
+				console.log('LOGIN token', token)
+
+				Vue.$cookies.set('JWTToken', token);
 				Vue.$cookies.set('JWTrefreshToken', refreshToken);
 
 				return {...successResponse, data: {token, refreshToken}};
@@ -32,7 +36,7 @@ export default {
 			try {
 				const refreshToken = Vue.$cookies.get('JWTrefreshToken');
 				const data = await API.user.revokeRefreshToken(refreshToken);
-				Vue.$cookies.remove('JWT');
+				Vue.$cookies.remove('JWTToken');
 
 				return {...successResponse, data};
 			} catch (e) {
@@ -41,7 +45,7 @@ export default {
 		},
 		async CHECK_TOKEN() {
 			try {
-				const token = Vue.$cookies.get('JWT');
+				const token = Vue.$cookies.get('JWTToken');
 				if (!token) throw 'JWT token missing';
 
 				const { verifyToken } = await API.user.validateToken(token);
@@ -60,7 +64,7 @@ export default {
 					refreshToken: updatedRefreshToken,
 				} = responsedRefreshToken;
 
-				Vue.$cookies.set('JWT', responsedToken);
+				Vue.$cookies.set('JWTToken', responsedToken);
 				Vue.$cookies.set('JWTrefreshToken', updatedRefreshToken);
 
 				await API.user.revokeRefreshToken(refreshToken);
@@ -73,14 +77,14 @@ export default {
 					},
 				};
 			} catch (e) {
-				Vue.$cookies.remove('JWT');
+				Vue.$cookies.remove('JWTTokens');
 				Vue.$cookies.remove('JWTrefreshToken');
 
 				return errorResponse;
 			}
 		},
 		CHECK_USER({ commit }: { commit: Function }) {
-			const token = Vue.$cookies.get('JWT');
+			const token = Vue.$cookies.get('JWTToken');
 			return token;
 		},
 	},

@@ -83,7 +83,7 @@ export default {
 			const { status } = await this.LOGOUT();
 
 			if (status === 'success') {
-				this.$router.push('/login');
+				this.$router.push({name: 'g-login'});
 			}
 		},
 	},

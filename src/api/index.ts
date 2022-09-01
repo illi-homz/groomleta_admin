@@ -6,6 +6,7 @@ import Events from './events';
 import Clients from './clients';
 import Products from './products';
 import Order from './order';
+import Feedbacks from './feedbacks';
 import Vue from 'vue';
 const API_URL = process.env.VUE_APP_API_URL;
 
@@ -16,7 +17,9 @@ export const fetcherGQL = ({
 	key: string;
 	query?: Object;
 }) => {
-	const token = Vue.$cookies.get('JWT');
+	const token = Vue.$cookies.get('JWTToken');
+
+	console.log('token', token);
 
 	try {
 		return fetch(API_URL + '/graphql/', {
@@ -24,7 +27,6 @@ export const fetcherGQL = ({
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `JWT ${token || ''}`,
-				'Access-Control-Allow-Origin': '*',
 			},
 			body: JSON.stringify(query || {}),
 		})
@@ -55,4 +57,5 @@ export default {
 	clients: Clients,
 	products: Products,
 	order: Order,
+	feedbacks: Feedbacks,
 };

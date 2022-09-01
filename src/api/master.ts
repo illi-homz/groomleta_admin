@@ -200,7 +200,7 @@ class Master {
 		formData.append('id', id);
 		formData.append('file', avatar);
 
-		const token = Vue.$cookies.get('JWT');
+		const token = Vue.$cookies.get('JWTToken');
 
 		try {
 			return fetch(API_URL + '/api/upload-master-avatar', {

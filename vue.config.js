@@ -15,4 +15,5 @@ module.exports = defineConfig({
 		},
 	},
 	publicPath: process.env.NODE_ENV === 'production' ? '/crm/' : '/',
+	outputDir: 'crm_admin',
 });

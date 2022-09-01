@@ -3,7 +3,7 @@ import { fetcherGQL } from '.';
 
 class User {
 	static login(data: LoginData) {
-		console.log('data', data)
+		// console.log('data', data)
 		const { username, password } = data;
 
 		if (!username && !password) throw 'User data not found';

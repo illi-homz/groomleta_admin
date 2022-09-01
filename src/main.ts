@@ -7,7 +7,8 @@ import vuetify from './plugins/vuetify'
 import VueCookies from 'vue-cookies'
 
 Vue.config.productionTip = false;
-Vue.use(VueCookies, { expire: '7d'})
+Vue.use(VueCookies, { expire: '30d'})
+// Vue.use(VueCookies, { expire: '30d', sameSite: 'Strict'})
 
 new Vue({
   router,

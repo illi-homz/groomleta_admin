@@ -95,7 +95,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-	const isAuth = await store.dispatch('CHECK_USER')
+	const isAuth = await store.dispatch('CHECK_USER');
 
 	const { path: fromPath } = from;
 	const { matched: toMatched, meta, path: toPath } = to;
@@ -103,13 +103,14 @@ router.beforeEach(async (to, from, next) => {
 	const requiresAuth = toMatched.some(record => record.meta.requiresAuth);
 
 	if (requiresAuth && !isAuth) {
-		fromPath !== '/login' && router.push('/login');
+		fromPath !== '/login' && router.push({ name: 'g-login' });
 		return;
 	}
 
 	if (isAuth && toPath === '/login') {
-		router.push('/')
-		return
+		router.push({ name: 'g-calendar' });
+		// router.push({ name: 'g-calendar' }).catch(() => {});
+		return;
 	}
 
 	document.title = meta?.title || 'Админ панель Groomleta';
