@@ -77,6 +77,16 @@ const routes: Array<RouteConfig> = [
 		component: Views.GGroomerDetail,
 	},
 	{
+		path: '/client-detail/:id',
+		name: 'g-clientdetail',
+		meta: {
+			title: 'Персональная страница клиента',
+			requiresAuth: true,
+			layout: 'main',
+		},
+		component: Views.GClientDetail,
+	},
+	{
 		path: '/login',
 		name: 'g-login',
 		meta: {

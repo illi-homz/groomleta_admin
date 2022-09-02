@@ -139,7 +139,7 @@
 				:orders="orders"
 				class="flex-grow-1"
 			/>
-			<GGroomerOrdersTable
+			<GDetailPageOrdersTable
 				v-if="tableType === 'orders' && !!orders"
 				:orders="orders"
 				class="flex-grow-1"
@@ -172,7 +172,7 @@ import { getExperience } from '@/services/index';
 import {
 	GColorSelector,
 	GGroomerServicesTable,
-	GGroomerOrdersTable,
+	GDetailPageOrdersTable,
 } from '@/components';
 import API from '@/api';
 import { onPhoneInput } from '@/utils/phoneMask';
@@ -181,7 +181,11 @@ const MEDIAFILES = process.env.VUE_APP_MEDIAFILES;
 
 export default {
 	name: 'GGroomerDetail',
-	components: { GColorSelector, GGroomerServicesTable, GGroomerOrdersTable },
+	components: {
+		GColorSelector,
+		GGroomerServicesTable,
+		GDetailPageOrdersTable,
+	},
 	data: () => ({
 		tableType: 'services', // | 'orders'
 		isLoading: true,
@@ -232,9 +236,9 @@ export default {
 		async getData() {
 			const id = this.$route.params.id;
 
-			const {
-				data: { master, allOrders },
-			} = await this.GET_MASTER_BY_ID(id);
+			const { data } = await this.GET_MASTER_BY_ID(id);
+			const { master, allOrders } = data || {};
+
 			this.master = JSON.parse(JSON.stringify(master));
 			this.oldMaster = master;
 			this.orders = allOrders;
@@ -267,8 +271,6 @@ export default {
 				}
 			});
 
-			console.log('formData', formData);
-
 			const { data: master } = await this.UPDATE_MASTER({ id, formData });
 
 			this.master = JSON.parse(JSON.stringify(master));
@@ -293,9 +295,9 @@ export default {
 			setTimeout(() => (this.master.phone = value), 0);
 		},
 		showOrderModal(item) {
-			console.log('showOrderModal', item)
-			this.SHOW_ORDER_DETAIL_SHIELD(item)
-		}
+			console.log('showOrderModal', item);
+			this.SHOW_ORDER_DETAIL_SHIELD(item);
+		},
 	},
 };
 </script>

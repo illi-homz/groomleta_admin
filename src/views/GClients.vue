@@ -109,7 +109,7 @@
 					</td>
 				</tr>
 
-				<tr v-else @click="goToClientDetail(item.id)">
+				<tr v-else>
 					<td
 						v-for="key in ['username', 'lastname']"
 						:key="key"
@@ -422,7 +422,7 @@ export default {
 			this.selectedClient.phone = onPhoneInput(v);
 		},
 		goToClientDetail(id) {
-			console.log('goToClientDetail', id);
+			this.$router.push({ name: 'g-clientdetail', params: { id } });
 		},
 	},
 };

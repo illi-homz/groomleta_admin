@@ -100,7 +100,7 @@
 import { parsePrice } from '@/services';
 
 export default {
-	name: 'GGroomerOrdersTable',
+	name: 'GDetailPageOrdersTable',
 	props: {
 		orders: {
 			type: Array,

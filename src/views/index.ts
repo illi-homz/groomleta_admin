@@ -6,3 +6,4 @@ export { default as GClients } from './GClients.vue';
 export { default as GFeedbacks } from './GFeedbacks.vue';
 export { default as GGroomers } from './GGroomers.vue';
 export { default as GGroomerDetail } from './GGroomerDetail.vue';
+export { default as GClientDetail } from './GClientDetail.vue';

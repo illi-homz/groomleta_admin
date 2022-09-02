@@ -73,6 +73,19 @@ export default {
 				return errorResponse;
 			}
 		},
+		async GET_CLIENT_BY_ID({ commit }: any, id: any) {
+			try {
+				const { clientById } = await API.clients.fetchClientById(id);
+
+				if (!clientById) throw '[GET_CLIENT_BY_ID] clientById exist';
+
+				console.log('clientById', clientById)
+
+				return { ...successResponse, data: clientById };
+			} catch (e) {
+				return errorResponse;
+			}
+		},
 	},
 	getters: {
 		CLIENTS: (s: any) => s.clients,

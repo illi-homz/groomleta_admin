@@ -14,6 +14,7 @@ class Clients {
 							phone
 							comment
 							animal
+							address
 							createDate
 						}
 					}`,
@@ -50,6 +51,7 @@ class Clients {
 								phone
 								comment
 								animal
+								address
 								createDate
 							}
 						}
@@ -80,6 +82,13 @@ class Clients {
 						) {
 							client {
 								id
+								username
+								lastname
+								phone
+								comment
+								animal
+								createDate
+								address
 							}
 							allClients {
 								id
@@ -88,6 +97,7 @@ class Clients {
 								phone
 								comment
 								animal
+								address
 								createDate
 							}
 						}
@@ -115,11 +125,72 @@ class Clients {
 								phone
 								comment
 								animal
+								address
 								createDate
 							}
 							success
 						}
 					}`,
+			},
+		});
+	}
+
+	static fetchClientById(id: number | string) {
+		if (!id) throw 'Client ID exist';
+
+		return fetcherGQL({
+			key: 'client.fetchClientById',
+			query: {
+				query: `
+					query {
+						clientById(id: "${id}") {
+							client {
+								id
+								username
+								lastname
+								phone
+								comment
+								animal
+								createDate
+								address
+							}
+							allOrders {
+								id
+								services {
+									count
+									service {
+										id
+										title
+										price
+									}
+								}
+								products {
+									count
+									product {
+										id
+										title
+										price
+									}
+								}
+								master {
+									id
+									username
+									lastname
+								}
+								client {
+									id
+									username
+									lastname
+								}
+								price
+								isSuccess
+								isCancel
+								isReserved
+								updateDate
+							}
+						}
+					}
+				`,
 			},
 		});
 	}
