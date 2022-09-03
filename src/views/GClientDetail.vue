@@ -171,7 +171,8 @@ export default {
 				{
 					text: 'Клиенты',
 					disabled: false,
-					href: '/clients',
+					// href: '/clients',
+					to: {name: 'g-clients'}
 				},
 				{
 					text: `${username} ${lastname}`,

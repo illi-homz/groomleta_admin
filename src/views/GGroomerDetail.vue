@@ -207,7 +207,8 @@ export default {
 				{
 					text: 'Груммеры',
 					disabled: false,
-					href: '/groomers',
+					// href: '/groomers',
+					to: { name: 'g-groomers' },
 				},
 				{
 					text: `${username} ${lastname}`,
@@ -248,9 +249,13 @@ export default {
 			this.$refs.avatar.click();
 		},
 		async onUploadImages({ target }) {
+			const file = target.files[0];
+
+			// if (file.size > )
+			
 			await API.master.uploadAvatar(
 				this.$route.params.id,
-				target.files[0],
+				file,
 			);
 			this.getData();
 		},
