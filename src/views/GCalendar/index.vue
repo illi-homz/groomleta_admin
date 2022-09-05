@@ -84,13 +84,15 @@
 						:event-color="getEventColor"
 						:show-week="true"
 						:type="type"
+						category-show-all
 						locale="ru"
+						:categories="categories"
 						weekdays="1,2,3,4,5,6,0"
 						:locale-first-day-of-year="4"
 						:event-ripple="false"
 						event-more-text="смотреть все"
 						@click:more="toggleWeek"
-						@click:date="type = 'week'"
+						@click:date="type = 'category'"
 						@click:day="showCreateEventForm"
 						@click:time="showCreateEventForm"
 						@click:event="showEvent"
@@ -192,6 +194,8 @@ import { EventColorType } from '@/models/vutify';
 import { convertTimestampToLocalDateTime, getDeffData } from '@/utils';
 import './styles.scss';
 
+const createMasterCategory = ({ username, lastname, id }: any) => `#${id} ${username} ${lastname}`
+
 export default {
 	name: 'GCalendar',
 	components: { GCreateEventModalForm, GCalendarEventMenu },
@@ -219,6 +223,9 @@ export default {
 	}),
 	computed: {
 		...mapGetters(['SERVICES', 'GROOMERS', 'EVENTS', 'CLIENTS']),
+		categories() {
+			return this.GROOMERS.map(createMasterCategory)
+		},
 	},
 	watch: {
 		EVENTS(events) {
@@ -396,14 +403,14 @@ export default {
 			);
 		},
 		startDrag({ event, timed }: any) {
-			if (event.isSuccess) return
-			
+			if (event.isSuccess) return;
+
 			this.dragEvent = event;
 			this.dragTime = null;
 			this.extendOriginal = null;
 		},
 		extendBottom(event: any) {
-			if (event.isSuccess) return
+			if (event.isSuccess) return;
 
 			this.currentEvent = event;
 			this.createStart = event.start;
@@ -486,6 +493,7 @@ export default {
 const eventsFormatter = (events: Object[]): Object[] => {
 	return events.map(
 		({ title, startDate, endDate, master, ...eventProps }: any) => {
+			console.log('master', master);
 			return {
 				...eventProps,
 				master,
@@ -494,6 +502,8 @@ const eventsFormatter = (events: Object[]): Object[] => {
 				end: new Date(endDate).getTime(),
 				color: master?.color || '#FFC11C',
 				timed: true,
+				// category: `${master.username} ${master.lastname}`,
+				category: createMasterCategory(master)
 			};
 		},
 	);

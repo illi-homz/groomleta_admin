@@ -12,6 +12,7 @@
 			<v-col class="d-flex py-0">
 				<v-spacer />
 				<v-btn
+					v-if="tableType === 'products'"
 					x-large
 					color="#FFC11C"
 					tile
@@ -21,6 +22,18 @@
 				>
 					<v-icon>mdi-plus</v-icon>
 					Добавить новый товар
+				</v-btn>
+				<v-btn
+					v-if="tableType === 'services'"
+					x-large
+					color="#FFC11C"
+					tile
+					dark
+					elevation="0"
+					@click="createProduct"
+				>
+					<v-icon>mdi-plus</v-icon>
+					Добавить новую услугу
 				</v-btn>
 			</v-col>
 		</v-row>
@@ -36,7 +49,7 @@
 			@cancelWritingProduct="cancelWritingProduct"
 			@writeProduct="writeProduct"
 		/>
-		<GStockServicesTable v-if="tableType === 'services'" />
+		<GStockServicesTable v-if="tableType === 'services'" :services="services" />
 		<v-dialog v-model="removeDialog" persistent max-width="290">
 			<v-card>
 				<v-card-title class="text-h5"> Удалить событие? </v-card-title>
@@ -80,28 +93,22 @@ const defaultProduct = {
 
 export default {
 	name: 'GStock',
-	components: {GStockProductsTable, GStockServicesTable},
+	components: { GStockProductsTable, GStockServicesTable },
 	data: () => ({
 		tableType: 'products', // services
 		removeDialog: false,
 		products: [],
+		services: [],
 		writableProductId: null,
 		selectedProduct: null,
 		oldProducts: null,
 		oldProduct: null,
 		removeProductId: null,
 	}),
-	computed: {
-		currentProducts() {
-			return this.products.filter(
-				el =>
-					el.title.includes(this.searchStr) ||
-					el.vendorCode.includes(this.searchStr),
-			);
-		},
-	},
+	computed: {},
 	mounted() {
 		this.getProducts();
+		this.getServices();
 	},
 	methods: {
 		...mapActions([
@@ -109,10 +116,15 @@ export default {
 			'CREATE_PRODUCT',
 			'UPDATE_PRODUCT',
 			'REMOVE_PRODUCT',
+			'GET_SERVICES',
 		]),
 		async getProducts() {
 			const { data } = await this.GET_ALL_PRODUCTS();
 			this.products = data;
+		},
+		async getServices() {
+			const { data } = await this.GET_SERVICES();
+			this.services = data;
 		},
 		createProduct() {
 			this.oldProducts = JSON.parse(JSON.stringify(this.products));
@@ -140,59 +152,6 @@ export default {
 			this.writableProductId = null;
 			this.oldProducts = null;
 		},
-		// async saveProduct() {
-		// 	if (!this.selectedProduct?.title) return;
-
-		// 	const product = this.selectedProduct;
-
-		// 	if (product.id === -1) {
-		// 		const data = {
-		// 			title: product.title,
-		// 			vendorCode: product.vendorCode || '',
-		// 			count: +product.count || 0,
-		// 			price: +product.price || 0,
-		// 			description: product.description || '',
-		// 		};
-
-		// 		const {
-		// 			data: { allProducts },
-		// 		} = await this.CREATE_PRODUCT(data);
-		// 		this.products = allProducts;
-		// 		this.selectedProduct = null;
-		// 		this.writableProductId = null;
-		// 		this.oldProducts = null;
-		// 	} else {
-		// 		const data = {};
-		// 		if (this.oldProduct.title !== product.title)
-		// 			data.title = product.title?.trim();
-		// 		if (this.oldProduct.vendorCode !== product.vendorCode)
-		// 			data.vendorCode = product.vendorCode?.trim();
-		// 		if (+this.oldProduct.count !== +product.count)
-		// 			data.count = +product.count;
-		// 		if (+this.oldProduct.price !== +product.price)
-		// 			data.price = +product.price;
-		// 		if (this.oldProduct.description !== product.description)
-		// 			data.description = product.description?.trim();
-
-		// 		if (!Object.keys(data).length) {
-		// 			return this.cancelWritingProduct();
-		// 		}
-
-		// 		const {
-		// 			data: { allProducts },
-		// 		} = await this.UPDATE_PRODUCT({ id: product.id, data });
-		// 		this.products = allProducts;
-		// 		this.selectedProduct = null;
-		// 		this.writableProductId = null;
-		// 		this.oldProducts = null;
-		// 	}
-		// },
-		// setPageCount(v) {
-		// 	this.pageCount = v;
-		// },
-		// setCurrentPage({ page }) {
-		// 	this.currentPage = page;
-		// },
 		writeProduct(id) {
 			this.cancelWritingProduct();
 

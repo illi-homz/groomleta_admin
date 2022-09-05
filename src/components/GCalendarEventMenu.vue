@@ -128,7 +128,7 @@
 							:items="
 								groomersList?.map((el, idx) => {
 									return {
-										text: `$${el.username} ${el.lastname}`,
+										text: `${el.username} ${el.lastname}`,
 										value: idx,
 									};
 								})
@@ -164,7 +164,7 @@
 							:items="
 								clientsList?.map((el, idx) => {
 									return {
-										text: `$${el.username} ${el.lastname}`,
+										text: `${el.username} ${el.lastname}`,
 										value: idx,
 									};
 								})
