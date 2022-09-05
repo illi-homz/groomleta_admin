@@ -194,7 +194,15 @@ import { EventColorType } from '@/models/vutify';
 import { convertTimestampToLocalDateTime, getDeffData } from '@/utils';
 import './styles.scss';
 
-const createMasterCategory = ({ username, lastname, id }: any) => `#${id} ${username} ${lastname}`
+const createMasterCategory = (master: any) => {
+	if (!master) {
+		return 'Любой мастер'
+	}
+	
+	const { username, lastname, id } = master
+
+	return `#${id} ${username} ${lastname}`
+}
 
 export default {
 	name: 'GCalendar',

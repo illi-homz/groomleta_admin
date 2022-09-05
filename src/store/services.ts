@@ -25,6 +25,7 @@ export default {
 					allServices: { allServices, allBreeds, allCategories },
 				} = await API.services.fetchAllServices();
 
+				
 				commit('SET_SERVICES', allServices || []);
 				commit('SET_CATEGORIES', allCategories || []);
 				commit('SET_BREEDS', allBreeds || []);

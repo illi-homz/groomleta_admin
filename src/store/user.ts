@@ -77,7 +77,7 @@ export default {
 					},
 				};
 			} catch (e) {
-				Vue.$cookies.remove('JWTTokens');
+				Vue.$cookies.remove('JWTToken');
 				Vue.$cookies.remove('JWTrefreshToken');
 
 				return errorResponse;
