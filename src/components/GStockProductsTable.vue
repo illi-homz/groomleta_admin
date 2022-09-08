@@ -73,7 +73,7 @@
 									</v-icon>
 									Изменить
 								</v-list-item>
-								<v-list-item @click="removeProduct(item.id)">
+								<v-list-item @click="$emit('removeProduct', item.id)">
 									<v-icon class="mr-3">
 										mdi-trash-can-outline
 									</v-icon>
@@ -173,8 +173,8 @@ export default {
 		currentProducts() {
 			return this.products.filter(
 				el =>
-					el.title.includes(this.searchStr) ||
-					el.vendorCode.includes(this.searchStr),
+					el.title.toLowerCase().includes(this.searchStr) ||
+					el.vendorCode.toLowerCase().includes(this.searchStr),
 			);
 		},
 	},

@@ -25,7 +25,7 @@ class Clients {
 	static createClient(data: any) {
 		const qStr = Object.keys(data).reduce((acc: any, key: string) => {
 			if (key === 'comment') {
-				return acc + `${key}: "${data[key]?.replace('\n', '\\n')}"`
+				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"`
 			}
 			
 			return acc + `${key}: "${data[key]}"`
@@ -63,7 +63,7 @@ class Clients {
 	static updateClient(id: number|string, data: any) {
 		const qStr = Object.keys(data).reduce((acc: any, key: string) => {
 			if (key === 'comment') {
-				return acc + `${key}: "${data[key]?.replace('\n', '\\n')}"`
+				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"`
 			}
 			
 			return acc + `${key}: "${data[key]}"`

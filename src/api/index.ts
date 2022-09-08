@@ -19,8 +19,6 @@ export const fetcherGQL = ({
 }) => {
 	const token = Vue.$cookies.get('JWTToken');
 
-	console.log('token', token);
-
 	try {
 		return fetch(API_URL + '/graphql/', {
 			method: 'POST',

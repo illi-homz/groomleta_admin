@@ -501,7 +501,6 @@ export default {
 const eventsFormatter = (events: Object[]): Object[] => {
 	return events.map(
 		({ title, startDate, endDate, master, ...eventProps }: any) => {
-			console.log('master', master);
 			return {
 				...eventProps,
 				master,
@@ -510,7 +509,6 @@ const eventsFormatter = (events: Object[]): Object[] => {
 				end: new Date(endDate).getTime(),
 				color: master?.color || '#FFC11C',
 				timed: true,
-				// category: `${master.username} ${master.lastname}`,
 				category: createMasterCategory(master)
 			};
 		},

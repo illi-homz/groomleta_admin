@@ -39,39 +39,39 @@
 					class="pointer"
 					@contextmenu.prevent="$emit('writeService', item.id)"
 				>
-					<td class="g-stock__td py-2">
+					<td class="g-stock-services-table__td py-2">
 						<span>{{ item.id }}</span>
 					</td>
-					<td class="g-stock__td py-2">
+					<td class="g-stock-services-table__td py-2">
 						<span>{{ item.title }}</span>
 					</td>
-					<td class="g-stock__td py-2">
+					<td class="g-stock-services-table__td py-2">
 						<span>{{ item.text }}</span>
 					</td>
-					<td class="g-stock__td py-2">
-						<span>{{ item.animal }}</span>
+					<td class="g-stock-services-table__td py-2">
+						<span>{{ animals[item.animal] }}</span>
 					</td>
-					<td class="g-stock__td py-2">
+					<td class="g-stock-services-table__td py-2">
 						<span>{{ item.price }}</span>
 					</td>
-					<td class="g-stock__td py-2">
+					<td class="g-stock-services-table__td py-2">
 						<span>{{ item.time }}</span>
 					</td>
-					<td class="g-stock__td py-2">
+					<td class="g-stock-services-table__td py-2">
 						<v-img
+							contain
 							:lazy-src="item.img"
-							max-height="50"
-							max-width="50"
 							:src="item.img"
+							max-height="38"
+							max-width="38"
+							class="mx-auto"
 						/>
 					</td>
-					<td class="g-stock__td py-2">
+					<td class="g-stock-services-table__td py-2">
 						<span>{{ item.category.title }}</span>
 					</td>
-					<td
-						class="g-stock__td text-xs-right py-2 d-flex align-center"
-					>
-						<div class="flex-grow-1">
+					<td class="g-stock-services-table__td py-2 text-right">
+						<div class="float-left">
 							{{ item.breed.title }}
 						</div>
 						<v-menu open-on-hover offset-y left>
@@ -83,14 +83,16 @@
 
 							<v-list>
 								<v-list-item
-									@click="$emit('writeProduct', item.id)"
+									@click="$emit('writeService', item.id)"
 								>
 									<v-icon class="mr-3">
 										mdi-pencil-outline
 									</v-icon>
 									Изменить
 								</v-list-item>
-								<v-list-item @click="removeProduct(item.id)">
+								<v-list-item
+									@click="$emit('removeService', item.id)"
+								>
 									<v-icon class="mr-3">
 										mdi-trash-can-outline
 									</v-icon>
@@ -101,67 +103,183 @@
 					</td>
 				</tr>
 
-				<!-- <tr v-else>
-					<td class="g-stock__td text-xs-right py-2">
+				<tr v-else>
+					<td class="g-stock-services-table__td py-2">
 						<span>{{ item.id }}</span>
 					</td>
-					<td
-						v-for="key in ['vendorCode', 'title', 'count', 'price']"
-						:key="key"
-						class="g-stock__td text-xs-right py-2"
-					>
+					<td class="g-stock-services-table__td py-2">
 						<v-text-field
-							v-model="currentService[key]"
+							ref="title"
+							v-model="currentService.title"
+							filled
+							dense
+							color="#FFC11C"
+							light
+							type="text"
+							:rules="[
+								() =>
+									!!currentService.title ||
+									'Введите название',
+							]"
+						/>
+					</td>
+					<td class="g-stock-services-table__td py-2">
+						<v-textarea
+							v-model="currentService.text"
+							class="lex-grow-1"
+							filled
+							color="#FFC11C"
+							light
+							hide-details
+							no-resize
+							rows="3"
+						/>
+					</td>
+					<td class="g-stock-services-table__td text-xs-right py-2">
+						<v-select
+							v-model="currentService.animal"
+							:items="animalsList"
 							filled
 							dense
 							color="#FFC11C"
 							light
 							hide-details
-							:type="
-								['price', 'count'].includes(key)
-									? 'number'
-									: 'text'
-							"
+							item-color="warning"
 						/>
 					</td>
-					<td
-						class="g-stock__td text-xs-right py-2 d-flex flex-column"
-					>
-						<div class="d-flex align-center">
-							<v-textarea
-								v-model="currentService.description"
-								class="lex-grow-1"
-								filled
+					<td class="g-stock-services-table__td text-xs-right py-2">
+						<v-text-field
+							v-model="currentService.price"
+							filled
+							dense
+							color="#FFC11C"
+							light
+							hide-details
+							type="text"
+						/>
+					</td>
+					<td class="g-stock-services-table__td text-xs-right py-2">
+						<v-text-field
+							v-model="currentService.time"
+							filled
+							dense
+							color="#FFC11C"
+							light
+							hide-details
+							type="text"
+						/>
+					</td>
+					<td class="g-stock-services-table__td py-2">
+						<v-img
+							v-if="previewImage || currentService.img"
+							contain
+							:src="previewImage || item.img"
+							max-height="38"
+							max-width="38"
+							class="mx-auto pointer"
+							@click="loadImage"
+						/>
+						<div
+							v-else
+							class="g-stock-services-table__image-wrapper mx-auto pointer"
+							@click="loadImage"
+						/>
+						<input
+							ref="avatar"
+							type="file"
+							name="images"
+							multiple
+							accept=".svg"
+							hidden
+							@change="onUploadImages"
+						/>
+					</td>
+					<td class="g-stock-services-table__td py-2">
+						<v-autocomplete
+							ref="category"
+							v-model="currentService.categoryId"
+							:items="categoriesForSelect"
+							color="#FFC11C"
+							light
+							dense
+							filled
+							auto-select-first
+							item-color="warning"
+							:rules="[
+								() =>
+									!!currentService.categoryId ||
+									'Выберите категорию',
+							]"
+						>
+							<template v-slot:append-item>
+								<v-btn
+									elevation="0"
+									tile
+									small
+									block
+									class="justify-start"
+								>
+									<v-icon class="mr-2">mdi-plus</v-icon>
+									<span class="text-caption">Добавить</span>
+								</v-btn>
+							</template>
+						</v-autocomplete>
+					</td>
+					<td class="g-stock-services-table__td py-2">
+						<div class="d-flex justify-space-between">
+							<v-autocomplete
+								ref="breed"
+								v-model="currentService.breedId"
+								:items="breedsForSelect"
 								color="#FFC11C"
 								light
-								hide-details
-								no-resize
-								rows="3"
-							/>
-						</div>
-						<div class="py-2 d-flex">
-							<v-btn
-								elevation="0"
-								class="flex-grow-1 mr-4"
-								x-large
-								@click="$emit('cancelWritingProduct')"
+								dense
+								filled
+								auto-select-first
+								item-color="warning"
+								:rules="[
+									() =>
+										!!currentService.breedId ||
+										'Выберите породу',
+								]"
 							>
-								Отменить
-							</v-btn>
-							<v-btn
-								elevation="0"
-								class="flex-grow-1"
-								x-large
-								color="#FFC11C"
-								tile
-								dark
-								@click="saveProduct"
-							>
-								Сохранить
-							</v-btn>
+								<template v-slot:append-item>
+									<v-btn
+										elevation="0"
+										tile
+										small
+										block
+										class="justify-start"
+									>
+										<v-icon class="mr-2">mdi-plus</v-icon>
+										<span class="text-caption">
+											Добавить
+										</span>
+									</v-btn>
+								</template>
+							</v-autocomplete>
+							<div class="ml-4 d-flex flex-column">
+								<v-btn
+									elevation="0"
+									class="mb-1"
+									color="#FFC11C"
+									tile
+									dark
+									@click="saveService"
+								>
+									Сохранить
+								</v-btn>
+								<v-btn
+									elevation="0"
+									tile
+									@click="cancelWritingService"
+								>
+									Отменить
+								</v-btn>
+							</div>
 						</div>
 					</td>
-				</tr> -->
+				</tr>
 			</template>
 		</v-data-table>
 	</div>
@@ -170,11 +288,37 @@
 <script>
 const API_URL = process.env.VUE_APP_API_URL;
 const MEDIAFILES = process.env.VUE_APP_MEDIAFILES;
+import validator from '@/services/validator';
+
+const animals = {
+	CAT: 'кот',
+	DOG: 'собака',
+	ANY: 'не задано',
+};
+
+const defaultParams = {
+	image: null,
+	previewImage: null,
+	searchStr: '',
+	currentPage: 0,
+	pageCount: 0,
+	currentService: {},
+};
 
 export default {
 	name: 'GStockServicesTable',
-	props: ['services', 'writableServiceId', 'selectedService', 'oldService'],
+	props: [
+		'services',
+		'writableServiceId',
+		'selectedService',
+		'oldService',
+		'categories',
+		'breeds',
+	],
 	data: () => ({
+		image: null,
+		previewImage: null,
+		animals,
 		searchStr: '',
 		headers: [
 			{ text: 'ID', value: 'id', width: 70, align: 'center' },
@@ -182,10 +326,15 @@ export default {
 			{ text: 'Описание', value: 'text' },
 			{ text: 'Животное', value: 'animal', width: 130 },
 			{ text: 'Цена', value: 'price', width: 130 },
-			{ text: 'Время', value: 'time', width: 130 },
-			{ text: 'Иконка', value: 'img', width: 130 },
-			{ text: 'Категория', value: 'category', width: 130 },
-			{ text: 'Порода', value: 'breed', width: 200 },
+			{ text: 'Продолж.', value: 'time', width: 130 },
+			{ text: 'Иконка', value: 'img', width: 130, align: 'center' },
+			{ text: 'Категория', value: 'category', width: 200 },
+			{ text: 'Порода', value: 'breed', width: 400 },
+		],
+		animalsList: [
+			{ text: 'кот', value: 'CAT' },
+			{ text: 'собака', value: 'DOG' },
+			{ text: 'не задано', value: 'ANY' },
 		],
 		currentPage: 0,
 		pageCount: 0,
@@ -193,15 +342,42 @@ export default {
 	}),
 	computed: {
 		currentServices() {
-			return this.services.map(({img, ...serviceProps}) => {
-				return {
-					...serviceProps,
-					img: API_URL + MEDIAFILES + '/' + img
-				}
-			});
+			return this.services
+				.filter(({ title }) => title.toLowerCase().includes(this.searchStr))
+				.map(({ img, ...serviceProps }) => {
+					return {
+						...serviceProps,
+						img: API_URL + MEDIAFILES + '/' + img,
+					};
+				});
+		},
+		categoriesForSelect() {
+			return this.categories.map(({ id, title }) => ({
+				value: id,
+				text: title,
+			}));
+		},
+		breedsForSelect() {
+			return this.breeds.map(({ id, title }) => ({
+				value: id,
+				text: title,
+			}));
 		},
 	},
-	watch: {},
+	watch: {
+		selectedService(data) {
+			if (!data) {
+				return {};
+			}
+
+			this.currentService = {
+				...data,
+				categoryId: data.category?.id || null,
+				breedId: data.breed?.id || null,
+			};
+		},
+	},
+	mounted() {},
 	methods: {
 		setPageCount(v) {
 			this.pageCount = v;
@@ -209,11 +385,89 @@ export default {
 		setCurrentPage({ page }) {
 			this.currentPage = page;
 		},
+		saveService() {
+			const formHasErrors = validator.call(this, [
+				'title',
+				'category',
+				'breed',
+			]);
+
+			if (formHasErrors) {
+				return;
+			}
+
+			const service = this.currentService;
+
+			if (service.id === -1) {
+				const data = {
+					title: service.title?.trim() || '',
+					text: service.text?.trim() || '',
+					animal: service.animal?.toLowerCase() || 'any',
+					price: service.price?.trim() || 'от 1',
+					time: service.time?.trim() || '',
+					img: this.image || null,
+					category: service.categoryId || '',
+					breed: service.breedId || '',
+				};
+
+				this.$emit('createService', data);
+			} else {
+				const data = {};
+				if (this.oldService.title !== service.title)
+					data.title = service.title?.trim();
+				if (this.oldService.text !== service.text)
+					data.text = service.text?.trim();
+				if (this.oldService.animal !== service.animal)
+					data.animal = service.animal?.toLowerCase();
+				if (this.oldService.price !== service.price)
+					data.price = service.price?.trim();
+				if (this.oldService.time !== service.time)
+					data.time = service.time?.trim();
+				if (this.oldService.category.id !== service.categoryId)
+					data.category = service.categoryId;
+				if (this.oldService.breed.id !== service.breedId)
+					data.breed = service.breedId;
+				if (this.image) data.img = this.image;
+
+				if (!Object.keys(data).length) {
+					return this.$emit('cancelWritingService');
+				}
+
+				this.$emit('updateService', service.id, data);
+			}
+		},
+		loadImage() {
+			this.$refs.avatar.click();
+		},
+		async onUploadImages({ target }) {
+			const file = target.files[0];
+			this.image = file;
+			this.previewImage = URL.createObjectURL(this.image);
+		},
+		cancelWritingService() {
+			for (let prop in defaultParams) {
+				this[prop] = defaultParams[prop];
+			}
+
+			this.$emit('cancelWritingService');
+		},
 	},
 };
 </script>
 
 <style lang="scss">
 .g-stock-services-table {
+	&__td {
+		vertical-align: top;
+		// vertical-align: middle;
+		// text-align: right;
+	}
+
+	&__image-wrapper {
+		background-color: rgba(0, 0, 0, 0.06);
+		width: 38px;
+		height: 38px;
+		border-radius: 30%;
+	}
 }
 </style>

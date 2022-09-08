@@ -19,10 +19,11 @@ class Products {
 			},
 		});
 	}
+
 	static createProduct(data: any) {
 		const qStr = Object.keys(data).reduce((acc: any, key: string) => {
 			if (key === 'description') {
-				return acc + `${key}: "${data[key]?.replace('\n', '\\n')}"`
+				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"`
 			}
 
 			if (typeof data[key] === 'number') {
@@ -62,7 +63,7 @@ class Products {
 	static updateProduct(id: number|string, data: any) {
 		const qStr = Object.keys(data).reduce((acc: any, key: string) => {
 			if (key === 'description') {
-				return acc + `${key}: "${data[key]?.replace('\n', '\\n')}"`
+				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"`
 			}
 			
 			if (typeof data[key] === 'number') {

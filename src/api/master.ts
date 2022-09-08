@@ -100,7 +100,7 @@ class Master {
 			}
 
 			if (key === 'comment') {
-				return acc + `${key}: "${data[key]?.replace('\n', '\\n')}"\n`;
+				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"\n`;
 			}
 
 			return acc + `${key}: "${data[key]}"\n`;
@@ -145,7 +145,7 @@ class Master {
 			}
 
 			if (key === 'comment') {
-				return acc + `${key}: "${data[key]?.replace('\n', '\\n')}"\n`;
+				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"\n`;
 			}
 
 			return acc + `${key}: "${data[key]}"\n`;

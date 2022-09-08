@@ -250,8 +250,6 @@ export default {
 		},
 		async onUploadImages({ target }) {
 			const file = target.files[0];
-
-			// if (file.size > )
 			
 			await API.master.uploadAvatar(
 				this.$route.params.id,

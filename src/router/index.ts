@@ -106,6 +106,7 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, from, next) => {
 	const isAuth = await store.dispatch('CHECK_USER');
+	console.log('router isAuth:', !!isAuth)
 
 	const { path: fromPath } = from;
 	const { matched: toMatched, meta, path: toPath } = to;

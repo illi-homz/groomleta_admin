@@ -23,8 +23,8 @@ export default {
 
 				console.log('LOGIN token', token)
 
-				Vue.$cookies.set('JWTToken', token);
-				Vue.$cookies.set('JWTrefreshToken', refreshToken);
+				Vue.$cookies.set('JWTToken', token, '120d');
+				Vue.$cookies.set('JWTRefreshToken', refreshToken, '124d');
 
 				return {...successResponse, data: {token, refreshToken}};
 			} catch (e) {
@@ -34,7 +34,7 @@ export default {
 		},
 		async LOGOUT() {
 			try {
-				const refreshToken = Vue.$cookies.get('JWTrefreshToken');
+				const refreshToken = Vue.$cookies.get('JWTRefreshToken');
 				const data = await API.user.revokeRefreshToken(refreshToken);
 				Vue.$cookies.remove('JWTToken');
 
@@ -54,7 +54,7 @@ export default {
 				const { username, exp, origIat } = verifyToken.payload || {};
 				if (origIat > 300000000) return true;
 
-				const refreshToken = Vue.$cookies.get('JWTrefreshToken');
+				const refreshToken = Vue.$cookies.get('JWTRefreshToken');
 
 				const { refreshToken: responsedRefreshToken } =
 					await API.user.updateRefreshToken(refreshToken);
@@ -64,8 +64,8 @@ export default {
 					refreshToken: updatedRefreshToken,
 				} = responsedRefreshToken;
 
-				Vue.$cookies.set('JWTToken', responsedToken);
-				Vue.$cookies.set('JWTrefreshToken', updatedRefreshToken);
+				Vue.$cookies.set('JWTToken', responsedToken, '120d');
+				Vue.$cookies.set('JWTRefreshToken', updatedRefreshToken, '124d');
 
 				await API.user.revokeRefreshToken(refreshToken);
 
@@ -78,13 +78,14 @@ export default {
 				};
 			} catch (e) {
 				Vue.$cookies.remove('JWTToken');
-				Vue.$cookies.remove('JWTrefreshToken');
+				Vue.$cookies.remove('JWTRefreshToken');
 
 				return errorResponse;
 			}
 		},
 		CHECK_USER({ commit }: { commit: Function }) {
 			const token = Vue.$cookies.get('JWTToken');
+			console.log('CHECK_USER token:', token)
 			return token;
 		},
 	},

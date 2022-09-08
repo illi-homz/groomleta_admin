@@ -1,9 +1,9 @@
 export default function validator (form) {
 	let formHasErrors = false
+	let keys = Array.isArray(form) ? form : Object.keys(form)
 	
-	Object.keys(form).forEach(f => {
+	keys.forEach(f => {
 		const isValid = this.$refs[f].validate(true);
-		console.log('isValid')
 
 		if (!isValid) {
 			formHasErrors = true;
