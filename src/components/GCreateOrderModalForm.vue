@@ -2,7 +2,7 @@
 	<v-dialog
 		content-class="g-create-order-modal-form"
 		:value="IS_CREATE_ORDER_SHOW"
-		max-width="50%"
+		max-width="55%"
 		@click:outside="closeModal"
 		@keydown="onKeyDown"
 	>
@@ -29,13 +29,11 @@
 										value: el.id,
 									}))
 								"
-								color="#FFC11C"
-								prepend-inner-icon="mdi-magnify"
-								item-color="#FFC11C"
+								color="rgba(36, 49, 56, 0.38)"
+								item-color="rgb(36, 49, 56)"
 								:no-data-text="'Ничего не найдено'"
-								placeholder="Мастер"
+								label="Мастер"
 								hide-details
-								outlined
 								dense
 								background-color="#FFF"
 								clearable
@@ -50,29 +48,30 @@
 										value: el.id,
 									}))
 								"
-								color="#FFC11C"
-								prepend-inner-icon="mdi-magnify"
-								item-color="#FFC11C"
+								color="rgba(36, 49, 56, 0.38)"
+								item-color="rgb(36, 49, 56)"
 								:no-data-text="'Ничего не найдено'"
-								placeholder="Клиент"
+								label="Клиент"
 								hide-details
-								outlined
 								dense
 								background-color="#FFF"
 								clearable
 							/>
 						</v-col>
-						<v-col class="d-flex">
-							<v-spacer />
+						<v-col class="d-flex justify-end" cols="4">
 							<v-btn
 								v-if="checkedItems.length"
 								text
+								x-small
 								color="#FF5252"
+								class="mr-2"
 								@click="removeSelected"
 							>
 								Удалить выбранные
 							</v-btn>
-							<v-btn text @click="clearAll"> Удалить все </v-btn>
+							<v-btn text x-small @click="clearAll">
+								Удалить все
+							</v-btn>
 						</v-col>
 					</v-row>
 					<v-row>
@@ -109,6 +108,7 @@
 								label="Телефон"
 								color="#FFC11C"
 								light
+								dense
 								:disabled="!!clientId"
 								@input="
 									v =>
