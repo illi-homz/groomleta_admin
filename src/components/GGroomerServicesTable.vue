@@ -2,21 +2,15 @@
 	<div class="d-flex flex-column">
 		<v-data-table
 			class="g-groomer-orders-table flex-grow-1"
-			:items-per-page="10"
+			:items-per-page="itemsPerPage"
 			:headers="headers"
 			:items="servicesList"
 			no-data-text="Ничего найти не получилось"
 			no-results-text="Ничего найти не получилось"
 			loading-text="Загрузка"
 			checkbox-color="#FFC11C"
-			:footer-props="{
-				itemsPerPageText: 'Заказов на странице',
-				itemsPerPageAllText: 'Все',
-				showCurrentPage: true,
-				showFirstLastPage: false,
-				pageText: `${currentPage} из ${pageCount}`,
-			}"
 			hide-default-footer
+			:page="currentPage"
 			@pagination="setCurrentPage"
 		>
 			<template v-slot:item="{ item }">
@@ -66,6 +60,7 @@
 						show-current-page
 						show-first-last-page
 						:page-text="`${currentPage} из ${pageCount}`"
+						@update:options="footerUpdate"
 					/>
 				</div>
 			</template>
@@ -141,6 +136,7 @@ export default {
 			{ text: 'Всего, ₽', value: 'fullPrice', width: 150 },
 		],
 		currentPage: 0,
+		itemsPerPage: 15,
 		pageCount: 0,
 		titles: ['услуга', 'услуги', 'услуг'],
 	}),
@@ -217,6 +213,10 @@ export default {
 		setCurrentPage({ page, pageCount }) {
 			this.currentPage = page;
 			this.pageCount = pageCount;
+		},
+		footerUpdate({page, itemsPerPage}) {
+			this.currentPage = page
+			this.itemsPerPage = itemsPerPage
 		},
 	},
 };

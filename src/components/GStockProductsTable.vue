@@ -16,20 +16,14 @@
 		</v-row>
 		<v-data-table
 			class="flex-grow-1"
-			:items-per-page="15"
+			:items-per-page="itemsPerPage"
 			:headers="headers"
 			:items="currentProducts"
 			no-data-text="Ничего найти не получилось"
 			no-results-text="Ничего найти не получилось"
 			loading-text="Загрузка"
-			:footer-props="{
-				itemsPerPageText: 'Мастеров на странице',
-				itemsPerPageAllText: 'Все',
-				showCurrentPage: true,
-				showFirstLastPage: true,
-				pageText: `${currentPage} из ${pageCount}`,
-			}"
 			hide-default-footer
+			:page="currentPage"
 			@pagination="setCurrentPage"
 		>
 			<template v-slot:item="{ item }">
@@ -204,6 +198,7 @@
 						show-current-page
 						show-first-last-page
 						:page-text="`${currentPage} из ${pageCount}`"
+						@update:options="footerUpdate"
 					/>
 				</div>
 			</template>
@@ -233,6 +228,7 @@ export default {
 		MEDIAFILES,
 		searchStr: '',
 		currentPage: 0,
+		itemsPerPage: 15,
 		pageCount: 0,
 		newProduct: null,
 		currentProduct: {},
@@ -320,6 +316,10 @@ export default {
 			}
 
 			this.$emit('cancelWritingProduct');
+		},
+		footerUpdate({page, itemsPerPage}) {
+			this.currentPage = page
+			this.itemsPerPage = itemsPerPage
 		},
 	},
 };

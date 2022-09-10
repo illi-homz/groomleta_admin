@@ -17,20 +17,14 @@
 		<!-- <h3>В разработке</h3> -->
 		<v-data-table
 			class="flex-grow-1"
-			:items-per-page="15"
+			:items-per-page="itemsPerPage"
 			:headers="headers"
 			:items="currentServices"
 			no-data-text="Ничего найти не получилось"
 			no-results-text="Ничего найти не получилось"
 			loading-text="Загрузка"
-			:footer-props="{
-				itemsPerPageText: 'Мастеров на странице',
-				itemsPerPageAllText: 'Все',
-				showCurrentPage: true,
-				showFirstLastPage: true,
-				pageText: `${currentPage} из ${pageCount}`,
-			}"
 			hide-default-footer
+			:page="currentPage"
 			@pagination="setCurrentPage"
 		>
 			<template v-slot:item="{ item }">
@@ -284,7 +278,8 @@
 			<template v-slot:footer="{ props: { options, pagination } }">
 				<div class="v-data-footer__wrapper d-flex align-center pl-2">
 					<div class="v-data-footer__info">
-						Всего: {{currentServices.length}} {{declOfNum(currentServices.length, titles)}}
+						Всего: {{ currentServices.length }}
+						{{ declOfNum(currentServices.length, titles) }}
 					</div>
 					<v-data-footer
 						class="flex-grow-1"
@@ -295,6 +290,7 @@
 						show-current-page
 						show-first-last-page
 						:page-text="`${currentPage} из ${pageCount}`"
+						@update:options="footerUpdate"
 					/>
 				</div>
 			</template>
@@ -355,14 +351,17 @@ export default {
 			{ text: 'не задано', value: 'ANY' },
 		],
 		currentPage: 0,
+		itemsPerPage: 15,
 		pageCount: 0,
 		currentService: {},
-		titles: ['услуга', 'услуги', 'услуг']
+		titles: ['услуга', 'услуги', 'услуг'],
 	}),
 	computed: {
 		currentServices() {
 			return this.services
-				.filter(({ title }) => title.toLowerCase().includes(this.searchStr))
+				.filter(({ title }) =>
+					title.toLowerCase().includes(this.searchStr),
+				)
 				.map(({ img, ...serviceProps }) => {
 					return {
 						...serviceProps,
@@ -468,6 +467,10 @@ export default {
 			}
 
 			this.$emit('cancelWritingService');
+		},
+		footerUpdate({ page, itemsPerPage }) {
+			this.currentPage = page;
+			this.itemsPerPage = itemsPerPage;
 		},
 	},
 };

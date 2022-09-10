@@ -25,20 +25,14 @@
 		</v-row>
 		<v-data-table
 			class="flex-grow-1"
-			:items-per-page="10"
+			:items-per-page="itemsPerPage"
 			:headers="headers"
 			:items="currentOrders"
 			no-data-text="Ничего найти не получилось"
 			no-results-text="Ничего найти не получилось"
 			loading-text="Загрузка"
-			:footer-props="{
-				itemsPerPageText: 'Заказов на странице',
-				itemsPerPageAllText: 'Все',
-				showCurrentPage: true,
-				showFirstLastPage: true,
-				pageText: `${currentPage} из ${pageCount}`,
-			}"
 			hide-default-footer
+			:page="currentPage"
 			@pagination="setCurrentPage"
 		>
 			<template v-slot:item="{ item }">
@@ -71,6 +65,7 @@
 						show-current-page
 						show-first-last-page
 						:page-text="`${currentPage} из ${pageCount}`"
+						@update:options="footerUpdate"
 					/>
 				</div>
 			</template>
@@ -105,6 +100,7 @@ export default {
 		orders: [],
 		currentPage: 0,
 		pageCount: 0,
+		itemsPerPage: 15,
 		statuses: {
 			reserved: 'Забронировано',
 			success: 'Продано',
@@ -153,6 +149,10 @@ export default {
 		},
 		showDetail({ data: order }) {
 			this.SHOW_ORDER_DETAIL_SHIELD(order)
+		},
+		footerUpdate({page, itemsPerPage}) {
+			this.currentPage = page
+			this.itemsPerPage = itemsPerPage
 		},
 	},
 };

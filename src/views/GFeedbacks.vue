@@ -4,20 +4,14 @@
 		<div class="g-feedbacks-table flex-grow-1 d-flex flex-column">
 			<v-data-table
 				class="flex-grow-1"
-				:items-per-page="15"
+				:items-per-page="itemsPerPage"
 				:headers="headers"
 				:items="FEEDBACKS"
 				no-data-text="Ничего найти не получилось"
 				no-results-text="Ничего найти не получилось"
 				loading-text="Загрузка"
-				:footer-props="{
-					itemsPerPageText: 'Отзывов на странице',
-					itemsPerPageAllText: 'Все',
-					showCurrentPage: true,
-					showFirstLastPage: true,
-					pageText: `${currentPage} из ${pageCount}`,
-				}"
 				hide-default-footer
+				:page="currentPage"
 				@pagination="setCurrentPage"
 			>
 				<template v-slot:item="{ item }">
@@ -55,6 +49,7 @@
 						show-current-page
 						show-first-last-page
 						:page-text="`${currentPage} из ${pageCount}`"
+						@update:options="footerUpdate"
 					/>
 				</div>
 			</template>
@@ -72,6 +67,7 @@ export default {
 	data: () => ({
 		currentPage: 0,
 		pageCount: 0,
+		itemsPerPage: 15,
 		headers: [
 			{ text: 'Имя Фамилия', value: 'nick', width: 300 },
 			{ text: 'Коментарий', value: 'text' },
@@ -100,6 +96,10 @@ export default {
 		setCurrentPage({ page, pageCount }) {
 			this.currentPage = page;
 			this.pageCount = pageCount;
+		},
+		footerUpdate({page, itemsPerPage}) {
+			this.currentPage = page
+			this.itemsPerPage = itemsPerPage
 		},
 	},
 };

@@ -464,11 +464,22 @@ export default {
 		},
 	},
 	watch: {
-		// IS_CREATE_ORDER_SHOW(v) {
-		// 	if (!v) {
-		// 		this.clearFrom();
-		// 	}
-		// },
+		orderItems(items) {
+			for (let {id, type} of items) {
+				if (type === 'service') {
+					this.costomServicesPrices = {
+						...this.costomServicesPrices,
+						[id]: this.servicesObj[id].price,
+					};
+				}
+				if (type === 'product') {
+					this.costomProductsPrices = {
+						...this.costomProductsPrices,
+						[id]: this.productsObj[id].price,
+					};
+				}
+			}
+		},
 		DEFAULT_ORDER_DATA(defaultData) {
 			if (!defaultData) return;
 
@@ -520,10 +531,10 @@ export default {
 						throw false;
 					}
 					this.orderItems.push({ type: 'service', id, count: 1 });
-					this.costomServicesPrices = {
-						...this.costomServicesPrices,
-						[id]: this.servicesObj[id].price,
-					};
+					// this.costomServicesPrices = {
+					// 	...this.costomServicesPrices,
+					// 	[id]: this.servicesObj[id].price,
+					// };
 				}
 
 				if (type === 'product') {
@@ -532,10 +543,10 @@ export default {
 						throw false;
 					}
 					this.orderItems.push({ type: 'product', id, count: 1 });
-					this.costomProductsPrices = {
-						...this.costomProductsPrices,
-						[id]: this.productsObj[id].price,
-					};
+					// this.costomProductsPrices = {
+					// 	...this.costomProductsPrices,
+					// 	[id]: this.productsObj[id].price,
+					// };
 				}
 
 				throw false;
