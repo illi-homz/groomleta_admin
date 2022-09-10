@@ -12,3 +12,17 @@
 			th {border-bottom-width: 0 !important;}
 	}
 }
+
+.v-data-footer {
+	border-top-width: 0 !important;
+	
+	&__wrapper {
+		background-color: #F5F5F5;
+	}
+
+	&__info {
+		font-size: 12px;
+		line-height: 14px;
+		color: rgba(36, 49, 56, 0.38);
+	}
+}

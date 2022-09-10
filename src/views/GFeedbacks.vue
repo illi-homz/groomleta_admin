@@ -17,8 +17,8 @@
 					showFirstLastPage: true,
 					pageText: `${currentPage} из ${pageCount}`,
 				}"
+				hide-default-footer
 				@pagination="setCurrentPage"
-				@pageCount="setPageCount"
 			>
 				<template v-slot:item="{ item }">
 					<tr>
@@ -41,6 +41,23 @@
 						</td>
 					</tr>
 				</template>
+				<template v-slot:footer="{ props: { options, pagination } }">
+				<div class="v-data-footer__wrapper d-flex align-center pl-2">
+					<div class="v-data-footer__info">
+						Всего: {{FEEDBACKS.length}} {{declOfNum(FEEDBACKS.length, titles)}}
+					</div>
+					<v-data-footer
+						class="flex-grow-1"
+						:options="options"
+						:pagination="pagination"
+						items-per-page-text="Строк на странице:"
+						items-per-page-all-text="Все"
+						show-current-page
+						show-first-last-page
+						:page-text="`${currentPage} из ${pageCount}`"
+					/>
+				</div>
+			</template>
 			</v-data-table>
 		</div>
 	</div>
@@ -48,6 +65,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import { declOfNum } from '@/services';
 
 export default {
 	name: 'GFeedbacks',
@@ -64,6 +82,7 @@ export default {
 				align: 'center',
 			},
 		],
+		titles: ['отзыв', 'отзыва', 'отзывов']
 	}),
 	computed: {
 		...mapGetters(['FEEDBACKS']),
@@ -73,15 +92,14 @@ export default {
 	},
 	methods: {
 		...mapActions(['GET_ALL_FEEDBACKS', 'UPDATE_FEEDBACK']),
+		declOfNum,
 		async changeFeedback(id, isApproved) {
 			const res = await this.UPDATE_FEEDBACK({id, data: {isApproved}})
 			console.log('res', res)
 		},
-		setPageCount(v) {
-			this.pageCount = v;
-		},
-		setCurrentPage({ page }) {
+		setCurrentPage({ page, pageCount }) {
 			this.currentPage = page;
+			this.pageCount = pageCount;
 		},
 	},
 };

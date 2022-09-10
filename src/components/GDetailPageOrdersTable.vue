@@ -15,6 +15,7 @@
 			showFirstLastPage: false,
 			pageText: `${currentPage} из ${pageCount}`,
 		}"
+		hide-default-footer
 		@pagination="setCurrentPage"
 	>
 		<template v-slot:item="{ item }">
@@ -47,10 +48,30 @@
 				</td>
 			</tr>
 		</template>
+		<template v-slot:footer="{ props: { options, pagination } }">
+			<div class="v-data-footer__wrapper d-flex align-center pl-2">
+				<div class="v-data-footer__info">
+					Всего: {{ ordersList.length }}
+					{{ declOfNum(ordersList.length, titles) }}
+				</div>
+				<v-data-footer
+					class="flex-grow-1"
+					:options="options"
+					:pagination="pagination"
+					items-per-page-text="Строк на странице:"
+					items-per-page-all-text="Все"
+					show-current-page
+					show-first-last-page
+					:page-text="`${currentPage} из ${pageCount}`"
+				/>
+			</div>
+		</template>
 	</v-data-table>
 </template>
 
 <script>
+import { declOfNum } from '@/services';
+
 export default {
 	name: 'GGroomerServicesTable',
 	props: {
@@ -76,65 +97,65 @@ export default {
 			cancel: 'Отменен',
 			reserved: 'Забронирован',
 		},
+		titles: ['заказ', 'заказа', 'заказов']
 	}),
 	computed: {
 		ordersList() {
-			return this.orders.reduce(
-				(
-					acc,
-					order,
-				) => {
-					const {
-						updateDate,
-						services,
-						products,
+			return this.orders.reduce((acc, order) => {
+				const {
+					updateDate,
+					services,
+					products,
+					price,
+					isSuccess,
+					isCancel,
+					isReserved,
+					master,
+					client,
+				} = order;
+				const servicesStr = services
+					.map(({ service }) => service.title)
+					.join(', ');
+				const productsStr = products
+					.map(({ product }) => product.title)
+					.join(', ');
+
+				let status = 'any';
+
+				if (isCancel) status = 'cancel';
+				if (isReserved && !isCancel) status = 'reserved';
+				if (isSuccess && !isCancel) status = 'success';
+
+				return [
+					...acc,
+					{
+						date: new Date(updateDate).toLocaleDateString(),
+						services: servicesStr,
+						products: productsStr,
+						status,
 						price,
-						isSuccess,
-						isCancel,
-						isReserved,
-						master,
-						client,
-					} = order
-					const servicesStr = services
-						.map(({ service }) => service.title)
-						.join(', ');
-					const productsStr = products
-						.map(({ product }) => product.title)
-						.join(', ');
-
-					let status = 'any';
-
-					if (isCancel) status = 'cancel';
-					if (isReserved && !isCancel) status = 'reserved';
-					if (isSuccess && !isCancel) status = 'success';
-
-					return [
-						...acc,
-						{
-							date: new Date(updateDate).toLocaleDateString(),
-							services: servicesStr,
-							products: productsStr,
-							status,
-							price,
-							groomer: master ? `${master.username} ${master.lastname}` : '-',
-							client: client ? `${client.username} ${client.lastname}` : '-',
-							data: order
-						},
-					];
-				},
-				[],
-			);
+						groomer: master
+							? `${master.username} ${master.lastname}`
+							: '-',
+						client: client
+							? `${client.username} ${client.lastname}`
+							: '-',
+						data: order,
+					},
+				];
+			}, []);
 		},
 	},
 	mounted() {},
 	methods: {
+		declOfNum,
 		setCurrentPage({ page, pageCount }) {
 			this.currentPage = page;
 			this.pageCount = pageCount;
 		},
 		showDetail(item) {
-			this.$emit('onLineClick', item)
-		}
+			this.$emit('onLineClick', item);
+		},
 	},
 };
 </script>

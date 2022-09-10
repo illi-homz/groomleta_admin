@@ -74,6 +74,14 @@ export default {
 				return errorResponse;
 			}
 		},
+		UPLOAD_PRODUCT_IMAGE({ commit }: any, { id, img }: any) {
+			try {
+				return API.products.uploadImage(id, img);
+			} catch (e) {
+				console.log('UPLOAD_PRODUCT_IMAGE exeption:', e);
+				return errorResponse;
+			}
+		},
 	},
 	getters: {
 		PRODUCTS: (s: any) => s.products,

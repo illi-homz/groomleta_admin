@@ -146,6 +146,8 @@ client {
 	id
 	username
 	lastname
+	phone
+	isBlocked
 }
 services {
 	id

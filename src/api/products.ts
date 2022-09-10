@@ -1,3 +1,5 @@
+import Vue from 'vue';
+const API_URL = process.env.VUE_APP_API_URL;
 import { fetcherGQL } from ".";
 
 class Products {
@@ -14,6 +16,7 @@ class Products {
 							count
 							price
 							description
+							img
 						}
 					}`,
 			},
@@ -53,6 +56,7 @@ class Products {
 								count
 								price
 								description
+								img
 							}
 						}
 					}`,
@@ -94,6 +98,7 @@ class Products {
 								count
 								price
 								description
+								img
 							}
 						}
 					}`,
@@ -120,12 +125,39 @@ class Products {
 								count
 								price
 								description
+								img
 							}
 							success
 						}
 					}`,
 			},
 		});
+	}
+
+	static uploadImage(id: any, img: File) {
+		const formData = new FormData();
+		formData.append('id', id);
+		formData.append('file', img);
+
+		const token = Vue.$cookies.get('JWTToken');
+
+		try {
+			return fetch(API_URL + '/api/upload-product-img', {
+				method: 'POST',
+				headers: {
+					Authorization: `JWT ${token || ''}`,
+				},
+				body: formData,
+			})
+				.then(response => response.json())
+				.catch(e => {
+					console.log('Products.uploadImage response:', e);
+					return { master: null };
+				});
+		} catch (e) {
+			console.log('Products.uploadImage response:', e);
+			return { master: null };
+		}
 	}
 }
 

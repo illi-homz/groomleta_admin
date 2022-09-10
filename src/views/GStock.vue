@@ -12,6 +12,17 @@
 			<v-col class="d-flex py-0">
 				<v-spacer />
 				<v-btn
+					x-large
+					tile
+					outlined
+					elevation="0"
+					class="mr-4"
+					@click="createOrder"
+				>
+					<v-icon>mdi-plus</v-icon>
+					Оформить заказ
+				</v-btn>
+				<v-btn
 					v-if="activeTabIdx === 0"
 					x-large
 					color="#FFC11C"
@@ -96,7 +107,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapMutations } from 'vuex';
 import { GStockProductsTable, GStockServicesTable } from '@/components';
 
 const defaultProduct = {
@@ -153,6 +164,7 @@ export default {
 			'CREATE_PRODUCT',
 			'UPDATE_PRODUCT',
 			'REMOVE_PRODUCT',
+			'UPLOAD_PRODUCT_IMAGE',
 
 			'GET_SERVICES',
 			'CREATE_SERVICE',
@@ -160,6 +172,7 @@ export default {
 			'REMOVE_SERVICE',
 			'UPLOAD_SERVICE_IMAGE',
 		]),
+		...mapMutations(['SHOW_ORDER_FORM']),
 		async getProducts() {
 			const { data } = await this.GET_ALL_PRODUCTS();
 			this.products = data;
@@ -183,15 +196,19 @@ export default {
 			this.writableServiceId = -1;
 			this.selectedService = this.services[0];
 		},
-		async successCreateProduct(data) {
+		async successCreateProduct({ img, ...data }) {
 			const {
-				data: { allProducts },
+				data: { product },
 			} = await this.CREATE_PRODUCT(data);
 
-			this.products = allProducts;
+			if (img && product && product?.id) {
+				await this.UPLOAD_PRODUCT_IMAGE({ id: product.id, img });
+			}
+
 			this.selectedProduct = null;
 			this.writableProductId = null;
 			this.oldProducts = null;
+			this.getProducts();
 		},
 		async successCreateService({ img, ...data }) {
 			const {
@@ -207,15 +224,24 @@ export default {
 			this.oldServices = null;
 			this.getServices();
 		},
-		async successSaveProduct(id, data) {
-			const {
-				data: { allProducts },
-			} = await this.UPDATE_PRODUCT({ id, data });
+		async successSaveProduct(id, { img, ...data }) {
+			if (Object.keys(data).length) {
+				const { data: respData } = await this.UPDATE_PRODUCT({
+					id,
+					data,
+				});
 
-			this.products = allProducts;
+				if (!respData) return;
+			}
+
+			if (img) {
+				await this.UPLOAD_PRODUCT_IMAGE({ id, img });
+			}
+
 			this.selectedProduct = null;
 			this.writableProductId = null;
 			this.oldProducts = null;
+			this.getProducts();
 		},
 		async successSaveService(id, { img, ...data }) {
 			if (Object.keys(data).length) {
@@ -223,6 +249,7 @@ export default {
 					id,
 					data,
 				});
+
 				if (!respData) return;
 			}
 
@@ -330,6 +357,9 @@ export default {
 
 			this.removeServiceId = null;
 			this.removeDialog = false;
+		},
+		createOrder() {
+			this.SHOW_ORDER_FORM();
 		},
 	},
 };

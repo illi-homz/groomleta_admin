@@ -16,6 +16,7 @@
 				showFirstLastPage: false,
 				pageText: `${currentPage} из ${pageCount}`,
 			}"
+			hide-default-footer
 			@pagination="setCurrentPage"
 		>
 			<template v-slot:item="{ item }">
@@ -49,6 +50,24 @@
 						</td>
 					</tr>
 				</tfoot>
+			</template>
+			<template v-slot:footer="{ props: { options, pagination } }">
+				<div class="v-data-footer__wrapper d-flex align-center pl-2">
+					<div class="v-data-footer__info">
+						Всего: {{ servicesList.length }}
+						{{ declOfNum(servicesList.length, titles) }}
+					</div>
+					<v-data-footer
+						class="flex-grow-1"
+						:options="options"
+						:pagination="pagination"
+						items-per-page-text="Строк на странице:"
+						items-per-page-all-text="Все"
+						show-current-page
+						show-first-last-page
+						:page-text="`${currentPage} из ${pageCount}`"
+					/>
+				</div>
 			</template>
 		</v-data-table>
 		<!-- <h3 class="mb-6">Всего по услугам:</h3>
@@ -97,6 +116,7 @@
 </template>
 
 <script>
+import { declOfNum } from '@/services';
 import { parsePrice } from '@/services';
 
 export default {
@@ -122,6 +142,7 @@ export default {
 		],
 		currentPage: 0,
 		pageCount: 0,
+		titles: ['услуга', 'услуги', 'услуг'],
 	}),
 	computed: {
 		servicesList() {
@@ -191,6 +212,7 @@ export default {
 	},
 	mounted() {},
 	methods: {
+		declOfNum,
 		parsePrice,
 		setCurrentPage({ page, pageCount }) {
 			this.currentPage = page;

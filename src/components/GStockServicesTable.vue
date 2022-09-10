@@ -30,8 +30,8 @@
 				showFirstLastPage: true,
 				pageText: `${currentPage} из ${pageCount}`,
 			}"
+			hide-default-footer
 			@pagination="setCurrentPage"
-			@pageCount="setPageCount"
 		>
 			<template v-slot:item="{ item }">
 				<tr
@@ -281,6 +281,23 @@
 					</td>
 				</tr>
 			</template>
+			<template v-slot:footer="{ props: { options, pagination } }">
+				<div class="v-data-footer__wrapper d-flex align-center pl-2">
+					<div class="v-data-footer__info">
+						Всего: {{currentServices.length}} {{declOfNum(currentServices.length, titles)}}
+					</div>
+					<v-data-footer
+						class="flex-grow-1"
+						:options="options"
+						:pagination="pagination"
+						items-per-page-text="Строк на странице:"
+						items-per-page-all-text="Все"
+						show-current-page
+						show-first-last-page
+						:page-text="`${currentPage} из ${pageCount}`"
+					/>
+				</div>
+			</template>
 		</v-data-table>
 	</div>
 </template>
@@ -289,6 +306,7 @@
 const API_URL = process.env.VUE_APP_API_URL;
 const MEDIAFILES = process.env.VUE_APP_MEDIAFILES;
 import validator from '@/services/validator';
+import { declOfNum } from '@/services';
 
 const animals = {
 	CAT: 'кот',
@@ -339,6 +357,7 @@ export default {
 		currentPage: 0,
 		pageCount: 0,
 		currentService: {},
+		titles: ['услуга', 'услуги', 'услуг']
 	}),
 	computed: {
 		currentServices() {
@@ -379,11 +398,10 @@ export default {
 	},
 	mounted() {},
 	methods: {
-		setPageCount(v) {
-			this.pageCount = v;
-		},
-		setCurrentPage({ page }) {
+		declOfNum,
+		setCurrentPage({ page, pageCount }) {
 			this.currentPage = page;
+			this.pageCount = pageCount;
 		},
 		saveService() {
 			const formHasErrors = validator.call(this, [

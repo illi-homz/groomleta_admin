@@ -155,7 +155,16 @@
 					<span class="text-h6">Клиент:</span>
 					<div v-if="!isWritable">
 						<div v-if="selectedEvent.client" class="ml-2">
-							{{ selectedEvent.client.username }}
+							<router-link
+								:to="{
+									name: 'g-clientdetail',
+									params: { id: selectedEvent.client.id },
+								}"
+							>
+								{{ selectedEvent.client.username }}
+								{{ selectedEvent.client.lastname }}<!-- -->
+							</router-link>
+							{{ ` - ${selectedEvent.client.phone}` }}
 						</div>
 						<div v-else class="ml-2">Не выбран</div>
 					</div>
@@ -327,6 +336,7 @@ export default {
 		saveCanges() {
 			this.$emit('saveEvent');
 			this.oldEvent = null;
+			this.isWritable = false
 		},
 		setServices(srvcs) {
 			const services = Array.isArray(srvcs)

@@ -20,7 +20,7 @@
 			<v-card-text class="px-5">
 				<v-container>
 					<v-row>
-						<v-col>
+						<v-col cols="4">
 							<v-autocomplete
 								v-model="masterId"
 								:items="
@@ -41,7 +41,7 @@
 								clearable
 							/>
 						</v-col>
-						<v-col>
+						<v-col cols="4">
 							<v-autocomplete
 								v-model="clientId"
 								:items="
@@ -62,7 +62,7 @@
 								clearable
 							/>
 						</v-col>
-						<v-col cols="5" class="d-flex">
+						<v-col class="d-flex">
 							<v-spacer />
 							<v-btn
 								v-if="checkedItems.length"
@@ -76,11 +76,77 @@
 						</v-col>
 					</v-row>
 					<v-row>
-						<v-col cols="7">
+						<v-col cols="4">
+							<v-text-field
+								v-model="client.lastname"
+								dense
+								color="gray"
+								label="Фамилия"
+								light
+								hide-details
+								type="text"
+								:disabled="!!clientId"
+							/>
+						</v-col>
+						<v-col cols="4">
+							<v-text-field
+								v-model="client.username"
+								dense
+								color="gray"
+								label="Имя"
+								light
+								hide-details
+								type="text"
+								:disabled="!!clientId"
+							/>
+						</v-col>
+					</v-row>
+					<v-row>
+						<v-col cols="4">
+							<v-text-field
+								:value="client?.phone || ''"
+								class="text-h5"
+								label="Телефон"
+								color="#FFC11C"
+								light
+								:disabled="!!clientId"
+								@input="
+									v =>
+										client?.phone &&
+										(client.phone = onPhoneInput(v))
+								"
+							/>
+						</v-col>
+						<v-col cols="4">
+							<div
+								v-if="isNewClient"
+								class="d-flex justify-space-between"
+							>
+								<v-btn
+									outlined
+									tile
+									@click="cancelClientCreation"
+								>
+									Отменить
+								</v-btn>
+								<v-btn
+									tile
+									dark
+									color="#FFC11C"
+									elevation="0"
+									@click="createClient"
+								>
+									Создать клиента
+								</v-btn>
+							</div>
+						</v-col>
+					</v-row>
+					<v-row>
+						<v-col cols="8">
 							<v-autocomplete
 								:value="search"
 								:items="[...servicesList, ...productsList]"
-								color="#FFC11C"
+								color="gray"
 								prepend-inner-icon="mdi-magnify"
 								item-color="#FFC11C"
 								:no-data-text="'Ничего не найдено'"
@@ -108,30 +174,33 @@
 									v-slot:item="{ item: { count, id, type } }"
 								>
 									<tr>
-										<td
-											class="g-stock__td py-2 d-flex align-center"
-										>
-											<v-checkbox
-												:value="
-													checkCheckedId({
-														id,
-														type,
-													})
-												"
-												color="#FFC11C"
-												class="d-inline ma-0 pa-0"
-												hide-details
-												@change="
-													toggleChecked({ id, type })
-												"
-											/>
-											<span v-if="type === 'product'">
-												{{ productsObj[id].title }}
-											</span>
-											<span v-if="type === 'service'">
-												{{ servicesObj[id].title }}
-											</span>
-											{{ id }}
+										<td class="g-stock__td py-2">
+											<div class="d-flex align-center">
+												<v-checkbox
+													:value="
+														checkCheckedId({
+															id,
+															type,
+														})
+													"
+													color="#FFC11C"
+													class="d-inline ma-0 pa-0"
+													hide-details
+													@change="
+														toggleChecked({
+															id,
+															type,
+														})
+													"
+												/>
+												<span v-if="type === 'product'">
+													{{ productsObj[id].title }}
+												</span>
+												<span v-if="type === 'service'">
+													{{ servicesObj[id].title }}
+												</span>
+												{{ id }}
+											</div>
 										</td>
 										<td
 											class="g-stock__td text-center py-2"
@@ -152,32 +221,58 @@
 										</td>
 										<td class="g-stock__td text-right py-2">
 											<span v-if="type === 'product'">
-												{{
+												<!-- {{
 													parsePrice(
 														productsObj[id].price,
 													)
-												}}
+												}} -->
+												<v-text-field
+													v-model="
+														costomProductsPrices[id]
+													"
+													filled
+													dense
+													color="#FFC11C"
+													light
+													hide-details
+													type="text"
+												/>
 											</span>
 											<span v-if="type === 'service'">
-												{{
+												<!-- {{
 													parsePrice(
 														servicesObj[id].price,
 													)
-												}}
+												}} -->
+												<v-text-field
+													v-model="
+														costomServicesPrices[id]
+													"
+													filled
+													dense
+													color="#FFC11C"
+													light
+													hide-details
+													type="text"
+												/>
 											</span>
 										</td>
 										<td class="g-stock__td text-right py-2">
 											<span v-if="type === 'product'">
 												{{
 													parsePrice(
-														productsObj[id].price,
+														costomProductsPrices[
+															id
+														],
 													) * count
 												}}
 											</span>
 											<span v-if="type === 'service'">
 												{{
 													parsePrice(
-														servicesObj[id].price,
+														costomServicesPrices[
+															id
+														],
 													) * count
 												}}
 											</span>
@@ -236,6 +331,7 @@
 </template>
 
 <script>
+import { onPhoneInput } from '@/utils/phoneMask';
 import { parsePrice } from '@/services';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
@@ -253,11 +349,24 @@ const keys = {
 	service: 'serviceId',
 };
 
+const defaultClient = {
+	username: '',
+	lastname: '',
+	phone: '',
+};
+
 export default {
 	name: 'GCreateOrderModalForm',
 	data: () => ({
+		client: {
+			username: '',
+			lastname: '',
+			phone: '',
+		},
 		orderItems: [],
 		checkedItems: [],
+		costomProductsPrices: {},
+		costomServicesPrices: {},
 		clientId: '',
 		masterId: '',
 		eventId: '',
@@ -280,6 +389,10 @@ export default {
 			'IS_CREATE_ORDER_SHOW',
 			'DEFAULT_ORDER_DATA',
 		]),
+		isNewClient() {
+			const { username, lastname } = this.client;
+			return !!(!this.clientId && username && lastname);
+		},
 		servicesList() {
 			return this.SERVICES.map(el => ({
 				text: `${el.breed.title} - ${el.title}`,
@@ -309,13 +422,13 @@ export default {
 		},
 		currentObj() {
 			return {
-				service: this.servicesObj,
-				product: this.productsObj,
+				service: this.costomServicesPrices,
+				product: this.costomProductsPrices,
 			};
 		},
 		finalPrice() {
 			return this.orderItems.reduce((acc, { id, type, count }) => {
-				const price = this.parsePrice(this.currentObj[type][id].price);
+				const price = this.parsePrice(this.currentObj[type][id]);
 				return acc + price * count;
 			}, 0);
 		},
@@ -363,10 +476,19 @@ export default {
 				this[param] = defaultData[param];
 			}
 		},
+		clientId(id) {
+			this.client = { ...this.CLIENTS.find(el => el.id === id) };
+		},
 	},
 	methods: {
-		...mapActions(['CREATE_ORDER', 'SUCCESS_EVENT', 'UPDATE_AND_PAY_ORDER']),
+		...mapActions([
+			'CREATE_ORDER',
+			'SUCCESS_EVENT',
+			'UPDATE_AND_PAY_ORDER',
+			'CREATE_CLIENT',
+		]),
 		...mapMutations(['CLOSE_ORDER_FORM']),
+		onPhoneInput,
 		parsePrice,
 		closeModal() {
 			this.CLOSE_ORDER_FORM();
@@ -398,6 +520,10 @@ export default {
 						throw false;
 					}
 					this.orderItems.push({ type: 'service', id, count: 1 });
+					this.costomServicesPrices = {
+						...this.costomServicesPrices,
+						[id]: this.servicesObj[id].price,
+					};
 				}
 
 				if (type === 'product') {
@@ -406,6 +532,10 @@ export default {
 						throw false;
 					}
 					this.orderItems.push({ type: 'product', id, count: 1 });
+					this.costomProductsPrices = {
+						...this.costomProductsPrices,
+						[id]: this.productsObj[id].price,
+					};
 				}
 
 				throw false;
@@ -510,6 +640,24 @@ export default {
 			return !!this.checkedItems.find(
 				el => el.id === id && el.type === type,
 			);
+		},
+		cancelClientCreation() {
+			this.client = { ...defaultClient };
+		},
+		async createClient() {
+			const { username, lastname, phone } = this.client;
+
+			const {
+				data: { client },
+			} = await this.CREATE_CLIENT({
+				username: username?.trim(),
+				lastname: lastname?.trim() || '',
+				phone: phone?.trim() || '',
+				comment: '',
+				animal: '',
+			});
+
+			this.clientId = client.id;
 		},
 	},
 };

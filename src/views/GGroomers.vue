@@ -46,12 +46,14 @@
 				showFirstLastPage: true,
 				pageText: `${currentPage} из ${pageCount}`,
 			}"
+			hide-default-footer
 			@pagination="setCurrentPage"
 		>
 			<template v-slot:item="{ item }">
 				<tr class="pointer" @click="gotoDetail(item)">
 					<td class="py-2">
 						<v-img
+							v-if="item.image"
 							:src="item.image"
 							width="32"
 							height="32"
@@ -67,6 +69,23 @@
 					</td>
 				</tr>
 			</template>
+			<template v-slot:footer="{ props: { options, pagination } }">
+				<div class="v-data-footer__wrapper d-flex align-center pl-2">
+					<div class="v-data-footer__info">
+						Всего: {{currentGroomersList.length}} {{declOfNum(currentGroomersList.length, titles)}}
+					</div>
+					<v-data-footer
+						class="flex-grow-1"
+						:options="options"
+						:pagination="pagination"
+						items-per-page-text="Строк на странице:"
+						items-per-page-all-text="Все"
+						show-current-page
+						show-first-last-page
+						:page-text="`${currentPage} из ${pageCount}`"
+					/>
+				</div>
+			</template>
 		</v-data-table>
 		<GCreateGroomerModalForm
 			:is-avtive="isFormActive"
@@ -80,6 +99,7 @@
 import { mapActions, mapGetters } from 'vuex';
 import { getExperience } from '@/services/index';
 import { GCreateGroomerModalForm } from '@/components';
+import { declOfNum } from '@/services';
 const API_URL = process.env.VUE_APP_API_URL;
 const MEDIAFILES = process.env.VUE_APP_MEDIAFILES;
 
@@ -103,20 +123,25 @@ export default {
 			{ text: 'Стаж', value: 'experience' },
 		],
 		isFormActive: false,
+		titles: ['грумер', 'грумера', 'грумеров'],
 	}),
 	computed: {
 		...mapGetters(['GROOMERS']),
 		currentGroomersList() {
 			return this.GROOMERS.filter(
 				el =>
-					el.username.includes(this.searchStr) ||
-					el.lastname.includes(this.searchStr) ||
+					el.username
+						.toLowerCase()
+						.includes(this.searchStr.toLowerCase()) ||
+					el.lastname
+						.toLowerCase()
+						.includes(this.searchStr.toLowerCase()) ||
 					el.phone.includes(this.searchStr),
 			).map(({ id, username, lastname, avatar, createDate, phone }) => {
 				return {
 					id: id,
 					name: `${username} ${lastname}`,
-					image: `${API_URL + MEDIAFILES}/${avatar}`,
+					image: avatar ? `${API_URL + MEDIAFILES}/${avatar}` : '',
 					phone: phone,
 					experience: getExperience(createDate),
 				};
@@ -126,6 +151,7 @@ export default {
 	mounted() {},
 	methods: {
 		...mapActions(['GET_ALL_GROOMERS', 'CREATE_MASTER']),
+		declOfNum,
 		setCurrentPage({ page, pageCount }) {
 			this.currentPage = page;
 			this.pageCount = pageCount;

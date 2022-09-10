@@ -6,7 +6,14 @@
 		@click:outside="closeModal"
 		@keydown="onKeyDown"
 	>
-		<v-card class="pt-4">
+		<v-card class="pt-4 g-create-event-modal-form__card">
+			<v-btn
+				class="g-create-event-modal-form__close-btn"
+				icon
+				@click="closeModal"
+			>
+				<v-icon color="#243138">mdi-close</v-icon>
+			</v-btn>
 			<v-card-title class="px-8 d-block">
 				<v-text-field
 					v-model="title"
@@ -36,7 +43,7 @@
 							</div>
 							<v-icon
 								ref="timepickerIcon"
-								color="#FFC11C"
+								color="#243138"
 								@click="toggleTimepiker"
 							>
 								mdi-clock-outline
@@ -89,9 +96,6 @@
 								label="Услуги"
 								hide-details
 								multiple
-								chips
-								small-chips
-								deletable-chips
 								@change="setServices"
 							/>
 							<div v-if="services.length" class="pt-3">
@@ -99,8 +103,14 @@
 									v-for="(serviceKey, idx) in services"
 									:key="serviceKey"
 									class="px-0 pl-2 d-flex"
-									:class="{ 'mt-2': idx === 0 }"
+									:class="{ 'mt-2': idx === 0, 'mb-4': idx !== (services.length - 1) }"
 								>
+									<v-img
+										:src="require('@/assets/svg/drag-indicatior.svg')"
+										:max-height="24"
+										:max-width="24"
+										class="mr-1"
+									/>
 									<div class="flex-grow-1">
 										{{
 											servicesList[serviceKey].breed.title
@@ -108,10 +118,10 @@
 										- {{ servicesList[serviceKey].title }}
 									</div>
 									<v-icon
-										color="#FFC11C"
+										color="#243138"
 										@click="removeService(idx)"
 									>
-										mdi-close
+										mdi-close-circle-outline
 									</v-icon>
 								</div>
 							</div>
@@ -124,7 +134,7 @@
 								:items="
 									groomersList?.map((el, idx) => {
 										return {
-											text: `$${el.username} ${el.lastname}`,
+											text: `${el.username} ${el.lastname}`,
 											value: el.id,
 										};
 									})
@@ -145,7 +155,7 @@
 								:items="
 									clientsList?.map((el, idx) => {
 										return {
-											text: `$${el.username} ${el.lastname}`,
+											text: `${el.username} ${el.lastname}`,
 											value: el.id,
 										};
 									})
@@ -196,6 +206,7 @@
 
 <script lang="ts">
 import { convertTimestampToLocalDateTime } from '@/utils';
+// import DragIndicatior from '@/assets/svg/drag-indicatior.svg';
 
 const defaultData: any = {
 	time: '09:00',
@@ -208,6 +219,7 @@ const defaultData: any = {
 
 export default {
 	name: 'GCreateEventModalForm',
+	// components: { DragIndicatior },
 	props: {
 		isAvtive: {
 			type: Boolean,
@@ -327,5 +339,14 @@ export default {
 
 <style lang="scss">
 .g-create-event-modal-form {
+	&__card {
+		position: relative;
+	}
+
+	&__close-btn {
+		position: absolute;
+		top: 21px;
+		right: 21px;
+	}
 }
 </style>

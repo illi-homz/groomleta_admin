@@ -79,9 +79,18 @@ export default {
 
 				if (!clientById) throw '[GET_CLIENT_BY_ID] clientById exist';
 
-				console.log('clientById', clientById)
-
 				return { ...successResponse, data: clientById };
+			} catch (e) {
+				return errorResponse;
+			}
+		},
+		async PUT_TO_BLOCK({ commit }: any, id: any) {
+			try {
+				const { putToBlock } = await API.clients.putToBlock(id);
+
+				if (!putToBlock) throw '[PUT_TO_BLOCK] putToBlock exist';
+
+				return { ...successResponse, data: putToBlock };
 			} catch (e) {
 				return errorResponse;
 			}

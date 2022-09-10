@@ -19,14 +19,21 @@
 			</v-breadcrumbs>
 			<h1 class="mb-6">{{ master.username }} {{ master.lastname }}</h1>
 			<v-row v-if="master" class="user-card flex-grow-0">
-				<v-col cols="1" class="flex-grow-0">
+				<v-col cols="1" class="flex-grow-0 d-flex align-center justify-center">
 					<v-img
+						v-if="imageURl"
 						:src="imageURl"
 						width="126"
+
 						height="126"
 						class="pointer"
 						@click="loadImage"
 					/>
+
+					<v-btn v-else icon x-large @click="loadImage">
+						<v-icon>mdi-camera</v-icon>
+					</v-btn>
+					
 					<input
 						ref="avatar"
 						type="file"
@@ -35,7 +42,6 @@
 						accept=".jpg,.png"
 						hidden
 						@change="onUploadImages"
-						@click="onInputClick"
 					/>
 				</v-col>
 				<v-col class="flex-grow-1">
@@ -222,7 +228,8 @@ export default {
 			});
 		},
 		imageURl() {
-			if (!this.master) return '';
+			if (!this.master || !this.master.avatar) return '';
+
 			const { avatar } = this.master;
 			return `${API_URL + MEDIAFILES}/${avatar}`;
 		},

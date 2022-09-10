@@ -4,7 +4,7 @@
 		<v-divider class="mb-5" />
 		<v-row class="flex-grow-0 my-0 mb-5">
 			<v-col cols="3" class="py-0 d-flex align-end">
-				<v-text-field
+				<!-- <v-text-field
 					v-model="searchStr"
 					prepend-inner-icon="mdi-magnify"
 					label="Поиск заказа"
@@ -13,13 +13,13 @@
 					color="#FFC11C"
 					filled
 					dense
-				/>
+				/> -->
 			</v-col>
 			<v-col class="d-flex py-0">
 				<v-spacer />
 				<v-btn x-large tile outlined elevation="0" @click="createOrder">
 					<v-icon>mdi-plus</v-icon>
-					Создать заказ
+					Оформить заказ
 				</v-btn>
 			</v-col>
 		</v-row>
@@ -38,6 +38,7 @@
 				showFirstLastPage: true,
 				pageText: `${currentPage} из ${pageCount}`,
 			}"
+			hide-default-footer
 			@pagination="setCurrentPage"
 		>
 			<template v-slot:item="{ item }">
@@ -56,11 +57,29 @@
 					</td>
 				</tr>
 			</template>
+			<template v-slot:footer="{ props: { options, pagination } }">
+				<div class="v-data-footer__wrapper d-flex align-center pl-2">
+					<div class="v-data-footer__info">
+						Всего: {{currentOrders.length}} {{declOfNum(currentOrders.length, titles)}}
+					</div>
+					<v-data-footer
+						class="flex-grow-1"
+						:options="options"
+						:pagination="pagination"
+						items-per-page-text="Строк на странице:"
+						items-per-page-all-text="Все"
+						show-current-page
+						show-first-last-page
+						:page-text="`${currentPage} из ${pageCount}`"
+					/>
+				</div>
+			</template>
 		</v-data-table>
 	</div>
 </template>
 
 <script>
+import { declOfNum } from '@/services';
 import { mapActions, mapMutations, mapGetters } from 'vuex';
 
 const dateFormatter = date => {
@@ -92,6 +111,7 @@ export default {
 			cancel: 'Отменен',
 			overdue: 'Просрочен',
 		},
+		titles: ['заказ', 'заказа', 'заказов']
 	}),
 	computed: {
 		...mapGetters(['ALL_ORDERS']),
@@ -123,6 +143,7 @@ export default {
 	methods: {
 		...mapActions(['GET_ALL_ORDERS']),
 		...mapMutations(['SHOW_ORDER_FORM', 'SHOW_ORDER_DETAIL_SHIELD']),
+		declOfNum,
 		createOrder() {
 			this.SHOW_ORDER_FORM();
 		},

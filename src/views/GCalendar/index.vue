@@ -8,7 +8,7 @@
 						<v-btn
 							outlined
 							tile
-							class="mr-4"
+							class="mr-4 h-40"
 							color="grey darken-2"
 							@click="setToday"
 						>
@@ -37,29 +37,31 @@
 							{{ $refs.calendar.title }}
 						</v-toolbar-title>
 						<v-spacer />
+						<v-select
+							v-model="currentGroomerId"
+							:items="grummersList"
+							outlined
+							tile
+							color="grey darken-2"
+							item-color="grey darken-2"
+							hide-details
+							dense
+							class="mr-4 g-calendar__groomers-filter"
+						/>
 						<v-btn
 							outlined
 							tile
-							class="mr-4"
+							class="mr-4 h-40"
 							color="grey darken-2"
 							@click="createOrder"
 						>
 							Оформить заказ
 						</v-btn>
-						<v-btn
-							outlined
-							tile
-							class="mr-4"
-							color="grey darken-2"
-							@click="getEvents"
-						>
-							Обновить
-						</v-btn>
 
 						<v-btn
 							outlined
 							tile
-							class="mr-4"
+							class="mr-4 h-40"
 							color="grey darken-2"
 							@click="type = 'week'"
 						>
@@ -68,10 +70,22 @@
 						<v-btn
 							outlined
 							tile
+							class="mr-4 h-40"
 							color="grey darken-2"
 							@click="type = 'month'"
 						>
 							Месяц
+						</v-btn>
+						<v-btn
+							outlined
+							tile
+							class="h-40"
+							color="grey darken-2"
+							@click="getEvents"
+						>
+							<v-icon>
+								mdi-autorenew
+							</v-icon>
 						</v-btn>
 					</v-toolbar>
 				</v-sheet>
@@ -196,13 +210,13 @@ import './styles.scss';
 
 const createMasterCategory = (master: any) => {
 	if (!master) {
-		return 'Любой мастер'
+		return 'Любой мастер';
 	}
-	
-	const { username, lastname, id } = master
 
-	return `#${id} ${username} ${lastname}`
-}
+	const { username, lastname, id } = master;
+
+	return `#${id} ${username} ${lastname}`;
+};
 
 export default {
 	name: 'GCalendar',
@@ -228,16 +242,41 @@ export default {
 		extendOriginal: null,
 		selectedOpen: false,
 		events: [],
+		currentGroomerId: null,
 	}),
 	computed: {
 		...mapGetters(['SERVICES', 'GROOMERS', 'EVENTS', 'CLIENTS']),
 		categories() {
-			return this.GROOMERS.map(createMasterCategory)
+			return this.GROOMERS.map(createMasterCategory);
+		},
+		grummersList() {
+			const list = this.GROOMERS.map(
+				({ id, username, lastname }: any) => ({
+					text: `${username} ${lastname}`,
+					value: id,
+				}),
+			);
+			return [{ text: 'Все грумеры', value: null }, ...list];
 		},
 	},
 	watch: {
 		EVENTS(events) {
-			this.events = eventsFormatter(events);
+			const currentEvents = this.currentGroomerId
+				? events.filter(({ master }: any) => {
+						return master.id === this.currentGroomerId;
+				  })
+				: events;
+			this.events = eventsFormatter(currentEvents);
+		},
+		currentGroomerId(id) {
+			console.log('currentGroomerId')
+			const currentEvents = id
+				? this.EVENTS.filter(({ master }: any) => {
+						return master.id === id;
+				  })
+				: this.EVENTS;
+			this.events = eventsFormatter(currentEvents);
+			console.log('this.events', this.events)
 		},
 	},
 	mounted() {
@@ -348,7 +387,7 @@ export default {
 				}
 			}
 			// this.selectedEvent = null;
-			this.closeEvent();
+			// this.closeEvent();
 		},
 		async updateEventDates(event: any) {
 			if (!event) return;
@@ -509,7 +548,7 @@ const eventsFormatter = (events: Object[]): Object[] => {
 				end: new Date(endDate).getTime(),
 				color: master?.color || '#FFC11C',
 				timed: true,
-				category: createMasterCategory(master)
+				category: createMasterCategory(master),
 			};
 		},
 	);
@@ -561,6 +600,14 @@ const eventsFormatter = (events: Object[]): Object[] => {
 	.v-event-timed {
 		overflow: hidden;
 		overflow-y: scroll;
+	}
+
+	&__groomers-filter {
+		max-width: 200px;
+	}
+
+	.h-40 {
+		height: 40px !important;
 	}
 }
 </style>

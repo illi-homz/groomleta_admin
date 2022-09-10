@@ -19,6 +19,17 @@
 				<v-spacer />
 				<v-btn
 					x-large
+					tile
+					outlined
+					elevation="0"
+					class="mr-4"
+					@click="SHOW_ORDER_FORM"
+				>
+					<v-icon>mdi-plus</v-icon>
+					Оформить заказ
+				</v-btn>
+				<v-btn
+					x-large
 					color="#FFC11C"
 					tile
 					dark
@@ -59,13 +70,14 @@
 				showFirstLastPage: true,
 				pageText: `${currentPage} из ${pageCount}`,
 			}"
+			hide-default-footer
 			@pagination="setCurrentPage"
-			@pageCount="setPageCount"
 		>
 			<template v-slot:item="{ item }">
 				<tr
 					v-if="+writableClientId !== +item.id || !selectedClient"
 					class="pointer"
+					:class="{ 'red lighten-4': item.isBlocked }"
 					@click="goToClientDetail(item.id)"
 					@contextmenu.prevent="writeClient(item.id)"
 				>
@@ -137,13 +149,22 @@
 						/>
 					</td>
 					<td class="g-clients__td text-xs-right py-2">
-						<v-text-field
+						<!-- <v-text-field
 							v-model="selectedClient.animal"
 							filled
 							dense
 							color="#FFC11C"
 							light
 							hide-details
+						/> -->
+						<v-textarea
+							v-model="selectedClient.animal"
+							class="lex-grow-1"
+							filled
+							color="#FFC11C"
+							light
+							hide-details
+							rows="2"
 						/>
 					</td>
 					<td class="g-clients__td text-xs-right py-2">
@@ -203,6 +224,24 @@
 					</td>
 				</tr>
 			</template>
+			<template v-slot:footer="{ props: { options, pagination } }">
+				<div class="v-data-footer__wrapper d-flex align-center pl-2">
+					<div class="v-data-footer__info">
+						Всего: {{ currentClients.length }}
+						{{ declOfNum(currentClients.length, titles) }}
+					</div>
+					<v-data-footer
+						class="flex-grow-1"
+						:options="options"
+						:pagination="pagination"
+						items-per-page-text="Строк на странице:"
+						items-per-page-all-text="Все"
+						show-current-page
+						show-first-last-page
+						:page-text="`${currentPage} из ${pageCount}`"
+					/>
+				</div>
+			</template>
 		</v-data-table>
 		<v-dialog v-model="removeDialog" persistent max-width="290">
 			<v-card>
@@ -234,7 +273,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { declOfNum } from '@/services';
+import { mapActions, mapMutations } from 'vuex';
 import { onPhoneInput } from '@/utils/phoneMask';
 import { GCreateClientModalForm } from '@/components';
 
@@ -277,13 +317,18 @@ export default {
 		oldClient: null,
 		removedClientId: null,
 		isFormActive: false,
+		titles: ['клиент', 'клиента', 'клиентов'],
 	}),
 	computed: {
 		currentClients() {
 			return this.clients.filter(
 				el =>
-					el.username.includes(this.searchStr) ||
-					el.lastname.includes(this.searchStr) ||
+					el.username
+						.toLowerCase()
+						.includes(this.searchStr.toLowerCase()) ||
+					el.lastname
+						.toLowerCase()
+						.includes(this.searchStr.toLowerCase()) ||
 					el.phone.includes(this.searchStr),
 			);
 		},
@@ -298,6 +343,8 @@ export default {
 			'UPDATE_CLIENT',
 			'REMOVE_CLIENT',
 		]),
+		...mapMutations(['SHOW_ORDER_FORM']),
+		declOfNum,
 		async getClients() {
 			const { data } = await this.GET_ALL_CLIENTS();
 			this.clients = data;
@@ -365,11 +412,9 @@ export default {
 				this.oldClients = null;
 			}
 		},
-		setPageCount(v) {
-			this.pageCount = v;
-		},
-		setCurrentPage({ page }) {
+		setCurrentPage({ page, pageCount }) {
 			this.currentPage = page;
+			this.pageCount = pageCount;
 		},
 		writeClient(id) {
 			this.cancelWritingClient();

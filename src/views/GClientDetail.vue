@@ -17,7 +17,23 @@
 					<v-icon>mdi-chevron-right</v-icon>
 				</template>
 			</v-breadcrumbs>
-			<h1 class="mb-6">{{ client.username }} {{ client.lastname }}</h1>
+			<div class="d-flex align-top">
+				<h1
+					class="mb-6 flex-grow-1"
+					:class="{ 'red--text text--accent-3': client.isBlocked }"
+				>
+					{{ client.username }} {{ client.lastname }}
+				</h1>
+				<v-btn
+					color="error"
+					elevation="0"
+					tile
+					small
+					@click="putToBlock"
+				>
+					В блок
+				</v-btn>
+			</div>
 			<v-tabs color="grey darken-1" class="flex-grow-0">
 				<v-tab @click="tableType = 'data'">Данные клиента</v-tab>
 				<v-tab @click="tableType = 'orders'">Заказы</v-tab>
@@ -172,7 +188,7 @@ export default {
 					text: 'Клиенты',
 					disabled: false,
 					// href: '/clients',
-					to: {name: 'g-clients'}
+					to: { name: 'g-clients' },
 				},
 				{
 					text: `${username} ${lastname}`,
@@ -190,7 +206,7 @@ export default {
 		this.getData();
 	},
 	methods: {
-		...mapActions(['GET_CLIENT_BY_ID', 'UPDATE_CLIENT']),
+		...mapActions(['GET_CLIENT_BY_ID', 'UPDATE_CLIENT', 'PUT_TO_BLOCK']),
 		...mapMutations(['SHOW_ORDER_DETAIL_SHIELD']),
 
 		async getData() {
@@ -238,6 +254,11 @@ export default {
 			}
 
 			setTimeout(() => (this.client.phone = value), 0);
+		},
+		async putToBlock() {
+			const id = this.$route.params.id;
+			await this.PUT_TO_BLOCK(id);
+			this.getData()
 		},
 	},
 };

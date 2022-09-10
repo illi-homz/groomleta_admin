@@ -16,6 +16,7 @@ class Clients {
 							animal
 							address
 							createDate
+							isBlocked
 						}
 					}`,
 			},
@@ -24,7 +25,7 @@ class Clients {
 
 	static createClient(data: any) {
 		const qStr = Object.keys(data).reduce((acc: any, key: string) => {
-			if (key === 'comment') {
+			if ( ['comment', 'animal'].includes(key)) {
 				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"`
 			}
 			
@@ -53,6 +54,7 @@ class Clients {
 								animal
 								address
 								createDate
+								isBlocked
 							}
 						}
 					}`,
@@ -62,7 +64,7 @@ class Clients {
 
 	static updateClient(id: number|string, data: any) {
 		const qStr = Object.keys(data).reduce((acc: any, key: string) => {
-			if (key === 'comment') {
+			if (['comment', 'animal'].includes(key)) {
 				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"`
 			}
 			
@@ -89,6 +91,7 @@ class Clients {
 								animal
 								createDate
 								address
+								isBlocked
 							}
 							allClients {
 								id
@@ -99,6 +102,7 @@ class Clients {
 								animal
 								address
 								createDate
+								isBlocked
 							}
 						}
 					}`,
@@ -127,8 +131,38 @@ class Clients {
 								animal
 								address
 								createDate
+								isBlocked
 							}
 							success
+						}
+					}`,
+			},
+		});
+	}
+
+	static putToBlock(id: number|string) {
+		return fetcherGQL({
+			key: 'Clients.putToBlock',
+			query: {
+				query: `
+					mutation {
+						putToBlock(
+							id: "${id}"
+						) {
+							client {
+								id
+							}
+							allClients {
+								id
+								username
+								lastname
+								phone
+								comment
+								animal
+								address
+								createDate
+								isBlocked
+							}
 						}
 					}`,
 			},
@@ -153,6 +187,7 @@ class Clients {
 								animal
 								createDate
 								address
+								isBlocked
 							}
 							allOrders {
 								id
