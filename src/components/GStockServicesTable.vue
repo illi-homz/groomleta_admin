@@ -447,11 +447,13 @@ export default {
 				if (this.image) data.img = this.image;
 
 				if (!Object.keys(data).length) {
-					return this.$emit('cancelWritingService');
+					return this.cancelWritingService();
 				}
 
 				this.$emit('updateService', service.id, data);
 			}
+
+			this.cancelWritingService()
 		},
 		loadImage() {
 			this.$refs.avatar.click();

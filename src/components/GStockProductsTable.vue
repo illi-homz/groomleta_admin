@@ -301,6 +301,8 @@ export default {
 
 				this.$emit('updateProduct', product.id, data);
 			}
+
+			this.cancelWritingProducts()
 		},
 		loadImage() {
 			this.$refs.avatar.click();
