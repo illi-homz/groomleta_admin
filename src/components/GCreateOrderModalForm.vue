@@ -394,10 +394,13 @@ export default {
 			return !!(!this.clientId && username && lastname);
 		},
 		servicesList() {
-			return this.SERVICES.map(el => ({
-				text: `${el.breed.title} - ${el.title}`,
-				value: { id: el.id, type: 'service' },
-			}));
+			return this.SERVICES.map(el => {
+				console.log('SERVICES el', el)
+				return {
+					text: `${el.breed.title} - ${el.title}`,
+					value: { id: el.id, type: 'service' },
+				};
+			});
 		},
 		productsList() {
 			return this.PRODUCTS.filter(el => +el.count).map(el => ({
@@ -465,7 +468,7 @@ export default {
 	},
 	watch: {
 		orderItems(items) {
-			for (let {id, type} of items) {
+			for (let { id, type } of items) {
 				if (type === 'service') {
 					this.costomServicesPrices = {
 						...this.costomServicesPrices,
