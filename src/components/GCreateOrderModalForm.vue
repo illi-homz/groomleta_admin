@@ -396,7 +396,7 @@ export default {
 		servicesList() {
 			return this.SERVICES.map(el => {
 				return {
-					text: `${el.breed.title} - ${el.title}`,
+					text: el.breed?.title ? `${el.breed.title} - ${el.title}` : el.title,
 					value: { id: el.id, type: 'service' },
 				};
 			});
