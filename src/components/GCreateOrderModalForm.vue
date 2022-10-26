@@ -395,7 +395,6 @@ export default {
 		},
 		servicesList() {
 			return this.SERVICES.map(el => {
-				console.log('SERVICES el', el)
 				return {
 					text: `${el.breed.title} - ${el.title}`,
 					value: { id: el.id, type: 'service' },

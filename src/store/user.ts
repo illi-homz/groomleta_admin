@@ -85,7 +85,7 @@ export default {
 		},
 		CHECK_USER({ commit }: { commit: Function }) {
 			const token = Vue.$cookies.get('JWTToken');
-			console.log('CHECK_USER token:', token)
+			// console.log('CHECK_USER token:', token)
 			return token;
 		},
 	},
