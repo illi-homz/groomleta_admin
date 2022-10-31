@@ -199,7 +199,6 @@
 												<span v-if="type === 'service'">
 													{{ servicesObj[id].title }}
 												</span>
-												{{ id }}
 											</div>
 										</td>
 										<td

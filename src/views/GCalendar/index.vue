@@ -281,7 +281,7 @@ export default {
 	},
 	mounted() {
 		// console.log('$refs.calendar', this.$refs.calendar.genMore('2022-08-04'))
-		console.log('$refs.calendar', this.$vuetify);
+		// console.log('$refs.calendar', this.$vuetify);
 	},
 	methods: {
 		...mapActions([
