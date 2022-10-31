@@ -1,6 +1,6 @@
 export const posts = {
 	MAIN_GROOMMER: 'Главный груммер',
-	GROOMMER: 'Груммер',
+	GROOMMER: 'Грумер',
 	HELPER: 'Помощник груммера',
 }
 
