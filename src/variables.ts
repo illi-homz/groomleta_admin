@@ -1,13 +1,13 @@
 export const posts = {
-	MAIN_GROOMMER: 'Главный груммер',
+	MAIN_GROOMMER: 'Главный грумер',
 	GROOMMER: 'Грумер',
-	HELPER: 'Помощник груммера',
+	HELPER: 'Помощник грумера',
 }
 
 export const postsList = [
-	{ text: 'Главный груммер', value: 'MAIN_GROOMMER' },
-	{ text: 'Груммер', value: 'GROOMMER' },
-	{ text: 'Помощник груммера', value: 'HELPER' },
+	{ text: 'Главный грумер', value: 'MAIN_GROOMMER' },
+	{ text: 'Грумер', value: 'GROOMMER' },
+	{ text: 'Помощник грумера', value: 'HELPER' },
 ];
 
 export const defaultColors = [

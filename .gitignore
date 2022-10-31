@@ -1,6 +1,8 @@
 .DS_Store
 node_modules
 dist/
+crm_admin/
+crm_admin.*
 
 # local env files
 .env
