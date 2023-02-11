@@ -66,7 +66,7 @@
 					</td>
 					<td class="g-stock-services-table__td py-2 text-right">
 						<div class="float-left">
-							{{ item.breed.title }}
+							{{ item.breed?.title || 'любая порода' }}
 						</div>
 						<v-menu open-on-hover offset-y left>
 							<template v-slot:activator="{ on, attrs }">

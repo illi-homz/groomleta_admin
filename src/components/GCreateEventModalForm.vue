@@ -85,7 +85,7 @@
 								:items="
 									servicesList?.map((el, idx) => {
 										return {
-											text: `${el.breed.title} - ${el.title}`,
+											text: `${el.breed?.title || 'любая порода'} - ${el.title}`,
 											value: idx,
 										};
 									})
@@ -113,7 +113,7 @@
 									/>
 									<div class="flex-grow-1">
 										{{
-											servicesList[serviceKey].breed.title
+											servicesList[serviceKey].breed?.title || 'любая порода'
 										}}
 										- {{ servicesList[serviceKey].title }}
 									</div>

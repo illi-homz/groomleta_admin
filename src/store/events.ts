@@ -11,9 +11,9 @@ export default {
 		},
 	},
 	actions: {
-		async GET_EVENTS({ commit }: { commit: Function }) {
+		async GET_EVENTS({ commit }: { commit: Function }, data: any) {
 			try {
-				const { allEvents } = await API.events.getEvents();
+				const { allEvents } = await API.events.getEvents(data) || {};
 
 				commit('SET_EVENTS', allEvents);
 

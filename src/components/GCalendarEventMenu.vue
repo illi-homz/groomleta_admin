@@ -63,7 +63,7 @@
 								:key="service.id"
 								class="pl-1"
 							>
-								{{ service.breed.title }} -
+								{{ service.breed?.title || 'любая порода' }} -
 								{{ service.title }}
 							</li>
 						</ul>
@@ -79,7 +79,7 @@
 								class="px-0 pl-2 d-flex"
 							>
 								<div class="flex-grow-1">
-									{{ service.breed.title }} -
+									{{ service.breed?.title || 'любая порода' }} -
 									{{ service.title }}
 								</div>
 								<v-icon

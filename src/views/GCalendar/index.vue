@@ -150,7 +150,7 @@
 									v-for="service in event.services"
 									:key="service.id"
 								>
-									{{ service.breed.title }} -
+									{{ service.breed?.title || 'любая порода' }} -
 									{{ service.title }}
 								</li>
 							</ul>
@@ -272,7 +272,7 @@ export default {
 			console.log('currentGroomerId')
 			const currentEvents = id
 				? this.EVENTS.filter(({ master }: any) => {
-						return master.id === id;
+						return master?.id === id;
 				  })
 				: this.EVENTS;
 			this.events = eventsFormatter(currentEvents);
@@ -292,7 +292,9 @@ export default {
 		]),
 		...mapMutations(['SHOW_ORDER_FORM']),
 		async getEvents() {
-			const { data } = await this.GET_EVENTS();
+			const {year: startYear, month: startMonth} = this.$refs.calendar.lastStart
+			const {year: endYear, month: endMonth} = this.$refs.calendar.lastEnd
+			const { data } = await this.GET_EVENTS({startYear, startMonth, endYear, endMonth});
 			this.events = eventsFormatter(data);
 		},
 		checkChange() {

@@ -1,13 +1,21 @@
 import { fetcherGQL } from '.';
 
 class Events {
-	static getEvents() {
+	static getEvents({startYear, startMonth, endYear, endMonth}: any) {
 		return fetcherGQL({
 			key: 'Events.getEvents',
 			query: {
 				query: `
 					query {
-						allEvents {${eventProps}}
+						allEvents(
+							startYear: "${startYear}",
+							startMonth: "${startMonth}",
+							endYear: "${endYear}",
+							endMonth: "${endMonth}"
+						)
+						{
+							${eventProps}
+						}
 					}`,
 			},
 		});
