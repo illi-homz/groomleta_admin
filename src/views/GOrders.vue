@@ -28,13 +28,18 @@
 			:items-per-page="itemsPerPage"
 			:headers="headers"
 			:items="currentOrders"
-			no-data-text="Ничего найти не получилось"
+			no-data-text="Загрузка"
 			no-results-text="Ничего найти не получилось"
 			loading-text="Загрузка"
 			hide-default-footer
 			:page="currentPage"
-			@pagination="setCurrentPage"
+			:sort-by.sync="sortBy"
+			:sort-desc.sync="sortDesc"
+			:footer-props="{}"
+			@update:sort-by="onSortByChange"
+			@update:sort-desc="onSortChange"
 		>
+			<!-- @pagination="setCurrentPage" -->
 			<template v-slot:item="{ item }">
 				<tr class="pointer" @click="showDetail(item)">
 					<td class="py-2">
@@ -51,10 +56,12 @@
 					</td>
 				</tr>
 			</template>
-			<template v-slot:footer="{ props: { options, pagination } }">
+			<!-- <template v-slot:footer="{ props: { options } }"> -->
+			<template v-slot:footer>
 				<div class="v-data-footer__wrapper d-flex align-center pl-2">
 					<div class="v-data-footer__info">
-						Всего: {{currentOrders.length}} {{declOfNum(currentOrders.length, titles)}}
+						Всего: {{ currentOrders.length }}
+						{{ declOfNum(currentOrders.length, titles) }}
 					</div>
 					<v-data-footer
 						class="flex-grow-1"
@@ -83,31 +90,34 @@ const dateFormatter = date => {
 		// month: 'long',
 		// day: 'numeric',
 		dateStyle: 'medium',
-		timeStyle: 'short'
+		timeStyle: 'short',
 	}).format(new Date(date));
 };
 
 export default {
 	name: 'GOrders',
 	data: () => ({
+		sortBy: ['id'],
+		sortDesc: true,
 		searchStr: '',
 		headers: [
 			{ text: 'Номер заказа', value: 'id' },
-			{ text: 'Время заказа', value: 'createDate' },
+			{ text: 'Время заказа', value: 'create_date' },
 			{ text: 'Статус заказа', value: 'status' },
 			{ text: 'Сумма заказа', value: 'price' },
 		],
 		orders: [],
-		currentPage: 0,
+		currentPage: 1,
 		pageCount: 0,
 		itemsPerPage: 15,
+		itemsLength: 0,
 		statuses: {
 			reserved: 'Забронировано',
 			success: 'Продано',
 			cancel: 'Отменен',
 			overdue: 'Просрочен',
 		},
-		titles: ['заказ', 'заказа', 'заказов']
+		titles: ['заказ', 'заказа', 'заказов'],
 	}),
 	computed: {
 		...mapGetters(['ALL_ORDERS']),
@@ -127,32 +137,83 @@ export default {
 				};
 			});
 		},
-	},
-	watch: {
-		ALL_ORDERS(orders) {
-			this.orders = orders || []
+		sort() {
+			return this.sortDesc ? 'desc' : 'asc';
+		},
+		pagination() {
+			return {
+				page: this.currentPage,
+				itemsPerPage: this.itemsPerPage,
+				pageStart: 0,
+				pageStop:
+					this.itemsLength - this.currentPage * this.itemsPerPage,
+				pageCount: this.pageCount,
+				itemsLength: this.itemsLength,
+			};
+		},
+		options() {
+			return {
+				page: this.currentPage,
+				itemsPerPage: this.itemsPerPage,
+				sortBy: this.sortBy,
+				sortDesc: [this.sortDesc],
+				groupBy: [],
+				groupDesc: [],
+				mustSort: false,
+				multiSort: false,
+			};
 		},
 	},
+	// watch: {
+	// 	ALL_ORDERS(orders) {
+	// 		this.orders = orders || [];
+	// 	},
+	// },
 	mounted() {
-		this.GET_ALL_ORDERS()
+		// this.GET_ALL_ORDERS();
+		this.updateData();
 	},
 	methods: {
-		...mapActions(['GET_ALL_ORDERS']),
+		...mapActions(['GET_ALL_ORDERS', 'GET_ORDERS']),
 		...mapMutations(['SHOW_ORDER_FORM', 'SHOW_ORDER_DETAIL_SHIELD']),
 		declOfNum,
 		createOrder() {
 			this.SHOW_ORDER_FORM();
 		},
 		setCurrentPage({ page, pageCount }) {
-			this.currentPage = page;
-			this.pageCount = pageCount;
+			if (this.currentPage === 0) {
+				this.currentPage = page;
+				return;
+			}
 		},
 		showDetail({ data: order }) {
-			this.SHOW_ORDER_DETAIL_SHIELD(order)
+			this.SHOW_ORDER_DETAIL_SHIELD(order);
 		},
-		footerUpdate({page, itemsPerPage}) {
-			this.currentPage = page
-			this.itemsPerPage = itemsPerPage
+		footerUpdate({ page, itemsPerPage, ...args }) {
+			console.log('footerUpdate itemsPerPage', itemsPerPage);
+			this.currentPage = page;
+			this.itemsPerPage = itemsPerPage;
+			this.options.page = page;
+			this.updateData();
+		},
+		onSortByChange(sortBy) {
+			// this.sortBy = sortBy;
+			this.updateData();
+		},
+		onSortChange(sortDesc) {
+			this.sortDesc = sortDesc;
+			console.log('onSortChange');
+			this.updateData();
+		},
+		async updateData() {
+			const { nodes, nodesSize, pageCount } = await this.GET_ORDERS({
+				page: this.currentPage,
+				sort: this.sort,
+				objectsPerPage: this.itemsPerPage,
+			});
+			this.pageCount = pageCount;
+			this.itemsLength = nodesSize;
+			this.orders = nodes || {};
 		},
 	},
 };

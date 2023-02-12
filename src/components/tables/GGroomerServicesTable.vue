@@ -115,7 +115,7 @@ import { declOfNum } from '@/services';
 import { parsePrice } from '@/services';
 
 export default {
-	name: 'GDetailPageOrdersTable',
+	name: 'GGroomerServicesTable',
 	props: {
 		orders: {
 			type: Array,

@@ -128,7 +128,7 @@
 
 <script lang="ts">
 import { onPhoneInput } from '@/utils/phoneMask';
-import GColorSelector from './GColorSelector.vue';
+import GColorSelector from '../GColorSelector.vue';
 import { defaultColors } from '@/variables';
 
 export default {

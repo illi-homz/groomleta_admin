@@ -1,4 +1,5 @@
 import { DefaultCreateOrderDataType } from '@/models/order';
+import { FetchOrdersParamsType } from '@/types/orders';
 import { fetcherGQL } from '.';
 
 class Order {
@@ -17,22 +18,49 @@ class Order {
 		});
 	}
 
-	static fetchOrderById(id: number | string) {
-		if (!id) throw 'Groomer ID exist';
-
+	static fetchOrders({
+		page,
+		objectsPerPage = 15,
+		sort = 'asc',
+	}: FetchOrdersParamsType) {
 		return fetcherGQL({
-			key: 'Order.fetchOrderById',
+			key: 'Order.fetchOrders',
 			query: {
 				query: `
 					query {
-						orderById(id: "${id}") {
-							${orderParams}
+						orders(
+							page: ${page},
+							objectsPerPage: ${objectsPerPage},
+							sort: "${sort}"
+						) {
+							nodes {
+								${orderParams}
+							}
+							nodesSize
+							pageCount
 						}
 					}
 				`,
 			},
 		});
 	}
+
+	// static fetchOrderById(id: number | string) {
+	// 	if (!id) throw 'Groomer ID exist';
+
+	// 	return fetcherGQL({
+	// 		key: 'Order.fetchOrderById',
+	// 		query: {
+	// 			query: `
+	// 				query {
+	// 					orderById(id: "${id}") {
+	// 						${orderParams}
+	// 					}
+	// 				}
+	// 			`,
+	// 		},
+	// 	});
+	// }
 
 	static createOrder(orderData: DefaultCreateOrderDataType) {
 		return fetcherGQL({
@@ -85,7 +113,7 @@ class Order {
 	static updateAndPayOrder(id: number, orderData: any) {
 		if (!id) return;
 
-		console.log('orderData', orderData)
+		console.log('orderData', orderData);
 
 		return fetcherGQL({
 			key: 'Order.updateAndPayOrder',
@@ -194,4 +222,4 @@ const orderDataCreator = (orderData: any) => `
 	price: ${orderData.price}
 	isSuccess: ${orderData.isSuccess || false}
 	isReserved: ${orderData.isReserved || false}
-`
+`;

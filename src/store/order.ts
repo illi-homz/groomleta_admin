@@ -1,6 +1,7 @@
 import API from '@/api/index';
 import MasterType from '@/api/master';
 import { DefaultOrderDataType } from '@/models/order';
+import { FetchOrdersParamsType } from '@/types/orders';
 import { errorResponse, successResponse } from '.';
 
 export default {
@@ -13,49 +14,59 @@ export default {
 	}),
 	mutations: {
 		SET_ALL_ORDERS(state: any, data: any) {
-			state.allOrders = data || []
+			state.allOrders = data || [];
 		},
 		SHOW_ORDER_FORM(state: any, defaultData: DefaultOrderDataType) {
 			if (defaultData) {
-				state.defaultOrderData = defaultData
+				state.defaultOrderData = defaultData;
 			}
-			state.isCreateOrderShow = true
+			state.isCreateOrderShow = true;
 		},
 		CLOSE_ORDER_FORM(state: any) {
-			state.isCreateOrderShow = false
-			state.defaultOrderData = null
+			state.isCreateOrderShow = false;
+			state.defaultOrderData = null;
 		},
 		SHOW_ORDER_DETAIL_SHIELD(state: any, defaultData: any) {
 			if (defaultData) {
-				state.detailOrderShieldData = defaultData
+				state.detailOrderShieldData = defaultData;
 			}
-			state.isDetailOrderShow = true
+			state.isDetailOrderShow = true;
 		},
 		CLOSE_ORDER_DETAIL_SHIELD(state: any) {
-			state.isDetailOrderShow = false
-			state.detailOrderShieldData = null
-		}
+			state.isDetailOrderShow = false;
+			state.detailOrderShieldData = null;
+		},
 	},
 	actions: {
 		async GET_ALL_ORDERS({ commit }: any) {
 			try {
-				const {allOrders} = await API.order.fetchAllOrders()
+				const { allOrders } = await API.order.fetchAllOrders();
 
-				commit('SET_ALL_ORDERS', allOrders)
+				commit('SET_ALL_ORDERS', allOrders);
 
-				return {...successResponse, data: allOrders}
+				return { ...successResponse, data: allOrders };
 			} catch (e) {
 				console.log('GET_ALL_ORDERS exeption:', e);
 				return errorResponse;
 			}
 		},
+		async GET_ORDERS({ commit }: any, params: FetchOrdersParamsType) {
+			try {
+				const { orders } = await API.order.fetchOrders(params);
+
+				return { ...successResponse, ...orders };
+			} catch (e) {
+				console.log('GET_ORDERS exeption:', e);
+				return errorResponse;
+			}
+		},
 		async CREATE_ORDER({ commit }: any, orderData: DefaultOrderDataType) {
 			try {
-				const {createOrder} = await API.order.createOrder(orderData)
+				const { createOrder } = await API.order.createOrder(orderData);
 
-				commit('SET_ALL_ORDERS', createOrder.allOrders)
+				commit('SET_ALL_ORDERS', createOrder.allOrders);
 
-				return {...successResponse, data: createOrder}
+				return { ...successResponse, data: createOrder };
 			} catch (e) {
 				console.log('CREATE_ORDER exeption:', e);
 				return errorResponse;
@@ -63,23 +74,26 @@ export default {
 		},
 		async PAY_FOR_ORDER({ commit }: any, id: number) {
 			try {
-				const {payForOrder} = await API.order.payForOrder(id)
+				const { payForOrder } = await API.order.payForOrder(id);
 
-				commit('SET_ALL_ORDERS', payForOrder.allOrders)
+				commit('SET_ALL_ORDERS', payForOrder.allOrders);
 
-				return {...successResponse, data: payForOrder}
+				return { ...successResponse, data: payForOrder };
 			} catch (e) {
 				console.log('PAY_FOR_ORDER exeption:', e);
 				return errorResponse;
 			}
 		},
-		async UPDATE_AND_PAY_ORDER({ commit }: any, {id, orderData}: any) {
+		async UPDATE_AND_PAY_ORDER({ commit }: any, { id, orderData }: any) {
 			try {
-				const {updateAndPayOrder} = await API.order.updateAndPayOrder(id, orderData)
+				const { updateAndPayOrder } = await API.order.updateAndPayOrder(
+					id,
+					orderData,
+				);
 
-				commit('SET_ALL_ORDERS', updateAndPayOrder.allOrders)
+				commit('SET_ALL_ORDERS', updateAndPayOrder.allOrders);
 
-				return {...successResponse, data: updateAndPayOrder}
+				return { ...successResponse, data: updateAndPayOrder };
 			} catch (e) {
 				console.log('UPDATE_AND_PAY_ORDER exeption:', e);
 				return errorResponse;
@@ -87,11 +101,11 @@ export default {
 		},
 		async CANCEL_ORDER({ commit }: any, id: number) {
 			try {
-				const {cancelOrder} = await API.order.cancelOrder(id)
+				const { cancelOrder } = await API.order.cancelOrder(id);
 
-				commit('SET_ALL_ORDERS', cancelOrder.allOrders)
+				commit('SET_ALL_ORDERS', cancelOrder.allOrders);
 
-				return {...successResponse, data: cancelOrder}
+				return { ...successResponse, data: cancelOrder };
 			} catch (e) {
 				console.log('CANCEL_ORDER exeption:', e);
 				return errorResponse;
