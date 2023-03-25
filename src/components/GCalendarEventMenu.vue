@@ -79,7 +79,8 @@
 								class="px-0 pl-2 d-flex"
 							>
 								<div class="flex-grow-1">
-									{{ service.breed?.title || 'любая порода' }} -
+									{{ service.breed?.title || 'любая порода' }}
+									-
 									{{ service.title }}
 								</div>
 								<v-icon
@@ -93,11 +94,19 @@
 						<v-autocomplete
 							:items="
 								servicesList.map((el, idx) => ({
-									text: `${el.breed.title} - ${el.title}`,
+									text: `${
+										el.breed?.title || 'любая порода'
+									} - ${el.title}`,
 									value: idx,
 								}))
 							"
-							:value="selectedEvent.services?.map((_, i) => i)"
+							:value="
+								selectedEvent.services?.map(el =>
+									servicesList.findIndex(
+										el2 => el2.id === el.id,
+									),
+								)
+							"
 							color="#FFC11C"
 							item-color="#FFC11C"
 							:no-data-text="'Ничего не найдено'"
@@ -162,7 +171,8 @@
 								}"
 							>
 								{{ selectedEvent.client.username }}
-								{{ selectedEvent.client.lastname }}<!-- -->
+								{{ selectedEvent.client.lastname
+								}}<!-- -->
 							</router-link>
 							{{ ` - ${selectedEvent.client.phone}` }}
 						</div>
@@ -331,12 +341,13 @@ export default {
 			this.$emit('input', false);
 		},
 		setEvent(v) {
+			console.log('v', v);
 			this.$emit('setEvent', v);
 		},
 		saveCanges() {
 			this.$emit('saveEvent');
 			this.oldEvent = null;
-			this.isWritable = false
+			this.isWritable = false;
 		},
 		setServices(srvcs) {
 			const services = Array.isArray(srvcs)
@@ -377,6 +388,9 @@ export default {
 			};
 
 			this.$emit('toCreateOrder', data);
+		},
+		log(a, b) {
+			console.log(a, b);
 		},
 	},
 };
