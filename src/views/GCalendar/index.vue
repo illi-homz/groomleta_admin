@@ -83,9 +83,7 @@
 							color="grey darken-2"
 							@click="getEvents"
 						>
-							<v-icon>
-								mdi-autorenew
-							</v-icon>
+							<v-icon> mdi-autorenew </v-icon>
 						</v-btn>
 					</v-toolbar>
 				</v-sheet>
@@ -150,7 +148,8 @@
 									v-for="service in event.services"
 									:key="service.id"
 								>
-									{{ service.breed?.title || 'любая порода' }} -
+									{{ service.breed?.title || 'любая порода' }}
+									-
 									{{ service.title }}
 								</li>
 							</ul>
@@ -269,14 +268,14 @@ export default {
 			this.events = eventsFormatter(currentEvents);
 		},
 		currentGroomerId(id) {
-			console.log('currentGroomerId')
+			console.log('currentGroomerId');
 			const currentEvents = id
 				? this.EVENTS.filter(({ master }: any) => {
 						return master?.id === id;
 				  })
 				: this.EVENTS;
 			this.events = eventsFormatter(currentEvents);
-			console.log('this.events', this.events)
+			console.log('this.events', this.events);
 		},
 	},
 	mounted() {
@@ -292,9 +291,17 @@ export default {
 		]),
 		...mapMutations(['SHOW_ORDER_FORM']),
 		async getEvents() {
-			const {year: startYear, month: startMonth} = this.$refs.calendar.lastStart
-			const {year: endYear, month: endMonth} = this.$refs.calendar.lastEnd
-			const { data } = await this.GET_EVENTS({startYear, startMonth, endYear, endMonth});
+			const { year: startYear, month: startMonth } =
+				this.$refs.calendar.lastStart;
+			const { year: endYear, month: endMonth } =
+				this.$refs.calendar.lastEnd;
+
+			const { data } = await this.GET_EVENTS({
+				startYear,
+				startMonth,
+				endYear,
+				endMonth,
+			});
 			this.events = eventsFormatter(data);
 		},
 		checkChange() {
@@ -305,14 +312,12 @@ export default {
 		},
 		async createEvent(formData: Object) {
 			const {
-				data: { allEvents },
+				// data: { allEvents },
 			} = await this.CREATE_EVENT(formData);
 
-			this.isModalFromShow = false;
+			await this.getEvents();
 
-			if (allEvents) {
-				this.events = eventsFormatter(allEvents);
-			}
+			this.isModalFromShow = false;
 		},
 		toggleWeek({ date }: any) {
 			this.focus = date;
@@ -342,7 +347,7 @@ export default {
 			for (let key in data) {
 				this.selectedEvent[key] = data[key];
 
-				console.log('this.selectedEvent[key]', this.selectedEvent[key])
+				console.log('this.selectedEvent[key]', this.selectedEvent[key]);
 			}
 		},
 		async saveEvent() {
@@ -378,20 +383,19 @@ export default {
 			);
 
 			if (Object.keys(diffEventData).length) {
-				const {
-					data: { allEvents },
-				} = await this.UPDATE_EVENT({
+				await this.UPDATE_EVENT({
 					id: this.selectedEvent.id,
 					data: diffEventData,
 				});
 
 				// this.getEvents();
-				if (allEvents) {
-					this.events = eventsFormatter(allEvents);
-				}
+				// if (allEvents) {
+				// 	this.events = eventsFormatter(allEvents);
+				// }
 			}
 			// this.selectedEvent = null;
 			// this.closeEvent();
+			await this.getEvents();
 		},
 		async updateEventDates(event: any) {
 			if (!event) return;
@@ -401,24 +405,13 @@ export default {
 				endDate: convertTimestampToLocalDateTime(event.end),
 			};
 
-			const {
-				data: { allEvents },
-			} = await this.UPDATE_EVENT({ id: event.id, data: currentData });
-
-			if (allEvents) {
-				this.events = eventsFormatter(allEvents);
-			}
+			await this.UPDATE_EVENT({ id: event.id, data: currentData });
+			await this.getEvents();
 		},
 		async removeEvent(id: any) {
-			const {
-				data: { allEvents },
-			} = await this.REMOVE_EVENT(id);
-
+			await this.REMOVE_EVENT(id);
+			await this.getEvents();
 			this.closeEvent();
-
-			if (allEvents) {
-				this.events = eventsFormatter(allEvents);
-			}
 		},
 		showEvent({ nativeEvent, event }: any) {
 			if (this.currentEvent) {

@@ -47,7 +47,6 @@ class Events {
 							}
 						  ) {
 							event {${eventProps}}
-							allEvents {${eventProps}}
 						}
 					}`,
 			},
@@ -83,7 +82,6 @@ class Events {
 							eventData: {${qStr}}
 						) {
 							event {${eventProps}}
-							allEvents {${eventProps}}
 						}
 					}`,
 			},
@@ -103,7 +101,6 @@ class Events {
 							id: "${id}"
 						) {
 							event {${eventProps}}
-							allEvents {${eventProps}}
 						}
 					}`,
 			},
@@ -124,7 +121,6 @@ class Events {
 							id: "${id}"
 						) {
 							event {${eventProps}}
-							allEvents {${eventProps}}
 						}
 					}`,
 			},

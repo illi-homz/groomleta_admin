@@ -1,6 +1,13 @@
 import API from '@/api/index';
 import { errorResponse, successResponse } from '.';
 
+type GetEventsDataType = {
+	startYear: string;
+	startMonth: string;
+	endYear: string;
+	endMonth: string;
+};
+
 export default {
 	state: (): any => ({
 		events: [],
@@ -11,9 +18,12 @@ export default {
 		},
 	},
 	actions: {
-		async GET_EVENTS({ commit }: { commit: Function }, data: any) {
+		async GET_EVENTS(
+			{ commit }: { commit: Function },
+			data: GetEventsDataType,
+		) {
 			try {
-				const { allEvents } = await API.events.getEvents(data) || {};
+				const { allEvents } = (await API.events.getEvents(data)) || {};
 
 				commit('SET_EVENTS', allEvents);
 
@@ -25,27 +35,22 @@ export default {
 		},
 		async CREATE_EVENT({ commit }: any, formData: any) {
 			try {
-				const {createEvent} = await API.events.createEvent(formData);
+				const { createEvent } = await API.events.createEvent(formData);
 
-				if (createEvent?.allEvents) {
-					commit('SET_EVENTS', createEvent.allEvents);
-				}
-
-				return { ...successResponse, data: createEvent }
+				return { ...successResponse, data: createEvent };
 			} catch (e) {
 				console.log('CREATE_EVENT exeption:', e);
 				return errorResponse;
 			}
 		},
-		async UPDATE_EVENT({ commit }: any, {id, data}: any) {
+		async UPDATE_EVENT({ commit }: any, { id, data }: any) {
 			try {
-				const {updateEvent} = await API.events.updateEvent({id, data});
+				const { updateEvent } = await API.events.updateEvent({
+					id,
+					data,
+				});
 
-				if (updateEvent?.allEvents) {
-					commit('SET_EVENTS', updateEvent.allEvents);
-				}
-
-				return {...successResponse, data: updateEvent}
+				return { ...successResponse, data: updateEvent };
 			} catch (e) {
 				console.log('UPDATE_EVENT exeption:', e);
 				return errorResponse;
@@ -53,27 +58,35 @@ export default {
 		},
 		async REMOVE_EVENT({ commit }: any, id: number) {
 			try {
-				const {removeEvent} = await API.events.removeEvent(id);
+				const { removeEvent } = await API.events.removeEvent(id);
 
-				if (removeEvent?.allEvents) {
-					commit('SET_EVENTS',removeEvent.allEvents);
-				}
-
-				return {...successResponse, data: removeEvent}
+				return { ...successResponse, data: removeEvent };
 			} catch (e) {
 				console.log('REMOVE_EVENT exeption:', e);
 				return errorResponse;
 			}
 		},
-		async SUCCESS_EVENT({ commit }: any, id: number) {
+		async SUCCESS_EVENT({ commit, dispatch }: any, id: number) {
 			try {
-				const {successEvent} = await API.events.successEvent(id);
+				const { successEvent } = await API.events.successEvent(id);
 
-				if (successEvent?.allEvents) {
-					commit('SET_EVENTS',successEvent.allEvents);
-				}
+				const {
+					event: { startDate, endDate },
+				} = successEvent;
 
-				return {...successResponse, data: successEvent}
+				const [startYear, startMonth] = startDate
+					.split('T')[0]
+					.split('-');
+				const [endYear, endMonth] = endDate.split('T')[0].split('-');
+
+				await dispatch('GET_EVENTS', {
+					startYear,
+					startMonth,
+					endYear,
+					endMonth,
+				});
+
+				return { ...successResponse, data: successEvent };
 			} catch (e) {
 				console.log('REMOVE_EVENT exeption:', e);
 				return errorResponse;
