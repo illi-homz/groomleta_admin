@@ -380,7 +380,7 @@ export default {
 	}),
 	computed: {
 		...mapGetters([
-			'EVENTS',
+			// 'EVENTS',
 			'CLIENTS',
 			'GROOMERS',
 			'SERVICES',

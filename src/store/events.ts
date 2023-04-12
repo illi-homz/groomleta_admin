@@ -10,32 +10,60 @@ type GetEventsDataType = {
 
 export default {
 	state: (): any => ({
-		events: [],
+		events: {},
+		cachedDates: {},
 	}),
 	mutations: {
 		SET_EVENTS(state: any, events: Object[]) {
 			state.events = events;
 		},
+		SET_CACHED_DATES(state: any, cachedDates: {[key: string]: boolean}) {
+			state.cachedDates = cachedDates;
+		},
 	},
 	actions: {
 		async GET_EVENTS(
-			{ commit }: { commit: Function },
-			data: GetEventsDataType,
+			{ commit, state: { events, cachedDates } }: any,
+			data: {
+				dates: GetEventsDataType;
+				isForce: boolean;
+			},
 		) {
-			try {
-				const { allEvents } = (await API.events.getEvents(data)) || {};
+			const { dates, isForce } = data;
+			const { startYear, startMonth, endYear, endMonth } = dates;
+			const dateKey = `${startYear}-${startMonth}-${endYear}-${endMonth}`;
 
-				commit('SET_EVENTS', allEvents);
+			try {
+				if (cachedDates[dateKey] && !isForce) throw `event date: ${dateKey} is cahed`
+
+				const newCachedDates = isForce ? {[dateKey]: true} : {...cachedDates, [dateKey]: true}
+				commit('SET_CACHED_DATES', newCachedDates);
+				const { allEvents } = (await API.events.getEvents(dates)) || {};
+				const allEventsObj = allEvents.reduce(
+					//@ts-ignore
+					(acc, el) => ({ ...acc, [el.id]: el }),
+					{},
+				);
+				const newEvents = isForce
+					? allEventsObj
+					: { ...events, ...allEventsObj };
+
+				commit('SET_EVENTS', newEvents);
 
 				return { ...successResponse, data: allEvents };
 			} catch (e) {
-				console.log('GET_EVENTS exeption:', e);
+				console.warn('GET_EVENTS exeption:', e);
 				return errorResponse;
 			}
 		},
-		async CREATE_EVENT({ commit }: any, formData: any) {
+		async CREATE_EVENT({ commit, state: { events } }: any, formData: any) {
 			try {
 				const { createEvent } = await API.events.createEvent(formData);
+
+				commit('SET_EVENTS', {
+					...events,
+					[createEvent.event.id]: createEvent.event,
+				});
 
 				return { ...successResponse, data: createEvent };
 			} catch (e) {
@@ -43,11 +71,19 @@ export default {
 				return errorResponse;
 			}
 		},
-		async UPDATE_EVENT({ commit }: any, { id, data }: any) {
+		async UPDATE_EVENT(
+			{ commit, state: { events } }: any,
+			{ id, data }: any,
+		) {
 			try {
 				const { updateEvent } = await API.events.updateEvent({
 					id,
 					data,
+				});
+
+				commit('SET_EVENTS', {
+					...events,
+					[updateEvent.event.id]: updateEvent.event,
 				});
 
 				return { ...successResponse, data: updateEvent };
@@ -56,9 +92,12 @@ export default {
 				return errorResponse;
 			}
 		},
-		async REMOVE_EVENT({ commit }: any, id: number) {
+		async REMOVE_EVENT({ commit, state: { events } }: any, id: number) {
 			try {
 				const { removeEvent } = await API.events.removeEvent(id);
+				const { [id]: _, ...newEvents } = events;
+
+				commit('SET_EVENTS', newEvents);
 
 				return { ...successResponse, data: removeEvent };
 			} catch (e) {
@@ -66,24 +105,16 @@ export default {
 				return errorResponse;
 			}
 		},
-		async SUCCESS_EVENT({ commit, dispatch }: any, id: number) {
+		async SUCCESS_EVENT(
+			{ commit, dispatch, state: { events } }: any,
+			id: number,
+		) {
 			try {
 				const { successEvent } = await API.events.successEvent(id);
 
-				const {
-					event: { startDate, endDate },
-				} = successEvent;
-
-				const [startYear, startMonth] = startDate
-					.split('T')[0]
-					.split('-');
-				const [endYear, endMonth] = endDate.split('T')[0].split('-');
-
-				await dispatch('GET_EVENTS', {
-					startYear,
-					startMonth,
-					endYear,
-					endMonth,
+				commit('SET_EVENTS', {
+					...events,
+					[id]: successEvent.event,
 				});
 
 				return { ...successResponse, data: successEvent };

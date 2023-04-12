@@ -81,7 +81,7 @@
 							tile
 							class="h-40"
 							color="grey darken-2"
-							@click="getEvents"
+							@click="getEvents(true)"
 						>
 							<v-icon> mdi-autorenew </v-icon>
 						</v-btn>
@@ -113,7 +113,7 @@
 						@mousedown:time="startTime"
 						@mouseup:time="endDrag"
 						@mouseleave.native="cancelDrag"
-						@change="getEvents"
+						@change="getEvents(false)"
 						@contextmenu:time="toggleWeek"
 						@contextmenu:day="toggleWeek"
 					>
@@ -180,10 +180,10 @@
 						:clients-list="CLIENTS"
 						@setEvent="setEvent"
 						@saveEvent="saveEvent"
-						@onClose="getEvents"
 						@onRemoveEvent="removeEvent"
 						@toCreateOrder="toCreateOrder"
 					/>
+					<!-- @onClose="getEvents" -->
 				</v-sheet>
 			</v-col>
 		</v-row>
@@ -240,8 +240,9 @@ export default {
 		createStart: null,
 		extendOriginal: null,
 		selectedOpen: false,
-		events: [],
+		// events: [],
 		currentGroomerId: null,
+		// chachedDates: {},
 	}),
 	computed: {
 		...mapGetters(['SERVICES', 'GROOMERS', 'EVENTS', 'CLIENTS']),
@@ -257,30 +258,21 @@ export default {
 			);
 			return [{ text: 'Все грумеры', value: null }, ...list];
 		},
+		events() {
+			return eventsFormatter(Object.values(this.EVENTS));
+		}
 	},
 	watch: {
-		EVENTS(events) {
-			const currentEvents = this.currentGroomerId
-				? events.filter(({ master }: any) => {
-						return master.id === this.currentGroomerId;
-				  })
-				: events;
-			this.events = eventsFormatter(currentEvents);
-		},
 		currentGroomerId(id) {
-			console.log('currentGroomerId');
 			const currentEvents = id
-				? this.EVENTS.filter(({ master }: any) => {
+				? Object.values(this.EVENTS).filter(({ master }: any) => {
 						return master?.id === id;
 				  })
-				: this.EVENTS;
-			this.events = eventsFormatter(currentEvents);
-			console.log('this.events', this.events);
+				: Object.values(this.EVENTS);
+			this.events = eventsFormatter(currentEvents as any[]);
 		},
 	},
 	mounted() {
-		// console.log('$refs.calendar', this.$refs.calendar.genMore('2022-08-04'))
-		// console.log('$refs.calendar', this.$vuetify);
 	},
 	methods: {
 		...mapActions([
@@ -290,19 +282,23 @@ export default {
 			'REMOVE_EVENT',
 		]),
 		...mapMutations(['SHOW_ORDER_FORM']),
-		async getEvents() {
+		async getEvents(isForce = false) {
 			const { year: startYear, month: startMonth } =
 				this.$refs.calendar.lastStart;
 			const { year: endYear, month: endMonth } =
 				this.$refs.calendar.lastEnd;
 
-			const { data } = await this.GET_EVENTS({
-				startYear,
-				startMonth,
-				endYear,
-				endMonth,
-			});
-			this.events = eventsFormatter(data);
+			await this.GET_EVENTS(
+				{
+					dates: {
+						startYear,
+						startMonth,
+						endYear,
+						endMonth,
+					},
+					isForce,
+				},
+			);
 		},
 		checkChange() {
 			this.$refs.calendar.checkChange();
@@ -311,12 +307,7 @@ export default {
 			this.SHOW_ORDER_FORM();
 		},
 		async createEvent(formData: Object) {
-			const {
-				// data: { allEvents },
-			} = await this.CREATE_EVENT(formData);
-
-			await this.getEvents();
-
+			await this.CREATE_EVENT(formData);
 			this.isModalFromShow = false;
 		},
 		toggleWeek({ date }: any) {
@@ -353,9 +344,7 @@ export default {
 		async saveEvent() {
 			if (!this.selectedEvent) return;
 
-			const nativeEvent = this.EVENTS.find(
-				(el: any) => el.id === this.selectedEvent.id,
-			);
+			const nativeEvent = this.EVENTS[this.selectedEvent.id]
 
 			if (!nativeEvent) return;
 
@@ -388,14 +377,7 @@ export default {
 					data: diffEventData,
 				});
 
-				// this.getEvents();
-				// if (allEvents) {
-				// 	this.events = eventsFormatter(allEvents);
-				// }
 			}
-			// this.selectedEvent = null;
-			// this.closeEvent();
-			await this.getEvents();
 		},
 		async updateEventDates(event: any) {
 			if (!event) return;
@@ -406,11 +388,9 @@ export default {
 			};
 
 			await this.UPDATE_EVENT({ id: event.id, data: currentData });
-			await this.getEvents();
 		},
 		async removeEvent(id: any) {
 			await this.REMOVE_EVENT(id);
-			await this.getEvents();
 			this.closeEvent();
 		},
 		showEvent({ nativeEvent, event }: any) {
