@@ -337,8 +337,6 @@ export default {
 		setEvent(data: any) {
 			for (let key in data) {
 				this.selectedEvent[key] = data[key];
-
-				console.log('this.selectedEvent[key]', this.selectedEvent[key]);
 			}
 		},
 		async saveEvent() {
@@ -509,6 +507,7 @@ export default {
 		},
 		toCreateOrder(data: any) {
 			this.selectedOpen = false;
+			console.log('data', JSON.stringify(data))
 			data && this.SHOW_ORDER_FORM(data);
 		},
 	},

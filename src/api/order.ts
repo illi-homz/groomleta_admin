@@ -1,5 +1,4 @@
-import { DefaultCreateOrderDataType } from '@/models/order';
-import { FetchOrdersParamsType } from '@/types/orders';
+import { FetchOrdersParamsType, DefaultCreateOrderDataType } from '@/types/orders';
 import { fetcherGQL } from '.';
 
 class Order {
@@ -112,8 +111,6 @@ class Order {
 
 	static updateAndPayOrder(id: number, orderData: any) {
 		if (!id) return;
-
-		console.log('orderData', orderData);
 
 		return fetcherGQL({
 			key: 'Order.updateAndPayOrder',

@@ -176,6 +176,7 @@
 						<div
 							v-else
 							class="g-stock-services-table__image-wrapper mx-auto pointer"
+							:class="{'img-error': imgError}"
 							@click="loadImage"
 						/>
 						<input
@@ -355,6 +356,7 @@ export default {
 		pageCount: 0,
 		currentService: {},
 		titles: ['услуга', 'услуги', 'услуг'],
+		imgError: false,
 	}),
 	computed: {
 		currentServices() {
@@ -409,7 +411,8 @@ export default {
 				'breed',
 			]);
 
-			if (formHasErrors) {
+			if (formHasErrors || !this.image) {
+				this.imgError = true
 				return;
 			}
 
@@ -453,6 +456,8 @@ export default {
 				this.$emit('updateService', service.id, data);
 			}
 
+			this.imgError = false
+
 			this.cancelWritingService()
 		},
 		loadImage() {
@@ -480,6 +485,9 @@ export default {
 
 <style lang="scss">
 .g-stock-services-table {
+	.img-error {
+		border: 1px solid red;
+	}
 	&__td {
 		vertical-align: top;
 		// vertical-align: middle;

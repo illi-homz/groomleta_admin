@@ -1,12 +1,21 @@
 import API from '@/api/index';
-import MasterType from '@/api/master';
-import { DefaultOrderDataType } from '@/models/order';
-import { FetchOrdersParamsType } from '@/types/orders';
+// import { DefaultOrderDataType } from '@/models/order';
+import { DefaultOrderDataType, FetchOrdersParamsType, OrderType } from '@/types/orders';
 import { errorResponse, successResponse } from '.';
 
+type StateType = {
+	allOrders: OrderType[];
+	// allOrdersObj: { [key: string]: OrderType };
+	isCreateOrderShow: boolean;
+	isDetailOrderShow: boolean;
+	defaultOrderData: DefaultOrderDataType | null;
+	detailOrderShieldData: null | any;
+};
+
 export default {
-	state: (): any => ({
+	state: (): StateType => ({
 		allOrders: [],
+		// allOrdersObj: {},
 		isCreateOrderShow: false,
 		isDetailOrderShow: false,
 		defaultOrderData: null,
@@ -15,6 +24,9 @@ export default {
 	mutations: {
 		SET_ALL_ORDERS(state: any, data: any) {
 			state.allOrders = data || [];
+		},
+		SET_ALL_ORDERS_OBJ(state: any, data: { [key: string]: OrderType }) {
+			state.allOrders = data;
 		},
 		SHOW_ORDER_FORM(state: any, defaultData: DefaultOrderDataType) {
 			if (defaultData) {
