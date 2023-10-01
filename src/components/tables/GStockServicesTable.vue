@@ -410,8 +410,9 @@ export default {
 				'category',
 				'breed',
 			]);
+			const isServiceHasImg = this.image || this.currentService.img
 
-			if (formHasErrors || !this.image) {
+			if (formHasErrors || !isServiceHasImg) {
 				this.imgError = true
 				return;
 			}
