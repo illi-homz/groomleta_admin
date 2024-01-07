@@ -259,18 +259,19 @@ export default {
 			return [{ text: 'Все грумеры', value: null }, ...list];
 		},
 		events() {
+			if (this.currentGroomerId) {
+				const id = this.currentGroomerId
+				const currentEvents = id
+					? Object.values(this.EVENTS).filter(({ master }: any) => {
+							return master?.id === id;
+					})
+					: Object.values(this.EVENTS);
+
+				return eventsFormatter(currentEvents as any[]);
+			}
+			
 			return eventsFormatter(Object.values(this.EVENTS));
 		}
-	},
-	watch: {
-		currentGroomerId(id) {
-			const currentEvents = id
-				? Object.values(this.EVENTS).filter(({ master }: any) => {
-						return master?.id === id;
-				  })
-				: Object.values(this.EVENTS);
-			this.events = eventsFormatter(currentEvents as any[]);
-		},
 	},
 	mounted() {
 	},
