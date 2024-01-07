@@ -19,10 +19,7 @@
 			</v-breadcrumbs>
 			<h1 class="mb-6">{{ master.username }} {{ master.lastname }}</h1>
 			<v-row v-if="master" class="user-card flex-grow-0">
-				<v-col
-					cols="1"
-					class="flex-grow-0 d-flex justify-center"
-				>
+				<v-col cols="1" class="flex-grow-0 d-flex justify-center">
 					<v-img
 						v-if="imageURl"
 						:src="imageURl"
@@ -95,6 +92,14 @@
 								light
 								@input="setPhone"
 							/>
+							<v-btn
+								color="error"
+								outlined
+								small
+								@click="removeGroomer"
+							>
+								удалить
+							</v-btn>
 						</v-col>
 						<!-- <v-col cols="2">
 							<v-text-field
@@ -115,7 +120,7 @@
 								row-height="15"
 								color="#FFC11C"
 							>
-						</v-textarea>
+							</v-textarea>
 							<!-- <v-text-field
 								v-model="master.comment"
 								class="text-h5"
@@ -187,6 +192,34 @@
 				</v-col>
 			</v-row> -->
 		</div>
+
+		<v-dialog v-model="removeDialog" persistent max-width="290">
+			<v-card>
+				<v-card-title class="text-h5">
+					{{ removeDialogTitle }}
+				</v-card-title>
+				<v-card-text>
+					{{ removeDialogText }}
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer />
+					<v-btn
+						color="green darken-1"
+						text
+						@click="cancelRemoveGroomer"
+					>
+						Отмена
+					</v-btn>
+					<v-btn
+						color="red darken-1"
+						text
+						@click="removeDialogCb?.()"
+					>
+						Удалить
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 	</div>
 </template>
 
@@ -226,6 +259,11 @@ export default {
 		pageCount: 0,
 		itemsPerPage: 15,
 		itemsLength: 0,
+
+		removeDialog: false,
+		removeDialogTitle: '',
+		removeDialogText: 'Отменить действие будет невозможно',
+		removeDialogCb: null,
 	}),
 	computed: {
 		breadcrumbs() {
@@ -273,7 +311,7 @@ export default {
 		this.getData();
 	},
 	methods: {
-		...mapActions(['GET_MASTER_BY_ID', 'UPDATE_MASTER']),
+		...mapActions(['GET_MASTER_BY_ID', 'UPDATE_MASTER', 'REMOVE_GROOMER']),
 		...mapMutations(['SHOW_ORDER_DETAIL_SHIELD']),
 		getExperience,
 		async getData() {
@@ -284,7 +322,8 @@ export default {
 				ordersPage: this.currentPage,
 				ordersPerPage: this.itemsPerPage,
 			});
-			const { master, allOrders, orders, ordersSize, ordersPagesSize } = data || {};
+			const { master, allOrders, orders, ordersSize, ordersPagesSize } =
+				data || {};
 
 			this.master = JSON.parse(JSON.stringify(master));
 			this.oldMaster = master;
@@ -293,7 +332,7 @@ export default {
 
 			this.pageCount = ordersPagesSize;
 			this.itemsLength = ordersSize;
-			this.orders = orders
+			this.orders = orders;
 		},
 		loadImage() {
 			this.$refs.avatar.click();
@@ -345,14 +384,33 @@ export default {
 			setTimeout(() => (this.master.phone = value), 0);
 		},
 		showOrderModal(item) {
-			console.log('showOrderModal', item);
 			this.SHOW_ORDER_DETAIL_SHIELD(item);
 		},
 		setCurrentPage(page) {
-			this.currentPage = page
+			this.currentPage = page;
 		},
 		setItemsPerPage(count) {
-			this.itemsPerPage = count
+			this.itemsPerPage = count;
+		},
+		removeGroomer() {
+			const groomerId = this.$route.params.id;
+
+			this.removeDialog = true;
+			this.removeDialogTitle = `Удалить мастера #${groomerId}?`;
+			this.removeDialogCb = this.confirmedRemoveGroomer;
+		},
+		async confirmedRemoveGroomer() {
+			const groomerId = this.$route.params.id;
+
+			if (groomerId) {
+				await this.REMOVE_GROOMER(groomerId);
+			}
+
+			this.removeDialog = false;
+			this.$router.go(-1)
+		},
+		cancelRemoveGroomer() {
+			this.removeDialog = false;
 		}
 	},
 };

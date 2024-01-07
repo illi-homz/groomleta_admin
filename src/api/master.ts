@@ -10,7 +10,7 @@ class Master {
 			query: {
 				query: `
 					query {
-						allGroomers {
+						allMasters {
 							id
 							username
 							lastname
@@ -209,6 +209,35 @@ class Master {
 			console.log('Master.uploadAvatar response:', e);
 			return { master: null };
 		}
+	}
+
+	static removeMaster(id: number | string) {
+		return fetcherGQL({
+			key: 'Masters.removeMaster',
+			query: {
+				query: `
+					mutation {
+						removeMaster(
+							id: "${id}"
+						) {
+							allMasters {
+								id
+								username
+								lastname
+								avatar
+								education
+								phone
+								post
+								color
+								createDate
+								address
+								rate
+							}
+							success
+						}
+					}`,
+			},
+		});
 	}
 }
 

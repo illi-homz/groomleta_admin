@@ -61,7 +61,6 @@ export default {
 		async REMOVE_PRODUCT({ commit }: any, id: any) {
 			try {
 				const { removeProduct } = await API.products.removeProduct(id);
-				console.log('removeProduct', removeProduct)
 
 				commit('SET_PRODUCTS', removeProduct?.allProducts || []);
 

@@ -15,14 +15,14 @@ export default {
 	actions: {
 		async GET_ALL_GROOMERS({ commit }: any) {
 			try {
-				const { allGroomers } = await API.master.fetchAllMasters();
-				if (!allGroomers) throw '[GET_ALL_GROOMERS] allGroomers exist';
+				const { allMasters } = await API.master.fetchAllMasters();
+				if (!allMasters) throw '[GET_ALL_GROOMERS] allMasters exist';
 
-				if (!allGroomers) return errorResponse;
+				if (!allMasters) return errorResponse;
 
-				commit('SET_GROOMERS', allGroomers);
+				commit('SET_GROOMERS', allMasters);
 
-				return { ...successResponse, data: allGroomers };
+				return { ...successResponse, data: allMasters };
 			} catch {
 				errorResponse;
 			}
@@ -73,6 +73,21 @@ export default {
 				};
 			} catch (e) {
 				console.log('CREATE_MASTER exeption:', e);
+				return errorResponse;
+			}
+		},
+		async REMOVE_GROOMER({ commit }: any, id: any) {
+			try {
+				const { removeMaster } = await API.master.removeMaster(id);
+
+				commit('SET_GROOMERS', removeMaster?.allMasters || []);
+
+				return {
+					...successResponse,
+					data: removeMaster,
+				};
+			} catch (e) {
+				console.log('REMOVE_GROOMER exeption:', e);
 				return errorResponse;
 			}
 		},
