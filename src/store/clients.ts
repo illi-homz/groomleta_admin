@@ -73,13 +73,13 @@ export default {
 				return errorResponse;
 			}
 		},
-		async GET_CLIENT_BY_ID({ commit }: any, id: any) {
+		async GET_CLIENT_BY_ID({ commit }: any, params: GetClientByIdParamsType) {
 			try {
-				const { clientById } = await API.clients.fetchClientById(id);
+				const { clientById: clientByIdData } = await API.clients.fetchClientById(params);
 
-				if (!clientById) throw '[GET_CLIENT_BY_ID] clientById exist';
+				if (!clientByIdData) throw '[GET_CLIENT_BY_ID] clientById exist';
 
-				return { ...successResponse, data: clientById };
+				return { ...successResponse, data: clientByIdData };
 			} catch (e) {
 				return errorResponse;
 			}

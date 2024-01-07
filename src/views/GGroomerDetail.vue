@@ -21,7 +21,7 @@
 			<v-row v-if="master" class="user-card flex-grow-0">
 				<v-col
 					cols="1"
-					class="flex-grow-0 d-flex align-center justify-center"
+					class="flex-grow-0 d-flex justify-center"
 				>
 					<v-img
 						v-if="imageURl"
@@ -96,7 +96,7 @@
 								@input="setPhone"
 							/>
 						</v-col>
-						<v-col cols="2">
+						<!-- <v-col cols="2">
 							<v-text-field
 								v-model="master.education"
 								class="text-h5"
@@ -104,15 +104,25 @@
 								color="#FFC11C"
 								light
 							/>
-						</v-col>
-						<v-col cols="4">
-							<v-text-field
+						</v-col> -->
+						<v-col cols="6">
+							<label class="text-label mb-2">Дополнительно</label>
+							<v-textarea
+								v-model="master.comment"
+								auto-grow
+								outlined
+								rows="10"
+								row-height="15"
+								color="#FFC11C"
+							>
+						</v-textarea>
+							<!-- <v-text-field
 								v-model="master.comment"
 								class="text-h5"
 								label="Дополнительно"
 								color="#FFC11C"
 								light
-							/>
+							/> -->
 						</v-col>
 						<v-col>
 							<div v-if="isChanged" class="d-flex">
@@ -352,6 +362,13 @@ export default {
 .g-groomer-detail {
 	p {
 		line-height: 1rem !important;
+	}
+
+	.text-label {
+		display: inline-block;
+		font-size: 12px;
+		line-height: 14px;
+		color: rgba(0, 0, 0, 0.6);
 	}
 }
 </style>

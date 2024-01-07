@@ -155,8 +155,15 @@
 			<GDetailPageOrdersTable
 				v-if="tableType === 'orders' && !!orders"
 				:orders="orders"
+				:items-per-page="itemsPerPage"
+				:items-length="itemsLength"
+				:current-page="currentPage"
+				:page-count="pageCount"
 				class="flex-grow-1"
 				@onLineClick="showOrderModal"
+				@setCurrentPage="setCurrentPage"
+				@setItemsPerPage="setItemsPerPage"
+				@updateData="getData"
 			/>
 		</div>
 	</div>
@@ -176,6 +183,10 @@ export default {
 		orders: null,
 		isLoading: true,
 		tableType: 'data',
+		currentPage: 1,
+		pageCount: 0,
+		itemsPerPage: 15,
+		itemsLength: 0,
 	}),
 	computed: {
 		breadcrumbs() {
@@ -201,6 +212,17 @@ export default {
 				return this.oldClient[key] === this.client[key];
 			});
 		},
+		pagination() {
+			return {
+				page: this.currentPage,
+				itemsPerPage: this.itemsPerPage,
+				pageStart: 0,
+				pageStop:
+					this.itemsLength - this.currentPage * this.itemsPerPage,
+				pageCount: this.pageCount,
+				itemsLength: this.itemsLength,
+			};
+		},
 	},
 	mounted() {
 		this.getData();
@@ -212,13 +234,21 @@ export default {
 		async getData() {
 			const id = this.$route.params.id;
 
-			const { data } = await this.GET_CLIENT_BY_ID(id);
-			const { client, allOrders } = data || {};
+			const { data } = await this.GET_CLIENT_BY_ID({
+				id,
+				ordersPage: this.currentPage,
+				ordersPerPage: this.itemsPerPage,
+			});
+			const { client, allOrders, orders, ordersSize, ordersPagesSize } = data || {};
 
 			this.client = JSON.parse(JSON.stringify(client));
 			this.oldClient = client;
-			this.orders = allOrders;
+			// this.orders = allOrders;
 			this.isLoading = false;
+
+			this.pageCount = ordersPagesSize;
+			this.itemsLength = ordersSize;
+			this.orders = orders
 		},
 		async successUpdates() {
 			const id = this.$route.params.id;
@@ -260,6 +290,12 @@ export default {
 			await this.PUT_TO_BLOCK(id);
 			this.getData()
 		},
+		setCurrentPage(page) {
+			this.currentPage = page
+		},
+		setItemsPerPage(count) {
+			this.itemsPerPage = count
+		}
 	},
 };
 </script>

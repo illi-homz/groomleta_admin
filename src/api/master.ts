@@ -60,9 +60,6 @@ class Master {
 								rate
 								comment
 							}
-							allOrders {
-								${order}
-							}
 							orders {
 								${order}
 							}

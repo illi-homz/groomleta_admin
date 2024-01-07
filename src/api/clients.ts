@@ -169,7 +169,11 @@ class Clients {
 		});
 	}
 
-	static fetchClientById(id: number | string) {
+	static fetchClientById({
+		id,
+		ordersPage,
+		ordersPerPage = 15,
+	}: GetMasterByIdParamsType) {
 		if (!id) throw 'Client ID exist';
 
 		return fetcherGQL({
@@ -177,7 +181,11 @@ class Clients {
 			query: {
 				query: `
 					query {
-						clientById(id: "${id}") {
+						clientById(
+							id: "${id}",
+							ordersPage: ${ordersPage},
+							ordersPerPage: ${ordersPerPage}
+						) {
 							client {
 								id
 								username
@@ -189,40 +197,11 @@ class Clients {
 								address
 								isBlocked
 							}
-							allOrders {
-								id
-								services {
-									count
-									service {
-										id
-										title
-										price
-									}
-								}
-								products {
-									count
-									product {
-										id
-										title
-										price
-									}
-								}
-								master {
-									id
-									username
-									lastname
-								}
-								client {
-									id
-									username
-									lastname
-								}
-								price
-								isSuccess
-								isCancel
-								isReserved
-								updateDate
+							orders {
+								${order}
 							}
+							ordersSize
+							ordersPagesSize
 						}
 					}
 				`,
@@ -232,3 +211,38 @@ class Clients {
 }
 
 export default Clients;
+
+const order = `
+id
+services {
+	count
+	service {
+		id
+		title
+		price
+	}
+}
+products {
+	count
+	product {
+		id
+		title
+		price
+	}
+}
+master {
+	id
+	username
+	lastname
+}
+client {
+	id
+	username
+	lastname
+}
+price
+isSuccess
+isCancel
+isReserved
+updateDate
+`
