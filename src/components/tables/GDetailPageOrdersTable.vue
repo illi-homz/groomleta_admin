@@ -10,8 +10,11 @@
 		color="#FFC11C"
 		hide-default-footer
 		:page="currentPage"
-		@pagination="setCurrentPage"
-	>
+		:sort-by.sync="sortBy"
+		:sort-desc.sync="sortDesc"
+		:footer-props="{}"
+		>
+		<!-- @pagination="setCurrentPage" -->
 		<template v-slot:item="{ item }">
 			<tr class="pointer" @click="showDetail(item.data)">
 				<td class="py-2">
@@ -42,11 +45,11 @@
 				</td>
 			</tr>
 		</template>
-		<template v-slot:footer="{ props: { options, pagination } }">
+		<template v-slot:footer>
 			<div class="v-data-footer__wrapper d-flex align-center pl-2">
 				<div class="v-data-footer__info">
-					Всего: {{ ordersList.length }}
-					{{ declOfNum(ordersList.length, titles) }}
+					Всего: {{ itemsLength }}
+					{{ declOfNum(itemsLength, titles) }}
 				</div>
 				<v-data-footer
 					class="flex-grow-1"
@@ -74,6 +77,22 @@ export default {
 			type: Array,
 			default: () => [],
 		},
+		itemsPerPage: {
+			type: Number,
+			default: 1,
+		},
+		currentPage: {
+			type: Number,
+			default: 1,
+		},
+		itemsLength: {
+			type: Number,
+			default: 1,
+		},
+		pageCount: {
+			type: Number,
+			default: 1,
+		},
 	},
 	data: () => ({
 		headers: [
@@ -85,15 +104,14 @@ export default {
 			{ text: 'Статус', value: 'status', width: 200, align: 'center' },
 			{ text: 'Стоимость, ₽', value: 'price', width: 130 },
 		],
-		currentPage: 0,
-		itemsPerPage: 15,
-		pageCount: 0,
 		statuses: {
 			success: 'Выполнен',
 			cancel: 'Отменен',
 			reserved: 'Забронирован',
 		},
-		titles: ['заказ', 'заказа', 'заказов']
+		titles: ['заказ', 'заказа', 'заказов'],
+		sortBy: ['id'],
+		sortDesc: true,
 	}),
 	computed: {
 		ordersList() {
@@ -141,17 +159,44 @@ export default {
 				];
 			}, []);
 		},
+		pagination() {
+			return {
+				page: this.currentPage,
+				itemsPerPage: this.itemsPerPage,
+				pageStart: 0,
+				pageStop:
+					this.itemsLength - this.currentPage * this.itemsPerPage,
+				pageCount: this.pageCount,
+				itemsLength: this.itemsLength,
+			};
+		},
+		options() {
+			return {
+				page: this.currentPage,
+				itemsPerPage: this.itemsPerPage,
+				sortBy: this.sortBy,
+				sortDesc: [this.sortDesc],
+				groupBy: [],
+				groupDesc: [],
+				mustSort: false,
+				multiSort: false,
+			};
+		},
 	},
 	mounted() {},
 	methods: {
 		declOfNum,
 		setCurrentPage({ page, pageCount }) {
-			this.currentPage = page;
-			this.pageCount = pageCount;
+			// this.currentPage = page;
+			// this.pageCount = pageCount;
+			this.$emit('setCurrentPage', page)
 		},
-		footerUpdate({page, itemsPerPage}) {
-			this.currentPage = page
-			this.itemsPerPage = itemsPerPage
+		footerUpdate({ page, itemsPerPage }) {
+			// this.currentPage = page;
+			// this.itemsPerPage = itemsPerPage;
+			this.$emit('setCurrentPage', page)
+			this.$emit('setItemsPerPage', itemsPerPage)
+			this.$emit('updateData')
 		},
 		showDetail(item) {
 			this.$emit('onLineClick', item);

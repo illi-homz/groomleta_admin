@@ -27,15 +27,18 @@ export default {
 				errorResponse;
 			}
 		},
-		async GET_MASTER_BY_ID({ commit }: any, id: any) {
+		async GET_MASTER_BY_ID(
+			{ commit }: any,
+			params: GetMasterByIdParamsType,
+		) {
 			try {
-				const { masterById } = await API.master.fetchMasterById(id);
+				const { masterById: masterByIdData } = await API.master.fetchMasterById(params);
 
-				if (!masterById) throw '[GET_MASTER_BY_ID] masterById exist';
+				if (!masterByIdData) throw '[GET_MASTER_BY_ID] masterById exist';
 
-				console.log('masterById', masterById)
+				console.log('masterById', masterByIdData);
 
-				return { ...successResponse, data: masterById };
+				return { ...successResponse, data: masterByIdData };
 			} catch (e) {
 				return errorResponse;
 			}
@@ -57,7 +60,7 @@ export default {
 				return errorResponse;
 			}
 		},
-		async UPDATE_MASTER({ commit }: any, {id, formData}: any) {
+		async UPDATE_MASTER({ commit }: any, { id, formData }: any) {
 			try {
 				const { updateMaster } = await API.master.updateMaster(
 					id,

@@ -19,12 +19,14 @@
 			</v-breadcrumbs>
 			<h1 class="mb-6">{{ master.username }} {{ master.lastname }}</h1>
 			<v-row v-if="master" class="user-card flex-grow-0">
-				<v-col cols="1" class="flex-grow-0 d-flex align-center justify-center">
+				<v-col
+					cols="1"
+					class="flex-grow-0 d-flex align-center justify-center"
+				>
 					<v-img
 						v-if="imageURl"
 						:src="imageURl"
 						width="126"
-
 						height="126"
 						class="pointer"
 						@click="loadImage"
@@ -33,7 +35,7 @@
 					<v-btn v-else icon x-large @click="loadImage">
 						<v-icon>mdi-camera</v-icon>
 					</v-btn>
-					
+
 					<input
 						ref="avatar"
 						type="file"
@@ -137,19 +139,26 @@
 				</v-col>
 			</v-row>
 			<v-tabs color="grey darken-1" class="flex-grow-0">
-				<v-tab @click="tableType = 'services'">Услуги</v-tab>
+				<!-- <v-tab @click="tableType = 'services'">Услуги</v-tab> -->
 				<v-tab @click="tableType = 'orders'">Заказы</v-tab>
 			</v-tabs>
-			<GGroomerServicesTable
+			<!-- <GGroomerServicesTable
 				v-if="tableType === 'services' && !!orders"
 				:orders="orders"
 				class="flex-grow-1"
-			/>
+			/> -->
 			<GDetailPageOrdersTable
 				v-if="tableType === 'orders' && !!orders"
 				:orders="orders"
 				class="flex-grow-1"
+				:items-per-page="itemsPerPage"
+				:items-length="itemsLength"
+				:current-page="currentPage"
+				:page-count="pageCount"
 				@onLineClick="showOrderModal"
+				@setCurrentPage="setCurrentPage"
+				@setItemsPerPage="setItemsPerPage"
+				@updateData="getData"
 			/>
 			<!-- <v-row class="flex-grow-0">
 				<v-col class="d-flex flex-column justify-end align-start">
@@ -177,7 +186,7 @@ import { posts, postsList, defaultColors } from '@/variables';
 import { getExperience } from '@/services/index';
 import {
 	GColorSelector,
-	GGroomerServicesTable,
+	// GGroomerServicesTable,
 	GDetailPageOrdersTable,
 } from '@/components';
 import API from '@/api';
@@ -189,11 +198,12 @@ export default {
 	name: 'GGroomerDetail',
 	components: {
 		GColorSelector,
-		GGroomerServicesTable,
+		// GGroomerServicesTable,
 		GDetailPageOrdersTable,
 	},
 	data: () => ({
-		tableType: 'services', // | 'orders'
+		// tableType: 'services', // | 'orders'
+		tableType: 'orders',
 		isLoading: true,
 		master: null,
 		orders: null,
@@ -202,6 +212,10 @@ export default {
 		postsList,
 		oldMaster: {},
 		colors: defaultColors,
+		currentPage: 1,
+		pageCount: 0,
+		itemsPerPage: 15,
+		itemsLength: 0,
 	}),
 	computed: {
 		breadcrumbs() {
@@ -233,6 +247,17 @@ export default {
 			const { avatar } = this.master;
 			return `${API_URL + MEDIAFILES}/${avatar}`;
 		},
+		pagination() {
+			return {
+				page: this.currentPage,
+				itemsPerPage: this.itemsPerPage,
+				pageStart: 0,
+				pageStop:
+					this.itemsLength - this.currentPage * this.itemsPerPage,
+				pageCount: this.pageCount,
+				itemsLength: this.itemsLength,
+			};
+		},
 	},
 	mounted() {
 		this.getData();
@@ -244,24 +269,29 @@ export default {
 		async getData() {
 			const id = this.$route.params.id;
 
-			const { data } = await this.GET_MASTER_BY_ID(id);
-			const { master, allOrders } = data || {};
+			const { data } = await this.GET_MASTER_BY_ID({
+				id,
+				ordersPage: this.currentPage,
+				ordersPerPage: this.itemsPerPage,
+			});
+			const { master, allOrders, orders, ordersSize, ordersPagesSize } = data || {};
 
 			this.master = JSON.parse(JSON.stringify(master));
 			this.oldMaster = master;
-			this.orders = allOrders;
+			// this.orders = allOrders;
 			this.isLoading = false;
+
+			this.pageCount = ordersPagesSize;
+			this.itemsLength = ordersSize;
+			this.orders = orders
 		},
 		loadImage() {
 			this.$refs.avatar.click();
 		},
 		async onUploadImages({ target }) {
 			const file = target.files[0];
-			
-			await API.master.uploadAvatar(
-				this.$route.params.id,
-				file,
-			);
+
+			await API.master.uploadAvatar(this.$route.params.id, file);
 			this.getData();
 		},
 		onInputClick(data) {
@@ -308,6 +338,12 @@ export default {
 			console.log('showOrderModal', item);
 			this.SHOW_ORDER_DETAIL_SHIELD(item);
 		},
+		setCurrentPage(page) {
+			this.currentPage = page
+		},
+		setItemsPerPage(count) {
+			this.itemsPerPage = count
+		}
 	},
 };
 </script>

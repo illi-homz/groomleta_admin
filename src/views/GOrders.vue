@@ -190,10 +190,10 @@ export default {
 			this.SHOW_ORDER_DETAIL_SHIELD(order);
 		},
 		footerUpdate({ page, itemsPerPage, ...args }) {
-			console.log('footerUpdate itemsPerPage', itemsPerPage);
+			// console.log('footerUpdate itemsPerPage', itemsPerPage);
 			this.currentPage = page;
 			this.itemsPerPage = itemsPerPage;
-			this.options.page = page;
+			// this.options.page = page;
 			this.updateData();
 		},
 		onSortByChange(sortBy) {

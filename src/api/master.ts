@@ -29,7 +29,11 @@ class Master {
 		});
 	}
 
-	static fetchMasterById(id: number | string) {
+	static fetchMasterById({
+		id,
+		ordersPage,
+		ordersPerPage = 15,
+	}: GetMasterByIdParamsType) {
 		if (!id) throw 'Groomer ID exist';
 
 		return fetcherGQL({
@@ -37,7 +41,11 @@ class Master {
 			query: {
 				query: `
 					query {
-						masterById(id: "${id}") {
+						masterById(
+							id: "${id}",
+							ordersPage: ${ordersPage},
+							ordersPerPage: ${ordersPerPage}
+						) {
 							master {
 								id
 								username
@@ -53,39 +61,13 @@ class Master {
 								comment
 							}
 							allOrders {
-								id
-								services {
-									count
-									service {
-										id
-										title
-										price
-									}
-								}
-								products {
-									count
-									product {
-										id
-										title
-										price
-									}
-								}
-								master {
-									id
-									username
-									lastname
-								}
-								client {
-									id
-									username
-									lastname
-								}
-								price
-								isSuccess
-								isCancel
-								isReserved
-								updateDate
+								${order}
 							}
+							orders {
+								${order}
+							}
+							ordersSize
+							ordersPagesSize
 						}
 					}
 				`,
@@ -100,7 +82,9 @@ class Master {
 			}
 
 			if (key === 'comment') {
-				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"\n`;
+				return (
+					acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"\n`
+				);
 			}
 
 			return acc + `${key}: "${data[key]}"\n`;
@@ -145,7 +129,9 @@ class Master {
 			}
 
 			if (key === 'comment') {
-				return acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"\n`;
+				return (
+					acc + `${key}: "${data[key]?.replaceAll('\n', '\\n')}"\n`
+				);
 			}
 
 			return acc + `${key}: "${data[key]}"\n`;
@@ -211,8 +197,8 @@ class Master {
 				body: formData,
 			})
 				.then(response => {
-					console.log('response', response)
-					return response.json()
+					console.log('response', response);
+					return response.json();
 				})
 				.then(json => {
 					console.log('json', json);
@@ -230,3 +216,38 @@ class Master {
 }
 
 export default Master;
+
+const order = `
+id
+services {
+	count
+	service {
+		id
+		title
+		price
+	}
+}
+products {
+	count
+	product {
+		id
+		title
+		price
+	}
+}
+master {
+	id
+	username
+	lastname
+}
+client {
+	id
+	username
+	lastname
+}
+price
+isSuccess
+isCancel
+isReserved
+updateDate
+`
