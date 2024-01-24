@@ -335,343 +335,394 @@ import { parsePrice } from '@/services';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 const defaultData = {
-	orderItems: [],
-	checkedItems: [],
-	clientId: '',
-	masterId: '',
-	eventId: '',
-	search: '',
+    orderItems: [],
+    checkedItems: [],
+    clientId: '',
+    masterId: '',
+    eventId: '',
+    search: '',
 };
 
 const keys = {
-	product: 'productId',
-	service: 'serviceId',
+    product: 'productId',
+    service: 'serviceId',
 };
 
 const defaultClient = {
-	username: '',
-	lastname: '',
-	phone: '',
+    username: '',
+    lastname: '',
+    phone: '',
 };
 
 export default {
-	name: 'GCreateOrderModalForm',
-	data: () => ({
-		client: {
-			username: '',
-			lastname: '',
-			phone: '',
-		},
-		orderItems: [],
-		checkedItems: [],
-		costomProductsPrices: {},
-		costomServicesPrices: {},
-		clientId: '',
-		masterId: '',
-		eventId: '',
-		orderId: '',
-		search: '',
-		headers: [
-			{ text: 'Название', value: 'title' },
-			{ text: 'Количество', value: 'count', width: 130 },
-			{ text: 'Сумма ₽, шт', value: 'price', width: 130 },
-			{ text: 'Всего ₽', value: 'finalPrice', width: 130 },
-		],
-	}),
-	computed: {
-		...mapGetters([
-			// 'EVENTS',
-			'CLIENTS',
-			'GROOMERS',
-			'SERVICES',
-			'PRODUCTS',
-			'IS_CREATE_ORDER_SHOW',
-			'DEFAULT_ORDER_DATA',
-		]),
-		isNewClient() {
-			const { username, lastname } = this.client;
-			return !!(!this.clientId && username && lastname);
-		},
-		servicesList() {
-			return this.SERVICES.map(el => {
-				return {
-					text: el.breed?.title ? `${el.breed.title} - ${el.title}` : el.title,
-					value: { id: el.id, type: 'service' },
-				};
-			});
-		},
-		productsList() {
-			return this.PRODUCTS.filter(el => +el.count).map(el => ({
-				text: el.title,
-				value: { id: el.id, type: 'product' },
-			}));
-		},
-		servicesObj() {
-			return this.SERVICES.reduce(
-				(acc, el) => ({ ...acc, [el.id]: el }),
-				{},
-			);
-		},
-		productsObj() {
-			return this.PRODUCTS.reduce(
-				(acc, el) => ({ ...acc, [el.id]: el }),
-				{},
-			);
-		},
-		isFormValid() {
-			return !!this.orderItems.length;
-		},
-		currentObj() {
-			return {
-				service: this.costomServicesPrices,
-				product: this.costomProductsPrices,
-			};
-		},
-		finalPrice() {
-			return this.orderItems.reduce((acc, { id, type, count }) => {
-				const price = this.parsePrice(this.currentObj[type][id]);
-				return acc + price * count;
-			}, 0);
-		},
-		form() {
-			const { service: services, product: products } =
-				this.orderItems.reduce(
-					(acc, { id, type, count, orderId }) => {
-						const currentKey = keys[type];
+    name: 'GCreateOrderModalForm',
+    data: () => ({
+        client: {
+            username: '',
+            lastname: '',
+            phone: '',
+        },
+        orderItems: [],
+        checkedItems: [],
+        costomProductsPrices: {},
+        costomServicesPrices: {},
+        clientId: '',
+        masterId: '',
+        eventId: '',
+        orderId: '',
+        search: '',
+        headers: [
+            { text: 'Название', value: 'title' },
+            { text: 'Количество', value: 'count', width: 130 },
+            { text: 'Сумма ₽, шт', value: 'price', width: 130 },
+            { text: 'Всего ₽', value: 'finalPrice', width: 130 },
+        ],
+    }),
+    computed: {
+        ...mapGetters([
+            // 'EVENTS',
+            'CLIENTS',
+            'GROOMERS',
+            'SERVICES',
+            'PRODUCTS',
+            'IS_CREATE_ORDER_SHOW',
+            'DEFAULT_ORDER_DATA',
+        ]),
+        isNewClient()
+        {
+            const { username, lastname } = this.client;
+            return !!(!this.clientId && username && lastname);
+        },
+        servicesList()
+        {
+            return this.SERVICES.map(el =>
+            {
+                return {
+                    text: el.breed?.title ? `${el.breed.title} - ${el.title}` : el.title,
+                    value: { id: el.id, type: 'service' },
+                };
+            });
+        },
+        productsList()
+        {
+            return this.PRODUCTS.filter(el => +el.count).map(el => ({
+                text: el.title,
+                value: { id: el.id, type: 'product' },
+            }));
+        },
+        servicesObj()
+        {
+            return this.SERVICES.reduce(
+                (acc, el) => ({ ...acc, [ el.id ]: el }),
+                {},
+            );
+        },
+        productsObj()
+        {
+            return this.PRODUCTS.reduce(
+                (acc, el) => ({ ...acc, [ el.id ]: el }),
+                {},
+            );
+        },
+        isFormValid()
+        {
+            return !!this.orderItems.length;
+        },
+        currentObj()
+        {
+            return {
+                service: this.costomServicesPrices,
+                product: this.costomProductsPrices,
+            };
+        },
+        finalPrice()
+        {
+            return this.orderItems.reduce((acc, { id, type, count }) =>
+            {
+                const price = this.parsePrice(this.currentObj[ type ][ id ]);
+                return acc + price * count;
+            }, 0);
+        },
+        form()
+        {
+            const { service: services, product: products } =
+                this.orderItems.reduce(
+                    (acc, { id, type, count, orderId }) =>
+                    {
+                        const currentKey = keys[ type ];
 
-						return {
-							...acc,
-							[type]: [
-								...acc[type],
-								{
-									[currentKey]: id,
-									count,
-									id: orderId,
-								},
-							],
-						};
-					},
-					{
-						service: [],
-						product: [],
-					},
-				);
+                        return {
+                            ...acc,
+                            [ type ]: [
+                                ...acc[ type ],
+                                {
+                                    [ currentKey ]: id,
+                                    count,
+                                    id: orderId,
+                                },
+                            ],
+                        };
+                    },
+                    {
+                        service: [],
+                        product: [],
+                    },
+                );
 
-			return {
-				services,
-				products,
-				price: this.finalPrice,
-			};
-		},
-	},
-	watch: {
-		orderItems(items) {
-			for (let { id, type } of items) {
-				if (type === 'service') {
-					this.costomServicesPrices = {
-						...this.costomServicesPrices,
-						[id]: this.servicesObj[id].price,
-					};
-				}
-				if (type === 'product') {
-					this.costomProductsPrices = {
-						...this.costomProductsPrices,
-						[id]: this.productsObj[id].price,
-					};
-				}
-			}
-		},
-		DEFAULT_ORDER_DATA(defaultData) {
-			if (!defaultData) return;
+            return {
+                services,
+                products,
+                price: this.finalPrice,
+            };
+        },
+    },
+    watch: {
+        orderItems(items)
+        {
+            for (let { id, type } of items)
+            {
+                if (type === 'service')
+                {
+                    this.costomServicesPrices = {
+                        ...this.costomServicesPrices,
+                        [ id ]: this.servicesObj[ id ].price,
+                    };
+                }
+                if (type === 'product')
+                {
+                    this.costomProductsPrices = {
+                        ...this.costomProductsPrices,
+                        [ id ]: this.productsObj[ id ].price,
+                    };
+                }
+            }
+        },
+        DEFAULT_ORDER_DATA(defaultData)
+        {
+            if (!defaultData) return;
 
-			for (let param in defaultData) {
-				this[param] = defaultData[param];
-			}
-		},
-		clientId(id) {
-			this.client = { ...this.CLIENTS.find(el => el.id === id) };
-		},
-	},
-	methods: {
-		...mapActions([
-			'CREATE_ORDER',
-			'SUCCESS_EVENT',
-			'UPDATE_AND_PAY_ORDER',
-			'CREATE_CLIENT',
-		]),
-		...mapMutations(['CLOSE_ORDER_FORM']),
-		onPhoneInput,
-		parsePrice,
-		closeModal() {
-			this.CLOSE_ORDER_FORM();
-		},
-		// },
-		clearFrom() {
-			Object.keys(defaultData).forEach(key => {
-				this[key] = defaultData[key];
-			});
-		},
-		onKeyDown({ keyCode }) {
-			// on Escape press
-			if (keyCode === 27) {
-				this.closeModal();
-			}
-		},
-		setBasket({ id, type }) {
-			try {
-				if (!id || !type) throw false;
+            const { orderItems, clientId, masterId, eventId } = defaultData;
 
-				this.search = '-';
-				const idx = this.orderItems.findIndex(
-					el => el.id === id && el.type === type,
-				);
+            this.orderItems = orderItems;
+            this.clientId = clientId;
+            this.masterId = masterId;
+            this.eventId = eventId;
+        },
+        clientId(id)
+        {
+            this.client = { ...this.CLIENTS.find(el => el.id === id) };
+        },
+    },
+    methods: {
+        ...mapActions([
+            'CREATE_ORDER',
+            'SUCCESS_EVENT',
+            'UPDATE_AND_PAY_ORDER',
+            'CREATE_CLIENT',
+        ]),
+        ...mapMutations([ 'CLOSE_ORDER_FORM' ]),
+        onPhoneInput,
+        parsePrice,
+        closeModal()
+        {
+            this.CLOSE_ORDER_FORM();
+        },
+        // },
+        clearFrom()
+        {
+            Object.keys(defaultData).forEach(key =>
+            {
+                this[ key ] = defaultData[ key ];
+            });
+        },
+        onKeyDown({ keyCode })
+        {
+            // on Escape press
+            if (keyCode === 27)
+            {
+                this.closeModal();
+            }
+        },
+        setBasket({ id, type })
+        {
+            try
+            {
+                if (!id || !type) throw false;
 
-				if (type === 'service') {
-					if (idx !== -1) {
-						this.orderItems[idx].count += 1;
-						throw false;
-					}
-					this.orderItems.push({ type: 'service', id, count: 1 });
-					// this.costomServicesPrices = {
-					// 	...this.costomServicesPrices,
-					// 	[id]: this.servicesObj[id].price,
-					// };
-				}
+                this.search = '-';
+                const idx = this.orderItems.findIndex(
+                    el => el.id === id && el.type === type,
+                );
 
-				if (type === 'product') {
-					if (idx !== -1) {
-						this.orderItems[idx].count += 1;
-						throw false;
-					}
-					this.orderItems.push({ type: 'product', id, count: 1 });
-					// this.costomProductsPrices = {
-					// 	...this.costomProductsPrices,
-					// 	[id]: this.productsObj[id].price,
-					// };
-				}
+                if (type === 'service')
+                {
+                    if (idx !== -1)
+                    {
+                        this.orderItems[ idx ].count += 1;
+                        throw false;
+                    }
+                    this.orderItems.push({ type: 'service', id, count: 1 });
+                    // this.costomServicesPrices = {
+                    // 	...this.costomServicesPrices,
+                    // 	[id]: this.servicesObj[id].price,
+                    // };
+                }
 
-				throw false;
-			} catch (e) {
-				setTimeout(() => (this.search = ''), 0);
-			}
-		},
-		async createOrder({ isSuccess = true, isReserved = false }) {
-			if (!confirm('Продолжить?')) return;
+                if (type === 'product')
+                {
+                    if (idx !== -1)
+                    {
+                        this.orderItems[ idx ].count += 1;
+                        throw false;
+                    }
+                    this.orderItems.push({ type: 'product', id, count: 1 });
+                    // this.costomProductsPrices = {
+                    // 	...this.costomProductsPrices,
+                    // 	[id]: this.productsObj[id].price,
+                    // };
+                }
 
-			const { data } = await this.CREATE_ORDER({
-				...this.form,
-				clientId: this.clientId,
-				masterId: this.masterId,
-				isSuccess: isSuccess,
-				isReserved: isReserved,
-			});
+                throw false;
+            } catch (e)
+            {
+                setTimeout(() => (this.search = ''), 0);
+            }
+        },
+        async createOrder({ isSuccess = true, isReserved = false })
+        {
+            if (!confirm('Продолжить?')) return;
 
-			if (data && this.eventId) {
-				await this.SUCCESS_EVENT(this.eventId);
-			}
+            const { data } = await this.CREATE_ORDER({
+                ...this.form,
+                clientId: this.clientId,
+                masterId: this.masterId,
+                isSuccess: isSuccess,
+                isReserved: isReserved,
+            });
 
-			this.clearFrom();
-			this.closeModal();
-		},
-		async pyForOrder() {
-			if (!confirm('Продолжить?')) return;
+            if (data && this.eventId)
+            {
+                await this.SUCCESS_EVENT(this.eventId);
+            }
 
-			const { data } = await this.UPDATE_AND_PAY_ORDER({
-				id: this.orderId,
-				orderData: {
-					...this.form,
-					clientId: this.clientId,
-					masterId: this.masterId,
-				},
-			});
+            this.clearFrom();
+            this.closeModal();
+        },
+        async pyForOrder()
+        {
+            if (!confirm('Продолжить?')) return;
 
-			this.clearFrom();
-			this.closeModal();
-		},
-		reserveOrder() {
-			this.createOrder({ isSuccess: false, isReserved: true });
-		},
-		increment({ id, type }) {
-			const idx = this.orderItems.findIndex(
-				el => el.id === id && el.type === type,
-			);
-			if (type === 'service') {
-				return this.orderItems[idx].count++;
-			}
+            const { data } = await this.UPDATE_AND_PAY_ORDER({
+                id: this.orderId,
+                orderData: {
+                    ...this.form,
+                    clientId: this.clientId,
+                    masterId: this.masterId,
+                },
+            });
 
-			const product = this.productsObj[this.orderItems[idx].id];
+            this.clearFrom();
+            this.closeModal();
+        },
+        reserveOrder()
+        {
+            this.createOrder({ isSuccess: false, isReserved: true });
+        },
+        increment({ id, type })
+        {
+            const idx = this.orderItems.findIndex(
+                el => el.id === id && el.type === type,
+            );
+            if (type === 'service')
+            {
+                return this.orderItems[ idx ].count++;
+            }
 
-			if (product.count > this.orderItems[idx].count) {
-				this.orderItems[idx].count++;
-			}
-		},
-		decrement({ id, type }) {
-			const idx = this.orderItems.findIndex(
-				el => el.id === id && el.type === type,
-			);
+            const product = this.productsObj[ this.orderItems[ idx ].id ];
 
-			if (this.orderItems[idx].count === 1) {
-				if (confirm('Удалить?')) {
-					this.orderItems = this.orderItems.filter(
-						(_, i) => i !== idx,
-					);
-				}
+            if (product.count > this.orderItems[ idx ].count)
+            {
+                this.orderItems[ idx ].count++;
+            }
+        },
+        decrement({ id, type })
+        {
+            const idx = this.orderItems.findIndex(
+                el => el.id === id && el.type === type,
+            );
 
-				return;
-			}
+            if (this.orderItems[ idx ].count === 1)
+            {
+                if (confirm('Удалить?'))
+                {
+                    this.orderItems = this.orderItems.filter(
+                        (_, i) => i !== idx,
+                    );
+                }
 
-			this.orderItems[idx].count--;
-		},
-		clearAll() {
-			if (confirm('Очистить карзину?')) {
-				this.clearFrom();
-			}
-		},
-		toggleChecked({ id, type }) {
-			const isItem = el => el.id === id && el.type === type;
+                return;
+            }
 
-			const idx = this.checkedItems.findIndex(el => isItem(el));
+            this.orderItems[ idx ].count--;
+        },
+        clearAll()
+        {
+            if (confirm('Очистить карзину?'))
+            {
+                this.clearFrom();
+            }
+        },
+        toggleChecked({ id, type })
+        {
+            const isItem = el => el.id === id && el.type === type;
 
-			if (idx === -1) {
-				this.checkedItems = [...this.checkedItems, { id, type }];
-				return;
-			}
+            const idx = this.checkedItems.findIndex(el => isItem(el));
 
-			this.checkedItems = this.checkedItems.filter(el => !isItem(el));
-		},
-		removeSelected() {
-			this.orderItems = this.orderItems.filter(
-				({ id, type }) =>
-					!this.checkedItems.find(
-						el => el.id === id && el.type === type,
-					),
-			);
-			this.checkedItems = [];
-		},
-		checkCheckedId({ id, type }) {
-			return !!this.checkedItems.find(
-				el => el.id === id && el.type === type,
-			);
-		},
-		cancelClientCreation() {
-			this.client = { ...defaultClient };
-		},
-		async createClient() {
-			const { username, lastname, phone } = this.client;
+            if (idx === -1)
+            {
+                this.checkedItems = [ ...this.checkedItems, { id, type } ];
+                return;
+            }
 
-			const {
-				data: { client },
-			} = await this.CREATE_CLIENT({
-				username: username?.trim(),
-				lastname: lastname?.trim() || '',
-				phone: phone?.trim() || '',
-				comment: '',
-				animal: '',
-			});
+            this.checkedItems = this.checkedItems.filter(el => !isItem(el));
+        },
+        removeSelected()
+        {
+            this.orderItems = this.orderItems.filter(
+                ({ id, type }) =>
+                    !this.checkedItems.find(
+                        el => el.id === id && el.type === type,
+                    ),
+            );
+            this.checkedItems = [];
+        },
+        checkCheckedId({ id, type })
+        {
+            return !!this.checkedItems.find(
+                el => el.id === id && el.type === type,
+            );
+        },
+        cancelClientCreation()
+        {
+            this.client = { ...defaultClient };
+        },
+        async createClient()
+        {
+            const { username, lastname, phone } = this.client;
 
-			this.clientId = client.id;
-		},
-	},
+            const {
+                data: { client },
+            } = await this.CREATE_CLIENT({
+                username: username?.trim(),
+                lastname: lastname?.trim() || '',
+                phone: phone?.trim() || '',
+                comment: '',
+                animal: '',
+            });
+
+            this.clientId = client.id;
+        },
+    },
 };
 </script>
 

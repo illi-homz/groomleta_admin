@@ -76,7 +76,7 @@ export default {
 			try {
 				const { createOrder } = await API.order.createOrder(orderData);
 
-				commit('SET_ALL_ORDERS', createOrder.allOrders);
+				// commit('SET_ALL_ORDERS', createOrder.allOrders);
 
 				return { ...successResponse, data: createOrder };
 			} catch (e) {
@@ -88,7 +88,7 @@ export default {
 			try {
 				const { payForOrder } = await API.order.payForOrder(id);
 
-				commit('SET_ALL_ORDERS', payForOrder.allOrders);
+				// commit('SET_ALL_ORDERS', payForOrder.allOrders);
 
 				return { ...successResponse, data: payForOrder };
 			} catch (e) {
@@ -103,7 +103,7 @@ export default {
 					orderData,
 				);
 
-				commit('SET_ALL_ORDERS', updateAndPayOrder.allOrders);
+				// commit('SET_ALL_ORDERS', updateAndPayOrder.allOrders);
 
 				return { ...successResponse, data: updateAndPayOrder };
 			} catch (e) {
@@ -115,7 +115,7 @@ export default {
 			try {
 				const { cancelOrder } = await API.order.cancelOrder(id);
 
-				commit('SET_ALL_ORDERS', cancelOrder.allOrders);
+				// commit('SET_ALL_ORDERS', cancelOrder.allOrders);
 
 				return { ...successResponse, data: cancelOrder };
 			} catch (e) {

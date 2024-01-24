@@ -71,7 +71,7 @@
 import { declOfNum } from '@/services';
 
 export default {
-	name: 'GGroomerServicesTable',
+	name: 'GDetailPageOrdersTable',
 	props: {
 		orders: {
 			type: Array,

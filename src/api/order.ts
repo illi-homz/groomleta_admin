@@ -75,9 +75,6 @@ class Order {
 							order {
 								${orderParams}
 							}
-							allOrders {
-								${orderParams}
-							}
 						}
 					}
 				`,
@@ -97,9 +94,6 @@ class Order {
 							id: ${id}
 						) {
 							order {
-								${orderParams}
-							}
-							allOrders {
 								${orderParams}
 							}
 						}
@@ -126,9 +120,6 @@ class Order {
 							order {
 								${orderParams}
 							}
-							allOrders {
-								${orderParams}
-							}
 						}
 					}
 				`,
@@ -148,9 +139,6 @@ class Order {
 							id: ${id}
 						) {
 							order {
-								${orderParams}
-							}
-							allOrders {
 								${orderParams}
 							}
 						}
