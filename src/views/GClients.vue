@@ -14,6 +14,17 @@
 					filled
 					dense
 				/>
+				<v-text-field
+					v-model="phoneSearch"
+					prepend-inner-icon="mdi-magnify"
+					label="Поиск по номеру"
+					single-line
+					hide-details
+					color="#FFC11C"
+					class="ml-2"
+					filled
+					dense
+				/>
 			</v-col>
 			<v-col class="d-flex">
 				<v-spacer />
@@ -290,6 +301,7 @@ export default {
 		pageCount: 0,
 		itemsPerPage: 15,
 		searchStr: '',
+		phoneSearch: '',
 		search: '',
 		removeDialog: false,
 		headers: [
@@ -317,16 +329,16 @@ export default {
 	}),
 	computed: {
 		currentClients() {
-			return this.clients.filter(
-				el =>
-					el.username
-						.toLowerCase()
-						.includes(this.searchStr.toLowerCase()) ||
-					el.lastname
-						.toLowerCase()
-						.includes(this.searchStr.toLowerCase()) ||
-					el.phone.includes(this.searchStr),
-			);
+			return this.clients.filter(({ username, lastname, phone }) => {
+				const lowerSearchStr = this.searchStr.toLowerCase()
+				const isName = username.toLowerCase().includes(lowerSearchStr)
+				const isLastname = lastname.toLowerCase().includes(lowerSearchStr)
+				const clientNumber = phone.replace(/\D/g, '')
+				const inputedPhone = this.phoneSearch.replace(/\D/g, '')
+				const isPhone = clientNumber.includes(inputedPhone)
+
+				return (isName || isLastname) && isPhone
+			});
 		},
 	},
 	mounted() {
@@ -340,6 +352,7 @@ export default {
 			'REMOVE_CLIENT',
 		]),
 		...mapMutations(['SHOW_ORDER_FORM']),
+		onPhoneInput,
 		declOfNum,
 		async getClients() {
 			const { data } = await this.GET_ALL_CLIENTS();

@@ -50,7 +50,6 @@ export const onPhoneInput = function (v) {
 	} else {
 		formattedInputValue = '+' + inputNumbersValue.substring(0, 16);
 	}
-	console.log('formattedInputValue', formattedInputValue)
 	
 	return formattedInputValue;
 };
