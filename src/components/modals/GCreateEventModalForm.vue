@@ -132,12 +132,14 @@
 							<v-autocomplete
 								v-model="groommer"
 								:items="
-									groomersList?.map((el, idx) => {
-										return {
-											text: `${el.username} ${el.lastname}`,
-											value: el.id,
-										};
-									})
+									groomersList?.filter(({ isActive }) => {
+											return isActive
+										})?.map((el, idx) => {
+											return {
+												text: `${el.username} ${el.lastname}`,
+												value: el.id,
+											};
+										})
 								"
 								color="#FFC11C"
 								item-color="#FFC11C"

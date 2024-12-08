@@ -250,8 +250,9 @@ export default {
 			return this.GROOMERS.map(createMasterCategory);
 		},
 		grummersList() {
-			const list = this.GROOMERS.map(
-				({ id, username, lastname }: any) => ({
+			const list = this.GROOMERS.filter(({ isActive }) => {
+				return isActive
+				}).map(({ id, username, lastname }: any) => ({
 					text: `${username} ${lastname}`,
 					value: id,
 				}),

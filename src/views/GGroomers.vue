@@ -124,7 +124,9 @@ export default {
 	computed: {
 		...mapGetters(['GROOMERS']),
 		currentGroomersList() {
-			return this.GROOMERS.filter(
+			return this.GROOMERS.filter(({ isActive }) => {
+				return isActive
+			}).filter(
 				el =>
 					el.username
 						.toLowerCase()

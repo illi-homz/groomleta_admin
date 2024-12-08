@@ -24,10 +24,13 @@
 							<v-autocomplete
 								v-model="masterId"
 								:items="
-									GROOMERS.map(el => ({
-										text: `${el.username} ${el.lastname}`,
-										value: el.id,
-									}))
+									GROOMERS
+										.filter(({ isActive }) => {
+											return isActive
+										}).map(el => ({
+											text: `${el.username} ${el.lastname}`,
+											value: el.id,
+										}))
 								"
 								color="rgba(36, 49, 56, 0.38)"
 								item-color="rgb(36, 49, 56)"

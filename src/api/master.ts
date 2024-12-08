@@ -22,6 +22,7 @@ class Master {
 							createDate
 							address
 							rate
+							isActive
 						}
 					}
 				`,
