@@ -176,7 +176,7 @@
 						:selected-event="selectedEvent"
 						:selected-element="selectedElement"
 						:services-list="SERVICES"
-						:groomers-list="GROOMERS"
+						:groomers-list="activeGrummers"
 						:clients-list="CLIENTS"
 						@setEvent="setEvent"
 						@saveEvent="saveEvent"
@@ -192,7 +192,7 @@
 			:current-date="currentDate"
 			:current-time="currentTime"
 			:services-list="SERVICES"
-			:groomers-list="GROOMERS"
+			:groomers-list="activeGrummers"
 			:clients-list="CLIENTS"
 			@onModalClose="isModalFromShow = false"
 			@onSubmitEvent="createEvent"
@@ -246,13 +246,14 @@ export default {
 	}),
 	computed: {
 		...mapGetters(['SERVICES', 'GROOMERS', 'EVENTS', 'CLIENTS']),
+		activeGrummers() {
+			return this.GROOMERS.filter(({ isActive }) => isActive)
+		},
 		categories() {
-			return this.GROOMERS.map(createMasterCategory);
+			return this.activeGrummers.map(createMasterCategory);
 		},
 		grummersList() {
-			const list = this.GROOMERS.filter(({ isActive }) => {
-				return isActive
-				}).map(({ id, username, lastname }: any) => ({
+			const list = this.activeGrummers.map(({ id, username, lastname }: any) => ({
 					text: `${username} ${lastname}`,
 					value: id,
 				}),
