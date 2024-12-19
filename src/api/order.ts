@@ -207,4 +207,5 @@ const orderDataCreator = (orderData: any) => `
 	price: ${orderData.price}
 	isSuccess: ${orderData.isSuccess || false}
 	isReserved: ${orderData.isReserved || false}
+	isSmsSend: ${orderData.isSmsSend || false}
 `;

@@ -286,7 +286,7 @@
 					</v-row>
 				</v-container>
 			</v-card-text>
-			<v-card-actions class="pb-8 px-8">
+			<v-card-actions class="px-8">
 				<v-spacer />
 				<div class="mr-5">
 					<b class="mr-2">Итого:</b>
@@ -327,6 +327,16 @@
 				>
 					Оплатить
 				</v-btn>
+			</v-card-actions>
+			<v-card-actions class="pb-8 px-8 d-flex align-center">
+				<v-spacer />
+				Смс со ссылкой на отзыв
+				<v-checkbox
+					v-model="isSmsSend"
+					color="#FFC11C"
+					class="ml-2"
+					:disabled="!isFormValid"
+				/>
 			</v-card-actions>
 		</v-card>
 	</v-dialog>
@@ -380,6 +390,7 @@ export default {
             { text: 'Сумма ₽, шт', value: 'price', width: 130 },
             { text: 'Всего ₽', value: 'finalPrice', width: 130 },
         ],
+		isSmsSend: false,
     }),
     computed: {
         ...mapGetters([
@@ -601,6 +612,7 @@ export default {
                 masterId: this.masterId,
                 isSuccess: isSuccess,
                 isReserved: isReserved,
+				isSmsSend: this.isSmsSend,
             });
 
             if (data && this.eventId)
